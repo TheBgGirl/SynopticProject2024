@@ -1,6 +1,8 @@
 package com.wales.farmsimulator
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -15,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -27,6 +30,7 @@ import com.wales.farmsimulator.ui.theme.FarmSimulatorTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             FarmSimulatorTheme{
                 val navController = rememberNavController()
@@ -40,6 +44,8 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun LandingPage(navController: NavController) {
+    val context = LocalContext.current
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -63,10 +69,13 @@ fun LandingPage(navController: NavController) {
         )
         Spacer(modifier = Modifier.height(16.dp))
         Button(
-            onClick = { navController.navigate("form") },
+            onClick = {
+                        val intent = Intent(context, OpenGLActivity::class.java)
+                        context.startActivity(intent)
+                      },
             modifier = Modifier.testTag("navigateButton")
         ) {
-            Text("Go to Form")
+            Text("Go to Simulation")
         }
     }
 }
