@@ -1,5 +1,5 @@
 import android.opengl.GLES20
-import com.example.prototype1.Shader
+import com.wales.farmsimulator.Shader
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
@@ -15,7 +15,9 @@ var triangleCoords = floatArrayOf(     // in counterclockwise order:
 class Triangle {
 
     // Set color with red, green, blue and alpha (opacity) values
-    val color = floatArrayOf(0.63671875f, 0.76953125f, 0.22265625f, 1.0f)
+    val color = floatArrayOf(1.0f, 0.0f, 0.0f, 1.0f)
+
+    val position = floatArrayOf(0.0f,0.0f,0.0f)
 
     private var vertexBuffer: FloatBuffer =
         // (number of coordinate values * 4 bytes per float)

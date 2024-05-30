@@ -1,14 +1,9 @@
-package com.example.prototype1
+package com.wales.farmsimulator
 
 import android.opengl.GLES20
 
-class Shader// add the vertex shader to program
-
-// add the fragment shader to program
-
-// creates OpenGL ES program executables
-// create empty OpenGL ES Program
-    (vertexShaderCode: String, fragmentShaderCode: String) {
+class Shader(vertexShaderCode: String, fragmentShaderCode: String)
+{
 
     private var ID: Int = 0
 
@@ -46,7 +41,7 @@ class Shader// add the vertex shader to program
     }
     fun getID() : Int
     {
-        return this.ID
+        return ID
     }
 
     fun setMat4(name:String,value:FloatArray)

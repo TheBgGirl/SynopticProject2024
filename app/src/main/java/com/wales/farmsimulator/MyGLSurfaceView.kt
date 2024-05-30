@@ -2,7 +2,6 @@ package com.wales.farmsimulator
 
 import android.content.Context
 import android.opengl.GLSurfaceView
-import com.example.prototype1.MyGLRenderer
 
 class MyGLSurfaceView(context: Context) : GLSurfaceView(context)
 {
@@ -18,5 +17,10 @@ class MyGLSurfaceView(context: Context) : GLSurfaceView(context)
 
         // Set the Renderer for drawing on the GLSurfaceView
         setRenderer(renderer)
+    }
+
+    fun getRender() : MyGLRenderer
+    {
+        return renderer
     }
 }

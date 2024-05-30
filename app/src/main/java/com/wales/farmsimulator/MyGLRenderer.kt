@@ -1,4 +1,4 @@
-package com.example.prototype1
+package com.wales.farmsimulator
 
 import Triangle
 import javax.microedition.khronos.egl.EGLConfig
@@ -7,12 +7,17 @@ import javax.microedition.khronos.opengles.GL10
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
+import com.wales.farmsimulator.Shader
 
 class MyGLRenderer : GLSurfaceView.Renderer
 {
     private val vPMatrix = FloatArray(16)
     private val projectionMatrix = FloatArray(16)
     private val viewMatrix = FloatArray(16)
+    private val rotMatrix = FloatArray(16)
+    private val MVPMatrix = FloatArray(16)
+
+    private var m = 0;
 
     private lateinit var triangle: Triangle
     private lateinit var shader : Shader
@@ -55,10 +60,18 @@ class MyGLRenderer : GLSurfaceView.Renderer
         shader.use()
         // Set the camera position (View matrix)
         Matrix.setLookAtM(viewMatrix, 0, 0f, 0f, 3f, 0f, 0f, 0f, 0f, 1.0f, 0.0f)
-
         // Calculate the projection and view transformation
         Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
-        shader.setMat4("uMVPMatrix",vPMatrix)
+
+        Matrix.setIdentityM(rotMatrix,0)
+        Matrix.translateM(rotMatrix,
+            0, triangle.position[0], triangle.position[1],triangle.position[2])
+
+        Matrix.multiplyMM(MVPMatrix, 0, vPMatrix, 0, rotMatrix, 0)
+
+        shader.setMat4("uMVPMatrix",MVPMatrix)
+
+        print("awdawdawd")
         triangle.draw(shader)
 
     }
@@ -70,5 +83,16 @@ class MyGLRenderer : GLSurfaceView.Renderer
         // this projection matrix is applied to object coordinates
         // in the onDrawFrame() method
         Matrix.frustumM(projectionMatrix, 0, -ratio, ratio, -1f, 1f, 3f, 7f)
+    }
+
+    fun onSingleTap()
+    {
+        m++
+    }
+
+    fun move(dx : Float , dy : Float)
+    {
+        triangle.position[0] -= dx/1000
+        triangle.position[1] += dy/1000
     }
 }
