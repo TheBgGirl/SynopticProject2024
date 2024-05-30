@@ -20,7 +20,6 @@ class MyGLRenderer : GLSurfaceView.Renderer
 
     private var choose: Float = 0f
 
-
     private var m = 0
 
     private lateinit var triangle: Triangle
@@ -87,7 +86,8 @@ class MyGLRenderer : GLSurfaceView.Renderer
 
         // this projection matrix is applied to object coordinates
         // in the onDrawFrame() method
-        Matrix.orthoM(projectionMatrix, 0, -width.toFloat(), width.toFloat(), -height.toFloat(), height.toFloat(), 3f, 7f)
+        Matrix.orthoM(projectionMatrix, 0, -width.toFloat(), width.toFloat(),
+            -height.toFloat(), height.toFloat(), 3f, 7f)
     }
 
     fun onSingleTap()
