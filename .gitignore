@@ -1,3 +1,5 @@
 /local.properties
 /.gradle/8.6/dependencies-accessors/
-/.gradle/
+/.gradle/8.6/executionHistory/
+/.gradle/8.6/fileHashes/
+/.gradle/buildOutputCleanup/
