@@ -16,15 +16,12 @@ class MyGLRenderer : GLSurfaceView.Renderer
     private val model = FloatArray(16)
     private val MVPMatrix = FloatArray(16)
 
+    private var moveSpeed : Float = 2.0f
 
-    private var moveSpeed : Float = 1.0f
-
-    private var width : Float = 0.0f
-
-    private var height : Float = 0.0f
+    private var choose: Float = 0f
 
 
-    private var m = 0;
+    private var m = 0
 
     private lateinit var triangle: Triangle
     private lateinit var shader : Shader
@@ -71,6 +68,8 @@ class MyGLRenderer : GLSurfaceView.Renderer
         Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
 
         Matrix.setIdentityM(model,0)
+        Matrix.scaleM(model,
+            0, 1000f, 1000f,1000f)
         Matrix.translateM(model,
             0, triangle.position[0], triangle.position[1],triangle.position[2])
 
@@ -82,13 +81,13 @@ class MyGLRenderer : GLSurfaceView.Renderer
     }
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
         GLES20.glViewport(0, 0, width, height)
-        this.width = width.toFloat()
-        this.height = height.toFloat()
-        val ratio:Float = width.toFloat() / height.toFloat()
+        //val ratio : Float = width.toFloat() / height.toFloat()
+        choose = fun():Float{
+            return if(width.toFloat() > height.toFloat()){width.toFloat()}else{height.toFloat()}}()
 
         // this projection matrix is applied to object coordinates
         // in the onDrawFrame() method
-        Matrix.frustumM(projectionMatrix, 0, -ratio, ratio, -1f, 1f, 3f, 7f)
+        Matrix.orthoM(projectionMatrix, 0, -width.toFloat(), width.toFloat(), -height.toFloat(), height.toFloat(), 3f, 7f)
     }
 
     fun onSingleTap()
@@ -98,7 +97,8 @@ class MyGLRenderer : GLSurfaceView.Renderer
 
     fun move(dx : Float , dy : Float)
     {
-        triangle.position[0] -= (moveSpeed) * dx/width
-        triangle.position[1] += (moveSpeed) * dy/height
+
+        triangle.position[0] -= (moveSpeed) * dx/choose
+        triangle.position[1] += (moveSpeed) * dy/choose
     }
 }
