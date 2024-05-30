@@ -20,5 +20,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "FarmSimulator"
-include(":app")
+include(":Farmsimulator", ":app" , ":main")
  

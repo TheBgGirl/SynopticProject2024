@@ -1,6 +1,5 @@
 import android.opengl.GLES20
-import android.opengl.GLSurfaceView
-import com.wales.farmsimulator.MyGLRenderer
+import com.example.prototype1.Shader
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
@@ -14,19 +13,6 @@ var triangleCoords = floatArrayOf(     // in counterclockwise order:
 )
 
 class Triangle {
-
-    private val vertexShaderCode =
-        "attribute vec4 vPosition;" +
-                "void main() {" +
-                "  gl_Position = vPosition;" +
-                "}"
-
-    private val fragmentShaderCode =
-        "precision mediump float;" +
-                "uniform vec4 vColor;" +
-                "void main() {" +
-                "  gl_FragColor = vColor;" +
-                "}"
 
     // Set color with red, green, blue and alpha (opacity) values
     val color = floatArrayOf(0.63671875f, 0.76953125f, 0.22265625f, 1.0f)
@@ -46,39 +32,15 @@ class Triangle {
             }
         }
 
-    private var mProgram: Int
-
-    init
-    {
-        val vertexShader: Int = MyGLRenderer.loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode)
-        val fragmentShader: Int = MyGLRenderer.loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode)
-
-        // create empty OpenGL ES Program
-        mProgram = GLES20.glCreateProgram().also {
-
-            // add the vertex shader to program
-            GLES20.glAttachShader(it, vertexShader)
-
-            // add the fragment shader to program
-            GLES20.glAttachShader(it, fragmentShader)
-
-            // creates OpenGL ES program executables
-            GLES20.glLinkProgram(it)
-        }
-    }
-
     private var positionHandle: Int = 0
     private var mColorHandle: Int = 0
 
     private val vertexCount: Int = triangleCoords.size / COORDS_PER_VERTEX
     private val vertexStride: Int = COORDS_PER_VERTEX * 4 // 4 bytes per vertex
 
-    fun draw() {
-        // Add program to OpenGL ES environment
-        GLES20.glUseProgram(mProgram)
-
+    fun draw(shader : Shader) {
         // get handle to vertex shader's vPosition member
-        positionHandle = GLES20.glGetAttribLocation(mProgram, "vPosition").also {
+        positionHandle = GLES20.glGetAttribLocation(shader.getID(), "vPosition").also {
 
             // Enable a handle to the triangle vertices
             GLES20.glEnableVertexAttribArray(it)
@@ -92,20 +54,18 @@ class Triangle {
                 vertexStride,
                 vertexBuffer
             )
-
-            // get handle to fragment shader's vColor member
-            mColorHandle = GLES20.glGetUniformLocation(mProgram, "vColor").also { colorHandle ->
+        }
+        // get handle to fragment shader's vColor member
+        mColorHandle =
+            GLES20.glGetUniformLocation(shader.getID(), "vColor").also { colorHandle ->
 
                 // Set color for drawing the triangle
                 GLES20.glUniform4fv(colorHandle, 1, color, 0)
             }
 
-            // Draw the triangle
-            GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertexCount)
-
-            // Disable vertex array
-            GLES20.glDisableVertexAttribArray(it)
-        }
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertexCount)
+        // Disable vertex array
+        GLES20.glDisableVertexAttribArray(positionHandle)
     }
 
 }
