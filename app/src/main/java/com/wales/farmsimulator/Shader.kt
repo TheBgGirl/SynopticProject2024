@@ -1,4 +1,4 @@
-package com.example.prototype1
+package com.wales.farmsimulator
 
 import android.opengl.GLES20
 

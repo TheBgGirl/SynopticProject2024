@@ -2,7 +2,7 @@ package com.wales.farmsimulator
 
 import android.content.Context
 import android.opengl.GLSurfaceView
-import com.example.prototype1.MyGLRenderer
+import com.wales.farmsimulator.MyGLRenderer
 
 class MyGLSurfaceView(context: Context) : GLSurfaceView(context)
 {

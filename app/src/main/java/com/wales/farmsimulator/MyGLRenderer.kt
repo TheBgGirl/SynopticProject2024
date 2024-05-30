@@ -1,4 +1,4 @@
-package com.example.prototype1
+package com.wales.farmsimulator
 
 import Triangle
 import javax.microedition.khronos.egl.EGLConfig
