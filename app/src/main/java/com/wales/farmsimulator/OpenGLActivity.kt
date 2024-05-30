@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
-import androidx.core.view.GestureDetectorCompat
 
 private const val DEBUG_TAG = "Gestures"
 

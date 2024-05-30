@@ -7,15 +7,22 @@ import javax.microedition.khronos.opengles.GL10
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
-import com.wales.farmsimulator.Shader
 
 class MyGLRenderer : GLSurfaceView.Renderer
 {
     private val vPMatrix = FloatArray(16)
     private val projectionMatrix = FloatArray(16)
     private val viewMatrix = FloatArray(16)
-    private val rotMatrix = FloatArray(16)
+    private val model = FloatArray(16)
     private val MVPMatrix = FloatArray(16)
+
+
+    private var moveSpeed : Float = 1.0f
+
+    private var width : Float = 0.0f
+
+    private var height : Float = 0.0f
+
 
     private var m = 0;
 
@@ -63,22 +70,21 @@ class MyGLRenderer : GLSurfaceView.Renderer
         // Calculate the projection and view transformation
         Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
 
-        Matrix.setIdentityM(rotMatrix,0)
-        Matrix.translateM(rotMatrix,
+        Matrix.setIdentityM(model,0)
+        Matrix.translateM(model,
             0, triangle.position[0], triangle.position[1],triangle.position[2])
 
-        Matrix.multiplyMM(MVPMatrix, 0, vPMatrix, 0, rotMatrix, 0)
+        Matrix.multiplyMM(MVPMatrix, 0, vPMatrix, 0, model, 0)
 
         shader.setMat4("uMVPMatrix",MVPMatrix)
-
-        print("awdawdawd")
         triangle.draw(shader)
 
     }
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
         GLES20.glViewport(0, 0, width, height)
-
-        val ratio: Float = width.toFloat() / height.toFloat()
+        this.width = width.toFloat()
+        this.height = height.toFloat()
+        val ratio:Float = width.toFloat() / height.toFloat()
 
         // this projection matrix is applied to object coordinates
         // in the onDrawFrame() method
@@ -92,7 +98,7 @@ class MyGLRenderer : GLSurfaceView.Renderer
 
     fun move(dx : Float , dy : Float)
     {
-        triangle.position[0] -= dx/1000
-        triangle.position[1] += dy/1000
+        triangle.position[0] -= (moveSpeed) * dx/width
+        triangle.position[1] += (moveSpeed) * dy/height
     }
 }
