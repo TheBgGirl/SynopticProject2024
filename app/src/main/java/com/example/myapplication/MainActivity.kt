@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -33,6 +34,9 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapType
+import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
 
 class MainActivity : ComponentActivity() {
@@ -187,6 +191,11 @@ fun RequestLocationPermission(
 @Composable
 fun MyMap(latLng: LatLng, modifier: Modifier = Modifier) {
     var isMapLoaded by remember { mutableStateOf(false) }
+    var zoom by remember { mutableFloatStateOf(15f) }
+    var uiSettings by remember { mutableStateOf(MapUiSettings()) }
+    var properties by remember { mutableStateOf(MapProperties(
+        mapType = MapType.SATELLITE
+    )) }
 
     Box(modifier = modifier) {
         if (isMapLoaded) {
@@ -203,8 +212,10 @@ fun MyMap(latLng: LatLng, modifier: Modifier = Modifier) {
                         isMapLoaded = true
                     },
                     cameraPositionState = rememberCameraPositionState {
-                        position = CameraPosition.fromLatLngZoom(latLng, 15f)
+                        position = CameraPosition.fromLatLngZoom(latLng, zoom)
                     },
+                    uiSettings = uiSettings,
+                    properties = properties
                 )
 
                 Button(
