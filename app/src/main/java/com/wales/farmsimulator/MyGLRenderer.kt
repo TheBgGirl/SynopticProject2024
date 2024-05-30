@@ -81,9 +81,8 @@ class MyGLRenderer : GLSurfaceView.Renderer
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
         GLES20.glViewport(0, 0, width, height)
         //val ratio : Float = width.toFloat() / height.toFloat()
-        choose = fun():Float{
-            return if(width.toFloat() > height.toFloat()){width.toFloat()}else{height.toFloat()}}()
-
+        choose = when(width.toFloat() > height.toFloat())
+        {true->width.toFloat()false->height.toFloat()}
         // this projection matrix is applied to object coordinates
         // in the onDrawFrame() method
         Matrix.orthoM(projectionMatrix, 0, -width.toFloat(), width.toFloat(),
@@ -97,7 +96,6 @@ class MyGLRenderer : GLSurfaceView.Renderer
 
     fun move(dx : Float , dy : Float)
     {
-
         triangle.position[0] -= (moveSpeed) * dx/choose
         triangle.position[1] += (moveSpeed) * dy/choose
     }
