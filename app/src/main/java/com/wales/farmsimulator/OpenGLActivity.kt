@@ -43,7 +43,8 @@ class OpenGLActivity : ComponentActivity()
                 distanceX: Float,
                 distanceY: Float
             ): Boolean {
-                gLView.getRender().move(distanceX,distanceY)
+//                gLView.getRender().move(distanceX,distanceY)
+                gLView.getRender().moveCamera(distanceX, distanceY)
                 return true
             }
 

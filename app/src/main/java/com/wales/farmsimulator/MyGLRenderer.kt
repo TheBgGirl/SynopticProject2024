@@ -12,14 +12,15 @@ class MyGLRenderer : GLSurfaceView.Renderer
 {
     private val vPMatrix = FloatArray(16)
     private val projectionMatrix = FloatArray(16)
-    private val viewMatrix = FloatArray(16)
+//    private val viewMatrix = FloatArray(16)
     private val model = FloatArray(16)
     private val MVPMatrix = FloatArray(16)
+
+    private val camera = Camera()
 
     private var moveSpeed : Float = 2.0f
 
     private var choose: Float = 0f
-
 
     private var m = 0
 
@@ -46,6 +47,10 @@ class MyGLRenderer : GLSurfaceView.Renderer
                 "  gl_FragColor = vColor;" +
                 "}"
 
+    init {
+        camera.setPosition(0f, 0f, 3f)
+        camera.lookAt(0f, 0f, 0f)
+    }
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig)
     {
@@ -62,16 +67,20 @@ class MyGLRenderer : GLSurfaceView.Renderer
         // Redraw background color
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
         shader.use()
-        // Set the camera position (View matrix)
-        Matrix.setLookAtM(viewMatrix, 0, 0f, 0f, 3f, 0f, 0f, 0f, 0f, 1.0f, 0.0f)
-        // Calculate the projection and view transformation
+
+//        // Set the camera position (View matrix)
+//        Matrix.setLookAtM(viewMatrix, 0, 0f, 0f, 3f, 0f, 0f, 0f, 0f, 1.0f, 0.0f)
+//        // Calculate the projection and view transformation
+//        Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
+
+        // Camera
+        val viewMatrix = camera.getViewMatrix()
         Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
 
+
         Matrix.setIdentityM(model,0)
-        Matrix.scaleM(model,
-            0, 1000f, 1000f,1000f)
-        Matrix.translateM(model,
-            0, triangle.position[0], triangle.position[1],triangle.position[2])
+        Matrix.scaleM(model, 0, 1000f, 1000f,1000f)
+        Matrix.translateM(model, 0, triangle.position[0], triangle.position[1],triangle.position[2])
 
         Matrix.multiplyMM(MVPMatrix, 0, vPMatrix, 0, model, 0)
 
@@ -95,10 +104,13 @@ class MyGLRenderer : GLSurfaceView.Renderer
         m++
     }
 
-    fun move(dx : Float , dy : Float)
+    fun move(dx : Float, dy : Float)
     {
-
         triangle.position[0] -= (moveSpeed) * dx/choose
         triangle.position[1] += (moveSpeed) * dy/choose
+    }
+
+    fun moveCamera(dx : Float, dy : Float){
+        camera.move(dx/choose, dy/choose, 0f)
     }
 }
