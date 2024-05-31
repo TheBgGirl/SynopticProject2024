@@ -145,7 +145,10 @@ fun getCurrentLocation(
     }
 }
 
-fun areLocationPermissionsGranted(fusedLocationClient: FusedLocationProviderClient, context: Context): Boolean {
+fun areLocationPermissionsGranted(
+    fusedLocationClient: FusedLocationProviderClient,
+    context: Context
+): Boolean {
     return (ActivityCompat.checkSelfPermission(
         context, android.Manifest.permission.ACCESS_FINE_LOCATION
     ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
@@ -256,24 +259,30 @@ fun DetailsScreen() {
     val (heightError, setHeightError) = remember { mutableStateOf<String?>(null) }
     val (widthError, setWidthError) = remember { mutableStateOf<String?>(null) }
     val (location, setLocation) = remember { mutableStateOf("") }
-    var latLng = LatLng(0.0, 0.0)
+    var show by remember {
+        mutableStateOf(false)
+    }
+    var latLng by remember {
+        mutableStateOf<LatLng?>(null)
+    }
 
-    // use other func
-    val locationPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-        onResult = { isGranted ->
-            if (isGranted) {
-                locationClient.lastLocation.addOnSuccessListener { loc ->
-                    loc?.let {
-                        setLocation("Latitude: ${loc.latitude}, Longitude: ${loc.longitude}")
-                        latLng = LatLng(loc.latitude, loc.longitude)
-                    } ?: setLocation("Location not available")
-                }.addOnFailureListener {
+    RequestLocationPermission(
+        onPermissionGranted = {
+            getCurrentLocation(
+                context = context, fusedLocationClient = locationClient,
+                onGetCurrentLocationSuccess = {
+                    latLng = it
+                    setLocation("Latitude: ${latLng!!.latitude}, Longitude: ${latLng!!.longitude}")
+                },
+                onGetCurrentLocationFailed = {
                     setLocation("Failed to get location")
-                }
-            } else {
-                setLocation("Permission Denied")
-            }
+                })
+        },
+        onPermissionDenied = {
+            setLocation("Failed to get location")
+        },
+        onPermissionsRevoked = {
+            setLocation("Failed to get location")
         }
     )
 
@@ -318,7 +327,7 @@ fun DetailsScreen() {
         Button(
             onClick = {
                 if (!validateInput(height, setHeightError, width, setWidthError)) {
-                    locationPermissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
+                    show = true
                 }
             },
             modifier = Modifier
@@ -331,10 +340,12 @@ fun DetailsScreen() {
             )
         }
 
-        if (location.isNotEmpty()) {
-            Text(location, style = MaterialTheme.typography.bodyMedium)
+        if (show) {
+            Text(text = location, style = MaterialTheme.typography.bodyMedium)
 
-            MyMap(latLng = latLng)
+            latLng?.let {
+                MyMap(latLng = it)
+            }
         }
     }
 }
@@ -374,19 +385,19 @@ fun MyMap(latLng: LatLng, modifier: Modifier = Modifier) {
     }
 
     Box(modifier = modifier) {
-            GoogleMap(
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .padding(16.dp)
-                    .size(300.dp),
-                onMapLoaded = {
-                    isMapLoaded = true
-                },
-                cameraPositionState = rememberCameraPositionState {
-                    position = CameraPosition.fromLatLngZoom(latLng, zoom)
-                },
-                uiSettings = uiSettings,
-                properties = properties
-            )
+        GoogleMap(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .padding(16.dp)
+                .size(300.dp),
+            onMapLoaded = {
+                isMapLoaded = true
+            },
+            cameraPositionState = rememberCameraPositionState {
+                position = CameraPosition.fromLatLngZoom(latLng, zoom)
+            },
+            uiSettings = uiSettings,
+            properties = properties
+        )
     }
 }
