@@ -91,12 +91,12 @@ class MyGLRenderer : GLSurfaceView.Renderer
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
         GLES20.glViewport(0, 0, width, height)
         //val ratio : Float = width.toFloat() / height.toFloat()
-        choose = fun():Float{
-            return if(width.toFloat() > height.toFloat()){width.toFloat()}else{height.toFloat()}}()
-
+        choose = when(width.toFloat() > height.toFloat())
+        {true->width.toFloat()false->height.toFloat()}
         // this projection matrix is applied to object coordinates
         // in the onDrawFrame() method
-        Matrix.orthoM(projectionMatrix, 0, -width.toFloat(), width.toFloat(), -height.toFloat(), height.toFloat(), 3f, 7f)
+        Matrix.orthoM(projectionMatrix, 0, -width.toFloat(), width.toFloat(),
+            -height.toFloat(), height.toFloat(), 3f, 7f)
     }
 
     fun onSingleTap()
