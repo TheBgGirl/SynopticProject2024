@@ -3,23 +3,21 @@ package com.example.farmsimulator
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
-import androidx.navigation.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 
-sealed class Screen(val route: String, val title: String) {
-    data object Home : Screen("home", "Home")
-    data object Map : Screen("map", "Map")
+sealed class Screen(val route: String, val title: String, val icon: ImageVector) {
+    data object Home : Screen("home", "Home", Icons.Default.Home)
+    data object Map : Screen("map", "Map", Icons.Default.AddCircle)
 }
 
 @Composable
@@ -29,7 +27,7 @@ fun NavGraph(navController: NavHostController) {
             LandingPage()
         }
         composable(Screen.Map.route) {
-            DetailsScreen()
+            DetailsPage()
         }
     }
 }
@@ -68,10 +66,7 @@ fun BottomNav(navController: NavController) {
                 alwaysShowLabel = true,
                 icon = {
                     Icon(
-                        imageVector = when (screen) {
-                            Screen.Home -> Icons.Default.Home
-                            Screen.Map -> Icons.Default.AddCircle
-                        },
+                        imageVector = screen.icon,
                         contentDescription = screen.title
                     )
                 }
