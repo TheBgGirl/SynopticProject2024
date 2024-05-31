@@ -33,6 +33,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -136,6 +137,7 @@ fun LandingPage() {
 fun DetailsPage() {
     val context = LocalContext.current
     val locationClient = LocationServices.getFusedLocationProviderClient(context)
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     var height by remember { mutableStateOf("") }
     var width by remember { mutableStateOf("") }
@@ -218,6 +220,7 @@ fun DetailsPage() {
                     setHeightError = { heightError = it },
                     width,
                     setWidthError = { widthError = it })
+                keyboardController?.hide()
             },
             modifier = Modifier
                 .fillMaxWidth()
