@@ -41,10 +41,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
-import androidx.navigation.NavController
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.farmsimulator.ui.theme.FarmSimulator
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -72,30 +68,13 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             FarmSimulator {
-                var isLocationPermissionGranted by remember { mutableStateOf(false) }
-                var isLocationPermissionDenied by remember { mutableStateOf(false) }
-                var isLocationPermissionRevoked by remember { mutableStateOf(false) }
-
-                var location by remember {
-                    mutableStateOf(
-                        LatLng(11.5564, 104.9282)
-                    )
-                }
-
-                var currentScreen by remember {
-                    mutableStateOf(Screen.HOME)
-                }
+                val navController = rememberNavController()
 
                 Scaffold(modifier = Modifier.fillMaxSize(), bottomBar = {
-                    BottomNav(selectedScreen = currentScreen) {
-                        currentScreen = it
-                    }
+                    BottomNav(navController = navController)
                 }) { paddingValues ->
                     Box(modifier = Modifier.padding(paddingValues)) {
-                        when (currentScreen) {
-                            Screen.HOME -> LandingPage()
-                            Screen.MAP -> DetailsScreen()
-                        }
+                        NavGraph(navController = navController)
                     }
                 }
             }

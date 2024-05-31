@@ -11,22 +11,56 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
+import androidx.navigation.NavHost
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 
-enum class Screen(val title: String) {
-    HOME("Home"),
-    MAP("Map"),
+sealed class Screen(val route: String, val title: String) {
+    data object Home : Screen("home", "Home")
+    data object Map : Screen("map", "Map")
 }
 
 @Composable
-fun BottomNav(selectedScreen: Screen, onScreenSelected: (Screen) -> Unit) {
+fun NavGraph(navController: NavHostController) {
+    NavHost(navController = navController, startDestination = Screen.Home.route) {
+        composable(Screen.Home.route) {
+            LandingPage()
+        }
+        composable(Screen.Map.route) {
+            DetailsScreen()
+        }
+    }
+}
+
+
+
+@Composable
+fun BottomNav(navController: NavController) {
+    val items = listOf(
+        Screen.Home,
+        Screen.Map
+    )
+    val navBarStackEntry = navController.currentBackStackEntryAsState()
+    val currentRoute = navBarStackEntry.value?.destination?.route
+
     NavigationBar {
-        Screen.entries.forEach { screen ->
-            val selected = selectedScreen == screen
+        items.forEach { screen ->
+            val selected = currentRoute == screen.route
 
             NavigationBarItem(
                 selected = selected,
                 onClick = {
-                    onScreenSelected(screen)
+                    if (!selected) {
+                        navController.navigate(screen.route) {
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
                 },
                 label = {
                     Text(text = screen.title)
@@ -35,8 +69,8 @@ fun BottomNav(selectedScreen: Screen, onScreenSelected: (Screen) -> Unit) {
                 icon = {
                     Icon(
                         imageVector = when (screen) {
-                            Screen.HOME -> Icons.Default.Home
-                            Screen.MAP -> Icons.Default.AddCircle
+                            Screen.Home -> Icons.Default.Home
+                            Screen.Map -> Icons.Default.AddCircle
                         },
                         contentDescription = screen.title
                     )
