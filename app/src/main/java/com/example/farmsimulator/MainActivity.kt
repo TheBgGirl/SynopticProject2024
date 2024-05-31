@@ -8,10 +8,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScopeInstance.align
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScopeInstance.align
-import androidx.compose.foundation.layout.FlowColumnScopeInstance.align
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -61,11 +58,8 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
 
 class MainActivity : ComponentActivity() {
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         setContent {
             FarmSimulator {
@@ -83,63 +77,9 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@SuppressLint("MissingPermission")
-fun getLastUserLocation(
-    context: Context,
-    fusedLocationClient: FusedLocationProviderClient,
-    onGetLastLocationSuccess: (Pair<Double, Double>) -> Unit,
-    onGetLastLocationFailed: (Exception) -> Unit
-) {
-    if (areLocationPermissionsGranted(context)) {
-        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-            location?.let {
-                onGetLastLocationSuccess(Pair(it.latitude, it.longitude))
-            }
-        }.addOnFailureListener { exception ->
-            onGetLastLocationFailed(exception)
-        }
-    }
-}
-
-@SuppressLint("MissingPermission")
-fun getCurrentLocation(
-    context: Context,
-    fusedLocationClient: FusedLocationProviderClient,
-    onGetCurrentLocationSuccess: (LatLng) -> Unit,
-    onGetCurrentLocationFailed: (Exception) -> Unit,
-    priority: Boolean = true
-) {
-    val accuracy = if (priority) Priority.PRIORITY_HIGH_ACCURACY
-    else Priority.PRIORITY_BALANCED_POWER_ACCURACY
-
-    if (areLocationPermissionsGranted(context)) {
-        fusedLocationClient.getCurrentLocation(
-            accuracy, CancellationTokenSource().token,
-        ).addOnSuccessListener { location ->
-            location?.let {
-                onGetCurrentLocationSuccess(LatLng(it.latitude, it.longitude))
-            }
-        }.addOnFailureListener { exception ->
-            onGetCurrentLocationFailed(exception)
-        }
-    }
-}
-
-fun areLocationPermissionsGranted(
-    context: Context
-): Boolean {
-    return (ActivityCompat.checkSelfPermission(
-        context, android.Manifest.permission.ACCESS_FINE_LOCATION
-    ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-        context, android.Manifest.permission.ACCESS_COARSE_LOCATION
-    ) == PackageManager.PERMISSION_GRANTED)
-}
-
-
 @Composable
 fun LandingPage() {
     val scrollState = rememberScrollState()
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -191,43 +131,6 @@ fun LandingPage() {
     }
 }
 
-@OptIn(ExperimentalPermissionsApi::class, ExperimentalPermissionsApi::class)
-@Composable
-fun RequestLocationPermission(
-    onPermissionGranted: () -> Unit,
-    onPermissionDenied: () -> Unit,
-    onPermissionsRevoked: () -> Unit
-) {
-    val permissionState = rememberMultiplePermissionsState(
-        listOf(
-            android.Manifest.permission.ACCESS_FINE_LOCATION,
-            android.Manifest.permission.ACCESS_COARSE_LOCATION
-        )
-    )
-
-    LaunchedEffect(key1 = permissionState) {
-        val allPermissionsRevoked =
-            permissionState.permissions.size == permissionState.revokedPermissions.size
-
-        val permissionsToRequest = permissionState.permissions.filter {
-            !it.status.isGranted
-        }
-
-        if (permissionsToRequest.isNotEmpty()) {
-            permissionState.launchMultiplePermissionRequest()
-        }
-
-        if (allPermissionsRevoked) {
-            onPermissionsRevoked()
-        } else {
-            if (permissionState.allPermissionsGranted) {
-                onPermissionGranted()
-            } else {
-                onPermissionDenied()
-            }
-        }
-    }
-}
 
 @Composable
 fun DetailsPage() {
@@ -444,16 +347,16 @@ fun MyMap(
     modifier: Modifier = Modifier
 ) {
     var isMapLoaded by remember { mutableStateOf(false) }
-    val zoom by remember { mutableFloatStateOf(15f) }
-    val uiSettings by remember { mutableStateOf(MapUiSettings()) }
-    val properties by remember {
+    var zoom by remember { mutableFloatStateOf(15f) }
+    var uiSettings by remember { mutableStateOf(MapUiSettings()) }
+    var properties by remember {
         mutableStateOf(
             MapProperties(
                 mapType = MapType.SATELLITE
             )
         )
     }
-    val cameraPositionState = rememberCameraPositionState {
+    var cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(latLng, zoom)
     }
 
@@ -462,6 +365,9 @@ fun MyMap(
             .collect { position ->
                 if (!cameraPositionState.isMoving) {
                     setLatLng(position.target)
+                }
+                if (position.zoom != zoom) {
+                    zoom = position.zoom
                 }
             }
     }
