@@ -3,10 +3,16 @@ package com.wales.farmsimulator
 import android.opengl.Matrix
 
 class Camera {
-    private var position = FloatArray(3) {0f}
-    private var lookAt = FloatArray(3) {0f}
-    //private var up = FloatArray(3) {0f,1f,0f}
+    private var position = floatArrayOf(0f, 0f, 3f)
+    private var target = FloatArray(3) {0f}
+    private var up = floatArrayOf(0f,1f,0f)
     private var rotation = FloatArray(3) {0f}
+
+    fun getViewMatrix(): FloatArray{
+        val viewMatrix = FloatArray(16)
+        Matrix.setLookAtM(viewMatrix, 0, position[0], position[1], position[2], target[0], target[1], target[2], up[0], up[1], up[2])
+        return viewMatrix
+    }
 
     fun move(dx: Float, dy: Float, dz: Float){
         position[0] += dx
@@ -19,6 +25,9 @@ class Camera {
         position[1] = y
         position[2] = z
     }
+    fun getPosition(): FloatArray{
+        return position.copyOf()
+    }
 
     fun rotate(dx: Float, dy: Float, dz: Float){
         rotation[0] += dx
@@ -27,14 +36,8 @@ class Camera {
     }
 
     fun lookAt(x: Float, y: Float, z: Float) {
-        lookAt[0] = x
-        lookAt[1] = y
-        lookAt[2] = z
-    }
-
-    fun getViewMatrix(): FloatArray{
-        val matrix = FloatArray(16)
-        Matrix.setLookAtM(matrix, 0, position[0], position[1], position[2], lookAt[0], lookAt[1], lookAt[2], 0f, 1f, 0f)
-        return matrix
+        target[0] = x
+        target[1] = y
+        target[2] = z
     }
 }
