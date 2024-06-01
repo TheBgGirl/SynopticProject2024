@@ -54,7 +54,7 @@ class OpenGLActivity : ComponentActivity()
                     gLView.getRender().arcRotateCamera(avgDistanceX, avgDistanceY)
                 } else {
                     // gLView.getRender().move(distanceX,distanceY)
-                    //gLView.getRender().arcRotateCamera(distanceX, distanceY)
+                    gLView.getRender().moveCamera(distanceX, distanceY)
                 }
                 return true
             }
