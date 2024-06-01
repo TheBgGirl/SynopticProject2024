@@ -15,8 +15,6 @@ class MyGLRenderer : GLSurfaceView.Renderer
     private val model = FloatArray(16)
     private val MVPMatrix = FloatArray(16)
 
-    private var m = 0
-
     private lateinit var triangle: Triangle
 
     private lateinit var shader : Shader
@@ -26,9 +24,6 @@ class MyGLRenderer : GLSurfaceView.Renderer
 
     private val nearClip: Float = 1f
     private val farClip: Float = 15f
-
-    private var previousX: Float = 0f
-    private var previousY: Float = 0f
 
     private var moveSpeed: Float = 2.0f
     private var sensitivity: Float = 100f
@@ -110,10 +105,10 @@ class MyGLRenderer : GLSurfaceView.Renderer
         Matrix.frustumM(projectionMatrix, 0, -1f, 1f, -1f, 1f, nearClip, farClip)
     }
 
-    fun onSingleTap()
-    {
-        m++
-    }
+//    fun onSingleTap()
+//    {
+//
+//    }
 
     fun moveCamera(dx : Float, dz : Float)
     {
@@ -122,8 +117,8 @@ class MyGLRenderer : GLSurfaceView.Renderer
 
     fun arcRotateCamera(currentX: Float, currentY: Float){
         // Calculate the difference between current and previous touch positions
-        //val deltaX = -currentX - previousX
-        val deltaY = -currentY - previousY
+        //val deltaX = -currentX
+        val deltaY = -currentY
 
         //val angleX = deltaX * sensitivity
         val angleY = camera.getPitch()+deltaY * sensitivity/height

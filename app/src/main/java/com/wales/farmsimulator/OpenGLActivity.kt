@@ -20,8 +20,6 @@ class OpenGLActivity : ComponentActivity()
         // Create a GLSurfaceView instance and set it
         // as the ContentView for this Activity.
         gLView = MyGLSurfaceView(this)
-        println("Hello World")
-
         setContentView(gLView)
 
         gestureDetector = GestureDetector(this,object : GestureDetector.SimpleOnGestureListener(){
@@ -69,7 +67,7 @@ class OpenGLActivity : ComponentActivity()
 //            }
 
             override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-                gLView.getRender().onSingleTap()
+                //gLView.getRender().onSingleTap()
                 Log.d(DEBUG_TAG,"awdawda")
                 return true
             }

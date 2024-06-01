@@ -8,7 +8,6 @@ class Camera {
     private var position = floatArrayOf(0f, 0f, 3f)
     private var target = FloatArray(3) {0f}
     private var up = floatArrayOf(0f,0f,1f)
-    private var rotation = FloatArray(3) {0f}
 
     private var pitch : Float = 0f
     private val yaw : Float = 0f
@@ -61,14 +60,5 @@ class Camera {
         position[0] = x
         position[1] = y
         position[2] = z
-    }
-    fun getPosition(): FloatArray{
-        return position.copyOf()
-    }
-
-    fun rotate(dx: Float, dy: Float, dz: Float){
-        rotation[0] += dx
-        rotation[1] += dy
-        rotation[2] += dz
     }
 }
