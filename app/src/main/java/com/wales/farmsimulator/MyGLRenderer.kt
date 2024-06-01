@@ -27,6 +27,7 @@ class MyGLRenderer : GLSurfaceView.Renderer
     private var moveSpeed : Float = 2.0f
     private val nearClip: Float = 3f
     private val farClip: Float = 7f
+    private val lookAtPos = FloatArray(3)
 
     private var width: Float = 0f
     private var height: Float = 0f
@@ -52,8 +53,14 @@ class MyGLRenderer : GLSurfaceView.Renderer
                 "}"
 
     init {
+        // Look at 0,0,0
+        lookAtPos[0] = 0f
+        lookAtPos[1] = 0f
+        lookAtPos[2] = 0f
+
+        // Set Camera to 0,3,0 and LookAt 0,0,0
         camera.setPosition(0f, 3f, 0f)
-        camera.lookAt(0f, 0f, 0f)
+        camera.lookAt(lookAtPos[0], lookAtPos[1], lookAtPos[2])
     }
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig)
@@ -123,7 +130,12 @@ class MyGLRenderer : GLSurfaceView.Renderer
         camera.move((moveSpeed * -dx)/width, 0f, (moveSpeed * -dz)/height)
 
         // Camera is looking down
-        updateCameraLookAt(0f, -1f, 0f)
+        //updateCameraLookAt(0f, -1f, 0f)
+
+        // Move LookAtPos
+        lookAtPos[0] += (moveSpeed * -dx)/width
+        lookAtPos[2] += (moveSpeed * -dz)/height
+        updateCameraLookAtPos()
     }
 
     fun updateCameraLookAt(forwardX: Float, forwardY: Float, forwardZ: Float){
@@ -132,5 +144,9 @@ class MyGLRenderer : GLSurfaceView.Renderer
         val lookAtY = position[1] + forwardY
         val lookAtZ = position[2] + forwardZ
         camera.lookAt(lookAtX, lookAtY, lookAtZ)
+    }
+
+    fun updateCameraLookAtPos(){
+        camera.lookAt(lookAtPos[0], lookAtPos[1], lookAtPos[2])
     }
 }
