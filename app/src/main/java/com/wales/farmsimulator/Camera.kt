@@ -45,7 +45,6 @@ class Camera {
         return pitch
     }
 
-
     fun getViewMatrix(): FloatArray
     {
         calculateTarget()
