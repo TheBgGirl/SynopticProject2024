@@ -52,13 +52,6 @@ class MyGLRenderer : GLSurfaceView.Renderer
                 "  gl_FragColor = vColor;" +
                 "}"
 
-    init {
-        // Set Camera to 0,0,0 and radius 5
-        camera.setPosition(0f, 0.5f, 0f)
-        camera.setRadius(5f)
-        camera.setPitch(90f)
-    }
-
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig)
     {
         // Set the background frame color
@@ -67,6 +60,11 @@ class MyGLRenderer : GLSurfaceView.Renderer
         shader = Shader(vertexShaderCode,fragmentShaderCode)
 
         triangle = Triangle(floatArrayOf(-0.5f,0f,-0.5f), floatArrayOf(0.5f,0f,-0.5f), floatArrayOf(0f,0f,0.5f))
+
+        camera.setPosition(0f, 0.5f, 0f)
+        camera.setRadius(5f)
+        camera.setPitch(90f)
+
     }
 
     override fun onDrawFrame(unused: GL10)
@@ -81,7 +79,6 @@ class MyGLRenderer : GLSurfaceView.Renderer
 
 
         Matrix.setIdentityM(model,0)
-        //Matrix.scaleM(model,0,1000f,1000f,1000f)
         Matrix.translateM(model, 0, triangle.position[0], triangle.position[1],triangle.position[2])
 
         Matrix.multiplyMM(MVPMatrix, 0, vPMatrix, 0, model, 0)
@@ -92,17 +89,10 @@ class MyGLRenderer : GLSurfaceView.Renderer
     }
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
         GLES20.glViewport(0, 0, width, height)
-        //val ratio : Float = width.toFloat() / height.toFloat()
-//        choose = when(width.toFloat() > height.toFloat())
-//        {true->width.toFloat()false->height.toFloat()}
 
         this.width = width.toFloat()
         this.height = height.toFloat()
 
-        // this projection matrix is applied to object coordinates
-        // in the onDrawFrame() method
-//        Matrix.orthoM(projectionMatrix, 0, -width.toFloat(), width.toFloat(),
-//            -height.toFloat(), height.toFloat(), 3f, 7f)
         Matrix.frustumM(projectionMatrix, 0, -1f, 1f, -1f, 1f, nearClip, farClip)
     }
 
