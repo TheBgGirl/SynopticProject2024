@@ -25,7 +25,7 @@ class MyGLRenderer : GLSurfaceView.Renderer
     private val nearClip: Float = 1f
     private val farClip: Float = 15f
 
-    private var moveSpeed: Float = 2.0f
+    private var moveSpeed: Float = 2000.0f
     private var sensitivity: Float = 100f
 
 
@@ -81,6 +81,7 @@ class MyGLRenderer : GLSurfaceView.Renderer
 
 
         Matrix.setIdentityM(model,0)
+        Matrix.scaleM(model,0,1000f,1000f,1000f)
         Matrix.translateM(model, 0, triangle.position[0], triangle.position[1],triangle.position[2])
 
         Matrix.multiplyMM(MVPMatrix, 0, vPMatrix, 0, model, 0)
@@ -102,7 +103,8 @@ class MyGLRenderer : GLSurfaceView.Renderer
         // in the onDrawFrame() method
 //        Matrix.orthoM(projectionMatrix, 0, -width.toFloat(), width.toFloat(),
 //            -height.toFloat(), height.toFloat(), 3f, 7f)
-        Matrix.frustumM(projectionMatrix, 0, -1f, 1f, -1f, 1f, nearClip, farClip)
+        Matrix.frustumM(projectionMatrix, 0, -width.toFloat(), width.toFloat(),
+           -height.toFloat(), height.toFloat(), nearClip, farClip)
     }
 
 //    fun onSingleTap()
