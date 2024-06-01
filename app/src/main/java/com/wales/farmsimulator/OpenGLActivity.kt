@@ -50,7 +50,7 @@ class OpenGLActivity : ComponentActivity()
                     val avgDistanceY = (e2.getY(0) - e2.getY(1) + e2.getX(0) - e2.getX(1)) / 2
 
                     // Call the rotateCamera function with the calculated values
-                    gLView.getRender().rotateCamera(avgDistanceX, avgDistanceY)
+                    gLView.getRender().arcRotateCamera(avgDistanceX, avgDistanceY)
                 } else {
                     // gLView.getRender().move(distanceX,distanceY)
                     gLView.getRender().moveCamera(distanceX, distanceY)

@@ -22,12 +22,20 @@ class MyGLRenderer : GLSurfaceView.Renderer
     private lateinit var triangle: Triangle
     private lateinit var shader : Shader
 
-    // Camera and settings
+    // ----- CAMERA SETTING ----- //
     private var camera: Camera = Camera()
-    private var moveSpeed : Float = 2.0f
-    private val nearClip: Float = 3f
-    private val farClip: Float = 7f
+
+    private val nearClip: Float = 1f
+    private val farClip: Float = 15f
     private val lookAtPos = FloatArray(3)
+    private val camRadius: Float = 5f
+    private var previousX: Float = 0f
+    private var previousY: Float = 0f
+
+
+    private var moveSpeed: Float = 2.0f
+    private var sensitivity: Float = 0.5f
+
 
     private var width: Float = 0f
     private var height: Float = 0f
@@ -135,6 +143,27 @@ class MyGLRenderer : GLSurfaceView.Renderer
         // Move LookAtPos
         lookAtPos[0] += (moveSpeed * -dx)/width
         lookAtPos[2] += (moveSpeed * -dz)/height
+        updateCameraLookAtPos()
+    }
+
+    fun arcRotateCamera(currentX: Float, currentY: Float){
+        // Calculate the difference between current and previous touch positions
+        val deltaX = currentX - previousX
+        val deltaY = currentY - previousY
+
+        // Calculate the angle of rotation based on the difference
+        val angleX = deltaX * sensitivity
+        val angleY = deltaY * sensitivity
+
+        // Calculate the new position of the camera
+        val newX = lookAtPos[0] + camRadius * Math.sin(Math.toRadians(angleX.toDouble())).toFloat()
+        val newY = lookAtPos[1] + camRadius * Math.sin(Math.toRadians(angleY.toDouble())).toFloat()
+        val newZ = lookAtPos[2] + camRadius * Math.cos(Math.toRadians(angleX.toDouble())).toFloat()
+
+        // Update the camera position
+        val position = camera.getPosition()
+        camera.setPosition(newX, newY, newZ)
+
         updateCameraLookAtPos()
     }
 
