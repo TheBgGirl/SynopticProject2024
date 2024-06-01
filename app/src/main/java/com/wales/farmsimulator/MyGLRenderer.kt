@@ -25,6 +25,9 @@ class MyGLRenderer : GLSurfaceView.Renderer
     private val nearClip: Float = 3f
     private val farClip: Float = 100f
 
+    private val maxZoomDistance = 20f
+    private val minZoomDistance = 3f
+
     private var moveSpeed: Float = 2.0f
     private var sensitivity: Float = 100f
 
@@ -116,5 +119,13 @@ class MyGLRenderer : GLSurfaceView.Renderer
 
         if(angleY < 90 && angleY > 15)
             camera.setPitch(angleY)
+    }
+
+    fun zoomCamera(scaleFactor: Float) {
+        if(camera.getRadius() / scaleFactor < maxZoomDistance && camera.getRadius() / scaleFactor > minZoomDistance){
+            camera.setRadius(camera.getRadius() / scaleFactor)
+            moveSpeed /= scaleFactor
+            sensitivity /= scaleFactor
+        }
     }
 }

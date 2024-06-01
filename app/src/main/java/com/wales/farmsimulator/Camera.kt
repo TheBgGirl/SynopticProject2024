@@ -35,6 +35,11 @@ class Camera {
     {
         radius = value
     }
+
+    fun getRadius() :Float {
+        return radius
+    }
+
     fun getPitch() :Float
     {
         return pitch

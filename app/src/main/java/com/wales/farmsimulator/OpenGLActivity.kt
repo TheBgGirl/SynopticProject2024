@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import android.util.Log
 import android.view.GestureDetector
+import android.view.ScaleGestureDetector
 import android.view.MotionEvent
 
 private const val DEBUG_TAG = "Gestures"
@@ -12,6 +13,9 @@ class OpenGLActivity : ComponentActivity()
 {
     private lateinit var gLView: MyGLSurfaceView
     private lateinit var gestureDetector : GestureDetector
+    private lateinit var scaleGestureDetector: ScaleGestureDetector
+
+    private var previousScaleFactor = 1f
 
     public override fun onCreate(savedInstanceState: Bundle?)
     {
@@ -81,9 +85,33 @@ class OpenGLActivity : ComponentActivity()
                 return true
             }
         })
+
+        scaleGestureDetector = ScaleGestureDetector(this, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+            override fun onScale(detector: ScaleGestureDetector): Boolean {
+                val scaleFactor = detector.scaleFactor
+
+                if (scaleFactor != previousScaleFactor) {
+                    gLView.getRender().zoomCamera(scaleFactor)
+                    previousScaleFactor = scaleFactor
+                }
+                return true
+            }
+
+            override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
+                previousScaleFactor = detector.scaleFactor
+                return true
+            }
+
+            override fun onScaleEnd(detector: ScaleGestureDetector) {
+                // Reset the previous scale factor to 1 after the scaling ends
+                previousScaleFactor = 1f
+            }
+        })
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        return gestureDetector.onTouchEvent(event) || super.onTouchEvent(event)
+        scaleGestureDetector.onTouchEvent(event)
+        return gestureDetector.onTouchEvent(event) ||
+                super.onTouchEvent(event)
     }
 }
