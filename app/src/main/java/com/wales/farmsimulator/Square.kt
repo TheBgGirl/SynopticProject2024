@@ -1,55 +1,75 @@
+package com.wales.farmsimulator
+
 import android.opengl.GLES20
-import com.wales.farmsimulator.Shader
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
+import java.nio.ShortBuffer
 
 
 const val COORDS_PER_VERTEX = 3
-class Triangle(vec1: FloatArray, vec2: FloatArray, vec3: FloatArray) {
-
+class Square(private val Position : FloatArray, private val Width : Float)
+{
     // Set color with red, green, blue and alpha (opacity) values
     val color = floatArrayOf(1.0f, 0.0f, 0.0f, 1.0f)
-    var triangleCoords = FloatArray(9)
+    var squareCoords = FloatArray(12)
+    var position : FloatArray = Position
+    var width : Float = Width
 
-    val position = floatArrayOf(0.0f,0.0f,0.0f)
-
-    private var vertexBuffer: FloatBuffer
-
-    private var positionHandle: Int = 0
-    private var mColorHandle: Int = 0
-
-    private val vertexCount: Int = triangleCoords.size / COORDS_PER_VERTEX
+    private val vertexCount: Int = squareCoords.size / COORDS_PER_VERTEX
     private val vertexStride: Int = COORDS_PER_VERTEX * 4 // 4 bytes per vertex
 
+    private var vertexBuffer: FloatBuffer
+    private val drawListBuffer: ShortBuffer
+    private var positionHandle: Int = 0
+    private var mColorHandle: Int = 0
+    private val drawOrder = shortArrayOf(0, 2, 3,0,1,3) // order to draw vertices
+
     init {
-        triangleCoords[0] = vec1[0]
-        triangleCoords[1] = vec1[1]
-        triangleCoords[2] = vec1[2]
-        triangleCoords[3] = vec2[0]
-        triangleCoords[4] = vec2[1]
-        triangleCoords[5] = vec2[2]
-        triangleCoords[6] = vec3[0]
-        triangleCoords[7] = vec3[1]
-        triangleCoords[8] = vec3[2]
+        squareCoords[0]  = -width/2
+        squareCoords[1]  = 0f
+        squareCoords[2]  = -width/2
+
+        squareCoords[3]  = width/2
+        squareCoords[4]  = 0f
+        squareCoords[5]  = -width/2
+
+        squareCoords[6]  = -width/2
+        squareCoords[7]  = 0f
+        squareCoords[8]  = width/2
+
+        squareCoords[9]  = width/2
+        squareCoords[10]  = 0f
+        squareCoords[11]  = width/2
 
         vertexBuffer =
                 // (number of coordinate values * 4 bytes per float)
-            ByteBuffer.allocateDirect(triangleCoords.size * 4).run {
+            ByteBuffer.allocateDirect(squareCoords.size * 4).run {
                 // use the device hardware's native byte order
                 order(ByteOrder.nativeOrder())
 
                 // create a floating point buffer from the ByteBuffer
                 asFloatBuffer().apply {
                     // add the coordinates to the FloatBuffer
-                    put(triangleCoords)
+                    put(squareCoords)
                     // set the buffer to read the first coordinate
                     position(0)
                 }
             }
-    }
 
-    fun draw(shader : Shader) {
+        // initialize byte buffer for the draw list
+        drawListBuffer =
+            // (# of coordinate values * 2 bytes per short)
+            ByteBuffer.allocateDirect(drawOrder.size * 2).run {
+                order(ByteOrder.nativeOrder())
+                asShortBuffer().apply {
+                    put(drawOrder)
+                    position(0)
+                }
+            }
+    }
+    fun draw(shader: Shader)
+    {
         // get handle to vertex shader's vPosition member
         positionHandle = GLES20.glGetAttribLocation(shader.getID(), "vPosition").also {
 
@@ -74,9 +94,11 @@ class Triangle(vec1: FloatArray, vec2: FloatArray, vec3: FloatArray) {
                 GLES20.glUniform4fv(colorHandle, 1, color, 0)
             }
 
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertexCount)
+        // Draw the square
+        GLES20.glDrawElements(
+            GLES20.GL_TRIANGLES, drawOrder.size,
+            GLES20.GL_UNSIGNED_SHORT, drawListBuffer)
         // Disable vertex array
         GLES20.glDisableVertexAttribArray(positionHandle)
     }
-
 }
