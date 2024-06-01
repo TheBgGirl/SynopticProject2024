@@ -1,8 +1,9 @@
 package com.wales.farmsimulator
 
 import android.opengl.Matrix
-import kotlin.math.*
-
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.PI
 class Camera {
     private var position = floatArrayOf(0f, 0f, 3f)
     private var target = FloatArray(3) {0f}
@@ -12,11 +13,13 @@ class Camera {
     private var pitch : Float = 0f
     private val yaw : Float = 0f
 
+    private var radius : Float = 1f
+
     fun calculateTarget()
     {
-        target[0] = -sin(radians(yaw)) * cos(radians(pitch))
-        target[1] = sin(radians(pitch))
-        target[2] = -cos(radians(yaw)) * cos(radians(pitch))
+        target[0] = -sin(radians(yaw)) * cos(radians(pitch)) * radius
+        target[1] = sin(radians(pitch)) * radius
+        target[2] = -cos(radians(yaw)) * cos(radians(pitch)) * radius
     }
 
     fun radians(value : Float):Float
@@ -29,6 +32,10 @@ class Camera {
         pitch = value
     }
 
+    fun setRadius(value : Float)
+    {
+        radius = value
+    }
     fun getPitch() :Float
     {
         return pitch
@@ -64,10 +71,4 @@ class Camera {
         rotation[1] += dy
         rotation[2] += dz
     }
-
-//    fun lookAt(x: Float, y: Float, z: Float) {
-//        target[0] = x
-//        target[1] = y
-//        target[2] = z
-    //}
 }
