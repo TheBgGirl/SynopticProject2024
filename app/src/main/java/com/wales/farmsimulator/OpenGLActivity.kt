@@ -46,12 +46,8 @@ class OpenGLActivity : ComponentActivity()
                 // Check if it's a two-finger scroll
                 if (e2.pointerCount == 2)
                 {
-                    // Calculate the average distance scrolled by both fingers
-                    val avgDistanceX = (e2.getX(0) - e2.getX(1) + e2.getY(0) - e2.getY(1)) / 2
-                    val avgDistanceY = (e2.getY(0) - e2.getY(1) + e2.getX(0) - e2.getX(1)) / 2
-
-                    // Call the rotateCamera function with the calculated values
-                    gLView.getRender().arcRotateCamera(avgDistanceX, avgDistanceY)
+                    // Call the rotateCamera function with the distance values
+                    gLView.getRender().arcRotateCamera(distanceX, distanceY)
                 } else {
                     // gLView.getRender().move(distanceX,distanceY)
                     gLView.getRender().moveCamera(distanceX, distanceY)

@@ -31,7 +31,7 @@ class MyGLRenderer : GLSurfaceView.Renderer
     private var previousY: Float = 0f
 
     private var moveSpeed: Float = 2.0f
-    private var sensitivity: Float = 30f
+    private var sensitivity: Float = 100f
 
 
     private var width: Float = 0f
@@ -122,10 +122,8 @@ class MyGLRenderer : GLSurfaceView.Renderer
 
     fun arcRotateCamera(currentX: Float, currentY: Float){
         // Calculate the difference between current and previous touch positions
-        val deltaX = currentX - previousX
-        val deltaY = currentY - previousY
-
-        // Calculate the angle of rotation based on the difference
+        //val deltaX = -currentX - previousX
+        val deltaY = -currentY - previousY
 
         //val angleX = deltaX * sensitivity
         val angleY = camera.getPitch()+deltaY * sensitivity/height
