@@ -30,7 +30,7 @@ class MyGLRenderer : GLSurfaceView.Renderer
     private var previousY: Float = 0f
 
     private var moveSpeed: Float = 2.0f
-    private var sensitivity: Float = 0.5f
+    private var sensitivity: Float = 10f
 
 
     private var width: Float = 0f
@@ -126,7 +126,7 @@ class MyGLRenderer : GLSurfaceView.Renderer
         // Calculate the angle of rotation based on the difference
 
         //val angleX = deltaX * sensitivity
-        val angleY = camera.getPitch()+deltaY * sensitivity
+        val angleY = camera.getPitch()+deltaY * sensitivity/height
 
         camera.setPitch(angleY)
     }
