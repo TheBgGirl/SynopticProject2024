@@ -18,6 +18,7 @@ class MyGLRenderer : GLSurfaceView.Renderer
     private var m = 0
 
     private lateinit var triangle: Triangle
+
     private lateinit var shader : Shader
 
     // ----- CAMERA SETTING ----- //
@@ -30,7 +31,7 @@ class MyGLRenderer : GLSurfaceView.Renderer
     private var previousY: Float = 0f
 
     private var moveSpeed: Float = 2.0f
-    private var sensitivity: Float = 0.5f
+    private var sensitivity: Float = 30f
 
 
     private var width: Float = 0f
@@ -58,7 +59,7 @@ class MyGLRenderer : GLSurfaceView.Renderer
 
     init {
         // Set Camera to 0,0,0 and radius 5
-        camera.setPosition(0f, 0f, 0f)
+        camera.setPosition(0f, 0.5f, 0f)
         camera.setRadius(5f)
         camera.setPitch(90f)
     }
@@ -69,7 +70,8 @@ class MyGLRenderer : GLSurfaceView.Renderer
         GLES20.glClearColor(0.1f, 0.1f, 0.1f, 1.0f)
 
         shader = Shader(vertexShaderCode,fragmentShaderCode)
-        triangle = Triangle()
+
+        triangle = Triangle(floatArrayOf(-0.5f,0f,-0.5f), floatArrayOf(0.5f,0f,-0.5f), floatArrayOf(0f,0f,0.5f))
     }
 
     override fun onDrawFrame(unused: GL10)
@@ -126,8 +128,9 @@ class MyGLRenderer : GLSurfaceView.Renderer
         // Calculate the angle of rotation based on the difference
 
         //val angleX = deltaX * sensitivity
-        val angleY = camera.getPitch()+deltaY * sensitivity
+        val angleY = camera.getPitch()+deltaY * sensitivity/height
 
-        camera.setPitch(angleY)
+        if(angleY < 90 && angleY > 15)
+            camera.setPitch(angleY)
     }
 }
