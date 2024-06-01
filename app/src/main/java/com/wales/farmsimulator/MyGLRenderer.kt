@@ -52,7 +52,7 @@ class MyGLRenderer : GLSurfaceView.Renderer
                 "}"
 
     init {
-        camera.setPosition(0f, 0f, 3f)
+        camera.setPosition(0f, 3f, 0f)
         camera.lookAt(0f, 0f, 0f)
     }
 
@@ -119,9 +119,11 @@ class MyGLRenderer : GLSurfaceView.Renderer
         triangle.position[1] += (moveSpeed) * dy/choose
     }
 
-    fun moveCamera(dx : Float, dy : Float){
-        camera.move((moveSpeed * dx)/width, (moveSpeed * -dy)/height, 0f)
-        updateCameraLookAt(0f, 0f, -1f)
+    fun moveCamera(dx : Float, dz : Float){
+        camera.move((moveSpeed * -dx)/width, 0f, (moveSpeed * -dz)/height)
+
+        // Camera is looking down
+        updateCameraLookAt(0f, -1f, 0f)
     }
 
     fun updateCameraLookAt(forwardX: Float, forwardY: Float, forwardZ: Float){
