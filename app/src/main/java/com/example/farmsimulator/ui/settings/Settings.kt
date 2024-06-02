@@ -3,6 +3,7 @@ package com.example.farmsimulator.ui.settings
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -19,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.os.LocaleListCompat
 import com.example.farmsimulator.R
 
 val availableLocales = listOf(
@@ -55,7 +57,7 @@ fun LocalePicker(locale: MutableState<java.util.Locale>, modifier: Modifier = Mo
                     onClick = {
                         locale.value = availableLocale
                         expanded = false
-                        updateLocale(context, availableLocale)
+                        updateLocale(availableLocale)
                         restartActivity(context)
                     },
                     text = { Text(text = availableLocale.getDisplayName(availableLocale)) }
@@ -66,14 +68,9 @@ fun LocalePicker(locale: MutableState<java.util.Locale>, modifier: Modifier = Mo
 }
 
 
-fun updateLocale(context: Context, locale: java.util.Locale) {
-
-    val resources = context.resources
-    val configuration = resources.configuration
-
-    configuration.setLocale(locale)
-    val ctx = context.createConfigurationContext(configuration)
-    ctx.resources.updateConfiguration(configuration, resources.displayMetrics)
+fun updateLocale(locale: java.util.Locale) {
+    val appLocale: LocaleListCompat = LocaleListCompat.create(locale)
+    AppCompatDelegate.setApplicationLocales(appLocale)
 }
 
 
