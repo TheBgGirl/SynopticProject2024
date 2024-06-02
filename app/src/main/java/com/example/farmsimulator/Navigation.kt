@@ -61,7 +61,7 @@ fun BottomNav(navController: NavController) {
                     }
                 },
                 label = {
-                    Text(text = screen.title)
+                    Text(text = screen.title, maxLines = 1)
                 },
                 alwaysShowLabel = true,
                 icon = {

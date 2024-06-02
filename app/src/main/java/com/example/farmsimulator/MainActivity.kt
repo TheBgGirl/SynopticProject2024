@@ -1,14 +1,13 @@
 package com.example.farmsimulator
 
-import android.annotation.SuppressLint
-import android.content.Context
-import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -18,6 +17,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -25,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,18 +41,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.app.ActivityCompat
 import androidx.navigation.compose.rememberNavController
 import com.example.farmsimulator.ui.theme.FarmSimulator
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.isGranted
-import com.google.accompanist.permissions.rememberMultiplePermissionsState
-import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
@@ -132,57 +126,103 @@ fun LandingPage() {
     }
 }
 
+@Composable
+fun RequestLocationPermissionBinary(callback: (Boolean) -> Unit) {
+    RequestLocationPermission(
+        onPermissionGranted = { callback(true) },
+        onPermissionDenied = { callback(false) },
+        onPermissionsRevoked = { callback(false) }
+    )
+}
 
 @Composable
 fun DetailsPage() {
     val context = LocalContext.current
     val locationClient = LocationServices.getFusedLocationProviderClient(context)
     val keyboardController = LocalSoftwareKeyboardController.current
+    val defaultLatLong = LatLng(20.1, 77.5)
 
-    var height by remember { mutableStateOf("") }
-    var width by remember { mutableStateOf("") }
-    var heightError by remember { mutableStateOf("") }
-    var widthError by remember { mutableStateOf("") }
-    var showMap by remember {
-        mutableStateOf(false)
-    }
-    var latLng by remember {
-        mutableStateOf<LatLng?>(null)
-    }
+    // use double to conform with the Google Maps API (lat lng)
+    var height by remember { mutableDoubleStateOf(0.0) }
+    var width by remember { mutableDoubleStateOf(0.0) }
+
+    var showMap by remember { mutableStateOf(false) }
+    var latLng by remember { mutableStateOf(defaultLatLong) }
     val scrollState = rememberScrollState()
-    var locationText by remember {
-        mutableStateOf("No location found")
+
+    var useLocation by remember { mutableStateOf(false) }
+    var locationAccessible by remember { mutableStateOf(false) }
+    var loading by remember { mutableStateOf(false) }
+
+    RequestLocationPermissionBinary {
+        locationAccessible = it
     }
 
-    RequestLocationPermission(
-        onPermissionGranted = {
+    LaunchedEffect(useLocation) {
+        if (useLocation && locationAccessible) {
+            loading = true
             getCurrentLocation(
-                context = context, fusedLocationClient = locationClient,
-                onGetCurrentLocationSuccess = {
-                    latLng = it
-                    locationText =
-                        "Latitude: %.2f, Longitude: %.2f".format(it.latitude, it.longitude)
+                context = context,
+                fusedLocationClient = locationClient,
+                onGetCurrentLocationSuccess = { newLocation ->
+                    latLng = newLocation
+                    loading = false
                 },
                 onGetCurrentLocationFailed = {
-                    latLng = null
-                })
-        },
-        onPermissionDenied = {
-            latLng = null
-        },
-        onPermissionsRevoked = {
-            latLng = null
+                    latLng = defaultLatLong
+                    loading = false
+                }
+            )
         }
-    )
+    }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
             .verticalScroll(scrollState),
-
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        FarmDimensionsForm(
+            useLocation = useLocation,
+            locationAccessible = locationAccessible,
+            loading = loading,
+            onUseLocationChange = { useLocation = it },
+            onSubmit = { w, h ->
+                showMap = true
+                keyboardController?.hide()
+                height = h
+                width = w
+            }
+        )
+
+        if (showMap) {
+            MyMap(
+                latLng = latLng,
+                setLatLng = {
+                    latLng = it
+                })
+        }
+    }
+}
+
+@Composable
+fun FarmDimensionsForm(
+    useLocation: Boolean,
+    locationAccessible: Boolean,
+    loading: Boolean,
+    onUseLocationChange: (Boolean) -> Unit,
+    onSubmit: (width: Double, height: Double) -> Unit
+) {
+    var height by remember { mutableStateOf("") }
+    var width by remember { mutableStateOf("") }
+    var heightError by remember { mutableStateOf("") }
+    var widthError by remember { mutableStateOf("") }
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
         Text(text = "Enter Farm Dimensions", style = MaterialTheme.typography.headlineMedium)
 
         InputField(
@@ -213,88 +253,30 @@ fun DetailsPage() {
                 .padding(vertical = 12.dp, horizontal = 2.dp)
         )
 
+        Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Checkbox(
+                checked = useLocation,
+                onCheckedChange = onUseLocationChange,
+                enabled = locationAccessible
+            )
+            Text(text = "Use current location", style = MaterialTheme.typography.bodyMedium)
+        }
+
         Button(
             onClick = {
-                showMap = validateInput(
-                    height,
-                    setHeightError = { heightError = it },
-                    width,
-                    setWidthError = { widthError = it })
-                keyboardController?.hide()
+                if (validateInput(height, { heightError = it }, width, { widthError = it })) {
+                    onSubmit(width.toDouble(), height.toDouble())
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 12.dp, horizontal = 2.dp),
+            enabled = !loading
         ) {
             Text(
-                text = "Get Location",
+                text = if (loading) "Loading..." else "Get Location",
                 style = TextStyle(fontSize = 22.sp, fontWeight = FontWeight.Bold)
             )
-        }
-
-        if (showMap) {
-            Text(text = locationText, style = MaterialTheme.typography.bodyMedium)
-
-            latLng?.let {
-                MyMap(
-                    latLng = it,
-                    setLatLng = { new: LatLng ->
-                        latLng = new
-                        locationText =
-                            "Latitude: %.2f, Longitude: %.2f".format(new.latitude, new.longitude)
-                    })
-            }
-        }
-    }
-}
-
-@Composable
-fun FarmSizeForm(
-    onSubmit: (Int, Int) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    var height by remember { mutableStateOf("") }
-    var width by remember { mutableStateOf("") }
-    var heightError by remember { mutableStateOf("") }
-    var widthError by remember { mutableStateOf("") }
-
-    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        InputField(
-            value = height,
-            onValueChange = {
-                height = it
-                heightError = ""
-            },
-            label = "Height",
-            error = heightError,
-            onValueError = { heightError = it }
-        )
-
-        InputField(
-            value = width,
-            onValueChange = {
-                width = it
-                widthError = ""
-            },
-            label = "Width",
-            error = widthError,
-            onValueError = { widthError = it }
-        )
-
-        Button(
-            onClick = {
-                val isValid = validateInput(
-                    height,
-                    setHeightError = { heightError = it },
-                    width,
-                    setWidthError = { widthError = it }
-                )
-                if (isValid) {
-                    onSubmit(height.toInt(), width.toInt())
-                }
-            }
-        ) {
-            Text("Submit")
         }
     }
 }
@@ -329,19 +311,25 @@ fun validateInput(
     width: String,
     setWidthError: (String) -> Unit
 ): Boolean {
-    val heightValue = height.toIntOrNull()
-    val widthValue = width.toIntOrNull()
-    var isValid = true
-    if (heightValue == null || heightValue !in 1..1000) {
-        setHeightError("Enter a valid height between 1 and 1000")
-        isValid = false
+    val heightValue = height.toDoubleOrNull()
+    val widthValue = width.toDoubleOrNull()
+
+    val heightError = when (heightValue) {
+        null -> "Height must be a number"
+        !in 1.0..1000.0 -> "Enter a valid height between 1 and 1000"
+        else -> null
     }
 
-    if (widthValue == null || widthValue !in 1..1000) {
-        setWidthError("Enter a valid width between 1 and 1000")
-        isValid = false
+    val widthError = when (widthValue) {
+        null -> "Width must be a number"
+        !in 1.0..1000.0 -> "Enter a valid width between 1 and 1000"
+        else -> null
     }
-    return isValid
+
+    setHeightError(heightError.orEmpty())
+    setWidthError(widthError.orEmpty())
+
+    return heightError == null && widthError == null
 }
 
 @Composable
@@ -351,19 +339,21 @@ fun MyMap(
 ) {
     var isMapLoaded by remember { mutableStateOf(false) }
     var zoom by remember { mutableFloatStateOf(15f) }
-    var uiSettings by remember { mutableStateOf(MapUiSettings()) }
-    var properties by remember {
+    val uiSettings by remember { mutableStateOf(MapUiSettings()) }
+    val properties by remember {
         mutableStateOf(
             MapProperties(
                 mapType = MapType.SATELLITE
             )
         )
     }
-    var cameraPositionState = rememberCameraPositionState {
+    val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(latLng, zoom)
     }
 
-    LaunchedEffect(cameraPositionState.isMoving) {
+    Text(text = "Latitude: %.2f Longitude: %.2f".format(latLng.latitude, latLng.longitude))
+
+    LaunchedEffect(key1 = cameraPositionState.isMoving) {
         snapshotFlow { cameraPositionState.position }
             .collect { position ->
                 if (!cameraPositionState.isMoving) {
