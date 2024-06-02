@@ -1,5 +1,6 @@
 package com.example.farmsimulator.ui.home
 
+import android.provider.Settings.Global.getString
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -40,7 +42,7 @@ fun HomePage() {
                 modifier = Modifier.padding(16.dp)
             ) {
                 Text(
-                    text = "Welcome to Farm Simulator",
+                    text = stringResource(id = R.string.home_welcome),
                     style = MaterialTheme.typography.headlineMedium,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -56,14 +58,14 @@ fun HomePage() {
                         .testTag("landingImage")
                 )
                 Text(
-                    text = "Welcome to Farm Simulator, your essential tool for strategic farming and flood management. Through our intuitive grid-based layout, you can easily identify which areas of your farm are most susceptible to flooding and how often they are affected.",
+                    text = stringResource(id = R.string.home_welcome2),
                     style = TextStyle(fontSize = 20.sp),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 12.dp, horizontal = 2.dp)
                 )
                 Text(
-                    text = "Plan your crop placements with precision, as our simulator calculates potential yields based on your management decisions. Gain insights into water risks and optimize your agricultural output by understanding the dynamics of your land. Begin your journey with Farm Simulator today and turn your farming challenges into opportunities for innovation!",
+                    text = stringResource(id = R.string.home_intro),
                     style = TextStyle(fontSize = 20.sp),
                     modifier = Modifier
                         .fillMaxWidth()

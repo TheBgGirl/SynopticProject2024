@@ -1,5 +1,7 @@
 package com.example.farmsimulator
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Home
@@ -11,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -37,7 +40,7 @@ sealed class Screen(
     data object Home : Screen(route = "home", title = "Home", icon = Icons.Default.Home)
     data object Locator : Screen(
         route = "locator",
-        title = "Locator",
+        title = "Farm Locator",
         icon = Icons.Default.AddCircle,
         children = listOf(CropPlanner)
     )
@@ -55,6 +58,7 @@ sealed class Screen(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun NavGraph(
     modifier: Modifier = Modifier,

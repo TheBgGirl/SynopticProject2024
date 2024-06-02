@@ -1,3 +1,26 @@
 <resources>
     <string name="app_name">FarmSimulator</string>
+    <string name="home_route">home</string>
+    <string name="home_title">Home</string>
+    <string name="locator_route">locator</string>
+    <string name="locator_title">Farm Locator</string>
+    <string name="crop_planner_route">cropPlanner</string>
+    <string name="crop_planner_title">Crop Planner</string>
+    <string name="home_welcome">Welcome to Farm Simulator</string>
+    <string name="home_welcome2">Welcome to Farm Simulator, your essential tool for strategic farming and flood management. Through our intuitive grid-based layout, you can easily identify which areas of your farm are most susceptible to flooding and how often they are affected.</string>
+    <string name="home_intro">Plan your crop placements with precision, as our simulator calculates potential yields based on your management decisions. Gain insights into water risks and optimize your agricultural output by understanding the dynamics of your land. Begin your journey with Farm Simulator today and turn your farming challenges into opportunities for innovation!</string>
+    <string name="latlng">Latitude: %.2f Longitude: %.2f</string>
+    <string name="location_acquired">Location Acquired</string>
+    <string name="location_not_acquired">Location Not Acquired</string>
+    <string name="default_location">Using default location</string>
+    <string name="proceed_to_planner">Proceed to Crop Planner</string>
+    <string name="enter_dimensions">Enter Farm Dimensions</string>
+    <string name="height">Height</string>
+    <string name="width">Width</string>
+    <string name="use_location">Use Current Location</string>
+    <string name="loading">Loading...</string>
+    <string name="get_location">Get Location</string>
+    <string name="input_error">%s - Error: %s</string>
+    <string name="number_error">%s must be a number.</string>
+    <string name="invalid_range">%s must be between %d and %d</string>
 </resources>

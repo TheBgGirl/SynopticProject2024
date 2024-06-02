@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ក្លែងធ្វើកសិដ្ឋាន</string>
+    <string name="home_route">ផ្ទះ</string>
+    <string name="home_title">ផ្ទះ</string>
+    <string name="locator_route">ទីតាំង</string>
+    <string name="locator_title">ទីតាំងកសិដ្ឋាន</string>
+    <string name="crop_planner_route">អ្នករៀបចំផែនការដំណាំ</string>
+    <string name="crop_planner_title">អ្នករៀបចំផែនការដំណាំ</string>
+    <string name="home_welcome">សូមស្វាគមន៍មកកាន់ការក្លែងធ្វើកសិកម្ម</string>
+    <string name="home_welcome2">សូមស្វាគមន៍មកកាន់ Farm Simulator ដែលជាឧបករណ៍សំខាន់របស់អ្នកសម្រាប់ការធ្វើកសិកម្មបែបយុទ្ធសាស្ត្រ និងការគ្រប់គ្រងទឹកជំនន់។ តាមរយៈប្លង់ដែលផ្អែកលើក្រឡាចត្រង្គដ៏វិចារណញាណរបស់យើង អ្នកអាចកំណត់បានយ៉ាងងាយស្រួលថាតំបន់ណានៃកសិដ្ឋានរបស់អ្នកងាយនឹងជន់លិចបំផុត និងថាតើវារងផលប៉ះពាល់ញឹកញាប់ប៉ុណ្ណា។</string>
+    <string name="home_intro">រៀបចំផែនការកន្លែងដាំដំណាំរបស់អ្នកដោយភាពជាក់លាក់ ដោយសារម៉ាស៊ីនក្លែងធ្វើរបស់យើងគណនាទិន្នផលសក្តានុពលដោយផ្អែកលើការសម្រេចចិត្តគ្រប់គ្រងរបស់អ្នក។ ទទួលបានការយល់ដឹងអំពីហានិភ័យទឹក និងបង្កើនប្រសិទ្ធភាពទិន្នផលកសិកម្មរបស់អ្នកដោយការយល់ដឹងអំពីសក្ដានុពលនៃដីរបស់អ្នក។ ចាប់ផ្តើមដំណើររបស់អ្នកជាមួយ Farm Simulator ថ្ងៃនេះ ហើយបង្វែរបញ្ហាប្រឈមនៃការធ្វើកសិកម្មរបស់អ្នកទៅជាឱកាសសម្រាប់ការច្នៃប្រឌិត!</string>
+    <string name="latlng">រយៈទទឹង៖ %.2f រយៈបណ្តោយ៖ %.2f</string>
+    <string name="location_acquired">ទីតាំងទទួលបាន</string>
+    <string name="location_not_acquired">ទីតាំងមិនត្រូវបានទទួល</string>
+    <string name="default_location">ដោយប្រើទីតាំងលំនាំដើម</string>
+    <string name="proceed_to_planner">បន្តទៅអ្នករៀបចំផែនការដំណាំ</string>
+    <string name="enter_dimensions">បញ្ចូលវិមាត្រកសិដ្ឋាន</string>
+    <string name="height">កម្ពស់</string>
+    <string name="width">ទទឹង</string>
+    <string name="use_location">ប្រើទីតាំងបច្ចុប្បន្ន</string>
+    <string name="loading">កំពុង​ផ្ទុក...</string>
+    <string name="get_location">ទទួលបានទីតាំង</string>
+    <string name="input_error">%s - កំហុស: %s</string>
+    <string name="number_error">%s ត្រូវតែជាលេខ។</string>
+    <string name="invalid_range">%s ត្រូវតែស្ថិតនៅចន្លោះ %d និង %d</string>
+</resources>
