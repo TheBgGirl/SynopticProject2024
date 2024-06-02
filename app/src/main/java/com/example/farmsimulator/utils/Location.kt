@@ -1,4 +1,4 @@
-package com.example.farmsimulator
+package com.example.farmsimulator.utils
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -104,4 +104,34 @@ fun areLocationPermissionsGranted(
     ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
         context, Manifest.permission.ACCESS_COARSE_LOCATION
     ) == PackageManager.PERMISSION_GRANTED)
+}
+
+@Composable
+fun RequestLocationPermissionBinary(callback: (Boolean) -> Unit) {
+    RequestLocationPermission(
+        onPermissionGranted = { callback(true) },
+        onPermissionDenied = { callback(false) },
+        onPermissionsRevoked = { callback(false) }
+    )
+}
+
+fun getLocation(
+    context: Context,
+    fusedLocationClient: FusedLocationProviderClient,
+    onGetLocationSuccess: (LatLng) -> Unit,
+    onGetLocationFailed: (Exception) -> Unit,
+) {
+    getCurrentLocation(
+        context = context,
+        fusedLocationClient = fusedLocationClient,
+        onGetCurrentLocationSuccess = onGetLocationSuccess,
+        onGetCurrentLocationFailed = {
+            getLastUserLocation(
+                context = context,
+                fusedLocationClient = fusedLocationClient,
+                onGetLastLocationSuccess = onGetLocationSuccess,
+                onGetLastLocationFailed = onGetLocationFailed
+            )
+        }
+    )
 }
