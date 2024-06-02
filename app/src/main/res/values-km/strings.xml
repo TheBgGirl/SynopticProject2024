@@ -24,4 +24,9 @@
     <string name="input_error">%s - កំហុស: %s</string>
     <string name="number_error">%s ត្រូវតែជាលេខ។</string>
     <string name="invalid_range">%s ត្រូវតែស្ថិតនៅចន្លោះ %d និង %d</string>
+    <string name="empty_error">%s មិនអាចទទេបានទេ។</string>
+    <string name="back">ត្រឡប់មកវិញ</string>
+    <string name="select_locale">ជ្រើសរើសទីតាំង</string>
+    <string name="current_locale">ទីតាំងបច្ចុប្បន្ន៖ %s</string>
+    <string name="settings_title">ការកំណត់</string>
 </resources>

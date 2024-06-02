@@ -27,6 +27,7 @@ import androidx.navigation.navArgument
 import com.example.farmsimulator.ui.farm.LocatorPage
 import com.example.farmsimulator.ui.farm.PlannerPage
 import com.example.farmsimulator.ui.home.HomePage
+import com.example.farmsimulator.ui.settings.SettingsPage
 import com.google.android.gms.maps.model.LatLng
 
 sealed class Screen(
@@ -53,8 +54,14 @@ sealed class Screen(
         parent = Locator
     )
 
+    data object Settings : Screen(
+        route = "settings",
+        title = "Settings",
+        icon = Icons.Default.AddCircle
+    )
+
     companion object {
-        val items = listOf(Home, Locator, CropPlanner)
+        val items = listOf(Home, Locator, CropPlanner, Settings)
     }
 }
 
@@ -101,6 +108,10 @@ fun NavGraph(
                 navController.navigate(Screen.Locator.route)
             })
         }
+
+        composable(Screen.Settings.route) {
+            SettingsPage()
+        }
     }
 }
 
@@ -113,6 +124,12 @@ fun BottomNav(navController: NavController) {
         Screen.items.forEach { screen ->
             if (screen.onNavBar) {
                 val selected = currentRoute?.hierarchy?.any { it.route == screen.route } == true
+                val localeText = stringResource(id = when (screen) {
+                    is Screen.Home -> R.string.home_title
+                    is Screen.Locator -> R.string.locator_title
+                    is Screen.CropPlanner -> R.string.crop_planner_title
+                    is Screen.Settings -> R.string.settings_title
+                })
 
                 NavigationBarItem(
                     selected = selected,
@@ -120,7 +137,7 @@ fun BottomNav(navController: NavController) {
                         navController.navigate(screen.route)
                     },
                     label = {
-                        Text(text = screen.title, maxLines = 1)
+                        Text(text = localeText, maxLines = 1)
                     },
                     alwaysShowLabel = true,
                     icon = {

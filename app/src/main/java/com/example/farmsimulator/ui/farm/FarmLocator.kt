@@ -185,6 +185,9 @@ fun FarmDimensionsForm(
     var heightError by remember { mutableStateOf("") }
     var widthError by remember { mutableStateOf("") }
 
+    val heightString = stringResource(id = R.string.height)
+    val widthString = stringResource(id = R.string.width)
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -197,7 +200,7 @@ fun FarmDimensionsForm(
                 height = it
                 heightError = ""
             },
-            label = stringResource(id = R.string.height),
+            label = heightString,
             error = heightError,
             onValueError = { heightError = it },
             modifier = Modifier
@@ -211,7 +214,7 @@ fun FarmDimensionsForm(
                 width = it
                 widthError = ""
             },
-            label = stringResource(id = R.string.width),
+            label = widthString,
             error = widthError,
             onValueError = { widthError = it },
             modifier = Modifier
@@ -228,10 +231,22 @@ fun FarmDimensionsForm(
             Text(text = stringResource(id = R.string.use_location), style = MaterialTheme.typography.bodyMedium)
         }
 
+        val emptyErrorString = stringResource(id = R.string.empty_error)
+        val rangeErrorString = stringResource(id = R.string.invalid_range)
+        val numberErrorString = stringResource(id = R.string.number_error)
+
         Button(
             onClick = {
-                if (validateInput(height, { heightError = it }, width, { widthError = it })) {
-                    onSubmit(width.toDouble(), height.toDouble())
+                when (validateInput(height, width)) {
+                    DimensionInputError.HEIGHT_EMPTY -> heightError = emptyErrorString.format(heightString)
+                    DimensionInputError.WIDTH_EMPTY -> widthError = emptyErrorString.format(widthString)
+                    DimensionInputError.HEIGHT_INVALID -> heightError = numberErrorString.format(heightString)
+                    DimensionInputError.WIDTH_INVALID -> widthError = numberErrorString.format(widthString)
+                    DimensionInputError.HEIGHT_RANGE -> heightError = rangeErrorString.format(heightString, 1, 1000)
+                    DimensionInputError.WIDTH_RANGE -> widthError = rangeErrorString.format(widthString, 1, 1000)
+                    DimensionInputError.NONE -> {
+                        onSubmit(width.toDouble(), height.toDouble())
+                    }
                 }
             },
             modifier = Modifier
@@ -245,6 +260,17 @@ fun FarmDimensionsForm(
             )
         }
     }
+}
+
+// fix this logic
+enum class DimensionInputError {
+    HEIGHT_EMPTY,
+    HEIGHT_INVALID,
+    HEIGHT_RANGE,
+    WIDTH_EMPTY,
+    WIDTH_INVALID,
+    WIDTH_RANGE,
+    NONE
 }
 
 @Composable
@@ -271,32 +297,32 @@ fun InputField(
     )
 }
 
-@Composable
 fun validateInput(
     height: String,
-    setHeightError: (String) -> Unit,
     width: String,
-    setWidthError: (String) -> Unit
-): Boolean {
+): DimensionInputError {
+    if (height.isEmpty()) {
+        return DimensionInputError.HEIGHT_EMPTY
+    }
+
+    if (width.isEmpty()) {
+        return DimensionInputError.WIDTH_EMPTY
+    }
+
     val heightValue = height.toDoubleOrNull()
     val widthValue = width.toDoubleOrNull()
 
-    val heightError = when (heightValue) {
-        null -> stringResource(id = R.string.number_error, stringResource(id = R.string.height))
-        !in 1.0..1000.0 -> stringResource(id = R.string.input_error, stringResource(id = R.string.height), 1, 1000)
-        else -> null
+    when (heightValue) {
+        null -> return DimensionInputError.HEIGHT_EMPTY
+        !in 1.0..1000.0 -> return DimensionInputError.HEIGHT_RANGE
     }
 
-    val widthError = when (widthValue) {
-        null -> stringResource(id = R.string.number_error, stringResource(id = R.string.width))
-        !in 1.0..1000.0 -> stringResource(id = R.string.input_error, stringResource(id = R.string.width), 1, 1000)
-        else -> null
+    when (widthValue) {
+        null -> return DimensionInputError.WIDTH_EMPTY
+        !in 1.0..1000.0 -> return DimensionInputError.WIDTH_RANGE
     }
 
-    setHeightError(heightError.orEmpty())
-    setWidthError(widthError.orEmpty())
-
-    return heightError == null && widthError == null
+    return DimensionInputError.NONE
 }
 
 @Composable
@@ -318,7 +344,9 @@ fun WorldMap(
         position = CameraPosition.fromLatLngZoom(latLng, zoom)
     }
 
-    Text(text = "Latitude: %.2f Longitude: %.2f".format(latLng.latitude, latLng.longitude))
+    val longLatString = stringResource(id = R.string.latlng)
+
+    Text(text = longLatString.format(latLng.latitude, latLng.longitude), style = MaterialTheme.typography.bodyMedium)
 
     LaunchedEffect(key1 = cameraPositionState.isMoving) {
         snapshotFlow { cameraPositionState.position }

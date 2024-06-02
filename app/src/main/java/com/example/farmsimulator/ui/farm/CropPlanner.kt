@@ -5,8 +5,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.example.farmsimulator.R
 import com.google.android.gms.maps.model.LatLng
 
 @Composable
@@ -14,14 +17,14 @@ fun PlannerPage(latLng: LatLng, height: Double, width: Double, onBackNavigation:
     val scroll = rememberScrollState()
 
     Column (modifier = Modifier.verticalScroll(scroll)) {
-        Text("Crop Planner")
+        Text(text = stringResource(id = R.string.crop_planner_title))
         Text("Height: $height")
         Text("Width: $width")
         Text("Latitude: ${latLng.latitude}")
         Text("Longitude: ${latLng.longitude}")
 
         Button(onClick = onBackNavigation) {
-            Text("Back")
+            Text(text = stringResource(id = R.string.back))
         }
     }
 }
