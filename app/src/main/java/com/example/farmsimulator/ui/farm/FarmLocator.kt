@@ -9,11 +9,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -31,6 +31,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.farmsimulator.R
@@ -49,6 +50,7 @@ import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.example.farmsimulator.ui.utils.InputField
 
 @OptIn(ExperimentalPermissionsApi::class)
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -197,29 +199,36 @@ fun FarmDimensionsForm(
         InputField(
             value = height,
             onValueChange = {
-                height = it
                 heightError = ""
+                if (it.toDoubleOrNull() != null) {
+                    height = it
+                }
             },
             label = heightString,
             error = heightError,
             onValueError = { heightError = it },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 12.dp, horizontal = 2.dp)
+                .padding(vertical = 12.dp, horizontal = 2.dp),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+
         )
 
         InputField(
             value = width,
             onValueChange = {
-                width = it
                 widthError = ""
+                if (it.toDoubleOrNull() != null) {
+                    width = it
+                }
             },
             label = widthString,
             error = widthError,
             onValueError = { widthError = it },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 12.dp, horizontal = 2.dp)
+                .padding(vertical = 12.dp, horizontal = 2.dp),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
 
         Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -273,29 +282,6 @@ enum class DimensionInputError {
     NONE
 }
 
-@Composable
-fun InputField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    label: String,
-    error: String,
-    onValueError: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = {
-            onValueChange(it)
-            onValueError("")
-        },
-        label = {
-            val text = if (error.isNotEmpty()) stringResource(id = R.string.input_error, label, error) else label
-            Text(text = text)
-        },
-        modifier = modifier,
-        isError = error.isNotEmpty(),
-    )
-}
 
 fun validateInput(
     height: String,
