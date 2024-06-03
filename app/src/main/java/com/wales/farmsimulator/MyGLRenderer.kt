@@ -21,6 +21,8 @@ class MyGLRenderer : GLSurfaceView.Renderer
 
     private lateinit var shader : Shader
 
+    private lateinit var plane : Plane
+
     // ----- CAMERA SETTING ----- //
     private var camera: Camera = Camera()
 
@@ -68,6 +70,8 @@ class MyGLRenderer : GLSurfaceView.Renderer
 
         square = Square(floatArrayOf(0f,0f,0f),1f)
 
+        plane = Plane()
+
         camera.setPosition(0f, 0.5f, 0f)
         camera.setRadius(5f)
         camera.setPitch(90f)
@@ -93,7 +97,9 @@ class MyGLRenderer : GLSurfaceView.Renderer
         shader.setMat4("uMVPMatrix",MVPMatrix)
         //triangle.draw(shader)
 
-        square.draw(shader)
+        //square.draw(shader)
+
+        plane.draw(shader)
 
     }
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
