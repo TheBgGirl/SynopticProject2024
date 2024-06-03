@@ -242,7 +242,7 @@ fun FarmDimensionsForm(
             value = height,
             onValueChange = {
                 heightError = ""
-                if (it.toDoubleOrNull() != null) {
+                if (it.toDoubleOrNull() != null || it.isEmpty()) {
                     height = it
                 }
             },
@@ -260,7 +260,7 @@ fun FarmDimensionsForm(
             value = width,
             onValueChange = {
                 widthError = ""
-                if (it.toDoubleOrNull() != null) {
+                if (it.toDoubleOrNull() != null || it.isEmpty()) {
                     width = it
                 }
             },
@@ -293,27 +293,23 @@ fun FarmDimensionsForm(
         val numberErrorString = stringResource(id = R.string.number_error)
         Button(
             onClick = {
-                when (validateInput(height, width)) {
-                    DimensionInputError.HEIGHT_EMPTY -> heightError =
-                        emptyErrorString.format(heightString)
+                val heightValidation = validateInput(height, parse = { it.toDoubleOrNull() }, predicates = listOf { it.toDouble() in 1.0..1000.0 })
+                val widthValidation = validateInput(width, parse = { it.toDoubleOrNull() }, predicates = listOf { it.toDouble() in 1.0..1000.0 })
 
-                    DimensionInputError.WIDTH_EMPTY -> widthError =
-                        emptyErrorString.format(widthString)
-
-                    DimensionInputError.HEIGHT_INVALID -> heightError =
-                        numberErrorString.format(heightString)
-
-                    DimensionInputError.WIDTH_INVALID -> widthError =
-                        numberErrorString.format(widthString)
-
-                    DimensionInputError.HEIGHT_RANGE -> heightError =
-                        rangeErrorString.format(heightString, 1, 1000)
-
-                    DimensionInputError.WIDTH_RANGE -> widthError =
-                        rangeErrorString.format(widthString, 1, 1000)
-
-                    DimensionInputError.NONE -> {
-                        onSubmit(width.toDouble(), height.toDouble())
+                if (heightValidation == DimensionInputError.NONE && widthValidation == DimensionInputError.NONE) {
+                    onSubmit(width.toDouble(), height.toDouble())
+                } else {
+                    heightError = when (heightValidation) {
+                        DimensionInputError.EMPTY -> emptyErrorString.format(heightString)
+                        DimensionInputError.TYPE_MISMATCH -> numberErrorString.format(heightString)
+                        DimensionInputError.OUT_OF_RANGE -> rangeErrorString.format(heightString, 1, 1000)
+                        DimensionInputError.NONE -> ""
+                    }
+                    widthError = when (widthValidation) {
+                        DimensionInputError.EMPTY -> emptyErrorString.format(widthString)
+                        DimensionInputError.TYPE_MISMATCH -> numberErrorString.format(widthString)
+                        DimensionInputError.OUT_OF_RANGE -> rangeErrorString.format(widthString, 1, 1000)
+                        DimensionInputError.NONE -> ""
                     }
                 }
             },
@@ -332,39 +328,30 @@ fun FarmDimensionsForm(
 
 // fix this logic
 enum class DimensionInputError {
-    HEIGHT_EMPTY,
-    HEIGHT_INVALID,
-    HEIGHT_RANGE,
-    WIDTH_EMPTY,
-    WIDTH_INVALID,
-    WIDTH_RANGE,
+    EMPTY,
+    TYPE_MISMATCH,
+    OUT_OF_RANGE,
     NONE
 }
 
-
 fun validateInput(
-    height: String,
-    width: String,
+    input: String,
+    parse: (String) -> Any? = { it },
+    predicates: List<(String) -> Boolean> = emptyList()
 ): DimensionInputError {
-    if (height.isEmpty()) {
-        return DimensionInputError.HEIGHT_EMPTY
+
+    if (input.isEmpty()) {
+        return DimensionInputError.EMPTY
     }
 
-    if (width.isEmpty()) {
-        return DimensionInputError.WIDTH_EMPTY
-    }
+    val parsed = try {
+        parse(input)
+    } catch (e: Exception) {
+        null
+    } ?: return DimensionInputError.TYPE_MISMATCH
 
-    val heightValue = height.toDoubleOrNull()
-    val widthValue = width.toDoubleOrNull()
-
-    when (heightValue) {
-        null -> return DimensionInputError.HEIGHT_EMPTY
-        !in 1.0..1000.0 -> return DimensionInputError.HEIGHT_RANGE
-    }
-
-    when (widthValue) {
-        null -> return DimensionInputError.WIDTH_EMPTY
-        !in 1.0..1000.0 -> return DimensionInputError.WIDTH_RANGE
+    if (predicates.any { !it(input) }) {
+        return DimensionInputError.OUT_OF_RANGE
     }
 
     return DimensionInputError.NONE
@@ -430,6 +417,7 @@ fun isOnline(context: Context): Boolean {
     if (connectivityManager != null) {
         val capabilities =
             connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+
         if (capabilities != null) {
             if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
                 Log.i("Internet", "NetworkCapabilities.TRANSPORT_CELLULAR")

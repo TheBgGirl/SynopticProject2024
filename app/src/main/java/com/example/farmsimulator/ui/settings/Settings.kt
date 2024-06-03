@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.os.LocaleListCompat
@@ -50,10 +51,12 @@ fun LocalePicker(locale: MutableState<java.util.Locale>, modifier: Modifier = Mo
 
         DropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.testTag("locale_dropdown")
         ) {
             availableLocales.forEach { availableLocale ->
                 DropdownMenuItem(
+                    modifier = Modifier.testTag("locale_${availableLocale.language}_${availableLocale.country}"),
                     onClick = {
                         locale.value = availableLocale
                         expanded = false
