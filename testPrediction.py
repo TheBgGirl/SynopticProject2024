@@ -52,4 +52,6 @@ grouped_data = predicted_data.groupby('month')
 
 monthly_probabilities = grouped_data['prediction'].mean()
 
+monthly_probabilities.to_csv('monthly_probabilities.csv', index=True, header=True)
+
 print(monthly_probabilities)
