@@ -6,7 +6,9 @@ from retry_requests import retry
 
 
 class DailyRiverDischargeData:
-    def __init__(self):
+    def __init__(self, date_start, date_end):
+        self.date_start = date_start
+        self.date_end = date_end
         self.data = pd.DataFrame()
 
     def getData(self):
@@ -19,10 +21,11 @@ class DailyRiverDischargeData:
         # The order of variables in hourly or daily is important to assign them correctly below
         url = "https://flood-api.open-meteo.com/v1/flood"
         params = {
-            "latitude": 12.5776539,
-            "longitude": 106.9349172,
+            "latitude": 12.59,
+            "longitude": 106.89,
             "daily": "river_discharge",
-            "forecast_days": 1
+            "start_date": self.date_start,
+            "end_date": self.date_end
         }
         responses = openmeteo.weather_api(url, params=params)
 

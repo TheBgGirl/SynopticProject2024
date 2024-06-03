@@ -39,12 +39,12 @@ class FloodPrediction:
         data['discharge_rolling_mean'] = data['river_discharge'].rolling(window=3).mean()
 
         self.X = data[['river_discharge',
+                       'temperature_2m_mean',
+                       'temperature_2m_max',
+                       'temperature_2m_min',
+                       'relative_humidity_2m_mean',
                        'precipitation_sum',
-                       'temperature_max',
-                       'temperature_min',
-                       'temperature_mean',
-                       'relative_humidity_mean',
-                       'soil_moisture_mean']]
+                       'soil_moisture_0_to_10cm_mean']]
         self.y = data['flood_occured']
 
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.X, self.y, test_size=0.2,

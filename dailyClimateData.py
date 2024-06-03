@@ -10,8 +10,9 @@ today = date.today()
 
 
 class DailyClimateData:
-    def __init__(self, date):
-        self.date = date
+    def __init__(self, date_start, date_end):
+        self.date_start = date_start
+        self.date_end = date_end
         self.data = pd.DataFrame()
 
     def getData(self):
@@ -26,8 +27,8 @@ class DailyClimateData:
         params = {
             "latitude": 12.5776539,
             "longitude": 106.9349172,
-            "start_date": self.date,
-            "end_date": self.date,
+            "start_date": self.date_start,
+            "end_date": self.date_end,
             "models": "MRI_AGCM3_2_S",
             "daily": ["temperature_2m_mean", "temperature_2m_max", "temperature_2m_min", "relative_humidity_2m_mean",
                       "precipitation_sum", "soil_moisture_0_to_10cm_mean"]
