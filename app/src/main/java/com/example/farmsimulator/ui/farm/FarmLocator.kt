@@ -1,7 +1,15 @@
 package com.example.farmsimulator.ui.farm
 
+import android.content.Context
+import android.content.res.Resources.Theme
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,7 +19,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -26,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -34,6 +47,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.core.content.ContextCompat.getSystemService
 import com.example.farmsimulator.R
 import com.example.farmsimulator.utils.DEFAULT_LAT_LONG
 import com.example.farmsimulator.utils.NotificationHandler
@@ -51,6 +66,8 @@ import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.example.farmsimulator.ui.utils.InputField
+import com.example.farmsimulator.utils.createDialog
+import dagger.hilt.android.qualifiers.ApplicationContext
 
 @OptIn(ExperimentalPermissionsApi::class)
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -72,8 +89,12 @@ fun LocatorPage(onCropPlannerClick: (height: Double, width: Double, latLng: LatL
     var loading by remember { mutableStateOf(false) }
     var isPositioned by remember { mutableStateOf(false) }
 
-    val postNotificationPermission = rememberPermissionState(permission = android.Manifest.permission.POST_NOTIFICATIONS)
+    val postNotificationPermission =
+        rememberPermissionState(permission = android.Manifest.permission.POST_NOTIFICATIONS)
     val notificationHandler = NotificationHandler(context)
+    val hasConnection by remember { mutableStateOf(false) }
+
+
 
     LaunchedEffect(Unit) {
         if (!postNotificationPermission.status.isGranted) {
@@ -107,12 +128,18 @@ fun LocatorPage(onCropPlannerClick: (height: Double, width: Double, latLng: LatL
                 onGetLocationSuccess = {
                     latLng = it
                     loading = false
-                    notificationHandler.showNotification(locationAcquiredString, latLngString.format(it.latitude, it.longitude))
+                    notificationHandler.showNotification(
+                        locationAcquiredString,
+                        latLngString.format(it.latitude, it.longitude)
+                    )
                 },
                 onGetLocationFailed = {
                     latLng = DEFAULT_LAT_LONG
                     loading = false
-                    notificationHandler.showNotification(locationNotAcquiredString, defaultLocationString)
+                    notificationHandler.showNotification(
+                        locationNotAcquiredString,
+                        defaultLocationString
+                    )
                 }
             )
         } else {
@@ -132,6 +159,7 @@ fun LocatorPage(onCropPlannerClick: (height: Double, width: Double, latLng: LatL
         FarmDimensionsForm(
             useLocation = useLocation,
             locationAccessible = locationAccessible,
+            context = context,
             loading = loading,
             onUseLocationChange = { useLocation = it },
             onSubmit = { w, h ->
@@ -177,6 +205,7 @@ fun NextPageButton(onClick: () -> Unit) {
 @Composable
 fun FarmDimensionsForm(
     useLocation: Boolean,
+    context: Context,
     locationAccessible: Boolean,
     loading: Boolean,
     onUseLocationChange: (Boolean) -> Unit,
@@ -186,15 +215,28 @@ fun FarmDimensionsForm(
     var width by remember { mutableStateOf("") }
     var heightError by remember { mutableStateOf("") }
     var widthError by remember { mutableStateOf("") }
+    var showDialog by remember { mutableStateOf(!isOnline(context)) }
 
     val heightString = stringResource(id = R.string.height)
     val widthString = stringResource(id = R.string.width)
+    if (showDialog) {
+        createDialog(
+            onDismissRequest = { showDialog = false },
+            onConfirmation = { showDialog = false },
+            dialogTitle = stringResource(id = R.string.offline_title),
+            dialogText = stringResource(id = R.string.offline_message),
+            icon = Icons.Default.Warning
+        )
+    }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Text(text = stringResource(id = R.string.enter_dimensions), style = MaterialTheme.typography.headlineMedium)
+        Text(
+            text = stringResource(id = R.string.enter_dimensions),
+            style = MaterialTheme.typography.headlineMedium
+        )
 
         InputField(
             value = height,
@@ -231,28 +273,45 @@ fun FarmDimensionsForm(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
 
-        Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Checkbox(
                 checked = useLocation,
                 onCheckedChange = onUseLocationChange,
                 enabled = locationAccessible
             )
-            Text(text = stringResource(id = R.string.use_location), style = MaterialTheme.typography.bodyMedium)
+            Text(
+                text = stringResource(id = R.string.use_location),
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
 
         val emptyErrorString = stringResource(id = R.string.empty_error)
         val rangeErrorString = stringResource(id = R.string.invalid_range)
         val numberErrorString = stringResource(id = R.string.number_error)
-
         Button(
             onClick = {
                 when (validateInput(height, width)) {
-                    DimensionInputError.HEIGHT_EMPTY -> heightError = emptyErrorString.format(heightString)
-                    DimensionInputError.WIDTH_EMPTY -> widthError = emptyErrorString.format(widthString)
-                    DimensionInputError.HEIGHT_INVALID -> heightError = numberErrorString.format(heightString)
-                    DimensionInputError.WIDTH_INVALID -> widthError = numberErrorString.format(widthString)
-                    DimensionInputError.HEIGHT_RANGE -> heightError = rangeErrorString.format(heightString, 1, 1000)
-                    DimensionInputError.WIDTH_RANGE -> widthError = rangeErrorString.format(widthString, 1, 1000)
+                    DimensionInputError.HEIGHT_EMPTY -> heightError =
+                        emptyErrorString.format(heightString)
+
+                    DimensionInputError.WIDTH_EMPTY -> widthError =
+                        emptyErrorString.format(widthString)
+
+                    DimensionInputError.HEIGHT_INVALID -> heightError =
+                        numberErrorString.format(heightString)
+
+                    DimensionInputError.WIDTH_INVALID -> widthError =
+                        numberErrorString.format(widthString)
+
+                    DimensionInputError.HEIGHT_RANGE -> heightError =
+                        rangeErrorString.format(heightString, 1, 1000)
+
+                    DimensionInputError.WIDTH_RANGE -> widthError =
+                        rangeErrorString.format(widthString, 1, 1000)
+
                     DimensionInputError.NONE -> {
                         onSubmit(width.toDouble(), height.toDouble())
                     }
@@ -332,7 +391,10 @@ fun WorldMap(
 
     val longLatString = stringResource(id = R.string.latlng)
 
-    Text(text = longLatString.format(latLng.latitude, latLng.longitude), style = MaterialTheme.typography.bodyMedium)
+    Text(
+        text = longLatString.format(latLng.latitude, latLng.longitude),
+        style = MaterialTheme.typography.bodyMedium
+    )
 
     LaunchedEffect(key1 = cameraPositionState.isMoving) {
         snapshotFlow { cameraPositionState.position }
@@ -360,4 +422,26 @@ fun WorldMap(
             properties = properties
         )
     }
+}
+
+fun isOnline(context: Context): Boolean {
+    val connectivityManager =
+        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    if (connectivityManager != null) {
+        val capabilities =
+            connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+        if (capabilities != null) {
+            if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                Log.i("Internet", "NetworkCapabilities.TRANSPORT_CELLULAR")
+                return true
+            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                Log.i("Internet", "NetworkCapabilities.TRANSPORT_WIFI")
+                return true
+            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
+                Log.i("Internet", "NetworkCapabilities.TRANSPORT_ETHERNET")
+                return true
+            }
+        }
+    }
+    return false
 }
