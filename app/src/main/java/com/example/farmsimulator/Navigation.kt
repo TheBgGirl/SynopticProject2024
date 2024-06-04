@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
@@ -42,15 +43,17 @@ sealed class Screen(
     @StringRes val title: Int,
     val icon: ImageVector,
     val onNavBar: Boolean = true,
+    val testTag: String = route,
     val parent: Screen? = null,
     val children: List<Screen> = emptyList()
 ) {
-    data object Home : Screen(route = "home", title = R.string.home_title, icon = Icons.Default.Home)
+    data object Home : Screen(route = "home", title = R.string.home_title, icon = Icons.Default.Home, testTag = "homeButton")
     data object Locator : Screen(
         route = "locator",
         title = R.string.locator_title,
         icon = Icons.Default.AddCircle,
-        children = listOf(CropPlanner)
+        children = listOf(CropPlanner),
+        testTag = "locatorButton"
     )
 
     data object CropPlanner : Screen(
@@ -64,7 +67,8 @@ sealed class Screen(
     data object Settings : Screen(
         route = "settings",
         title = R.string.settings_title,
-        icon = Icons.Default.AddCircle
+        icon = Icons.Default.AddCircle,
+        testTag = "settingsButton"
     )
 
     companion object {
@@ -157,6 +161,7 @@ fun BottomNav(navController: NavController) {
             if (screen.onNavBar) {
                 val selected = currentRoute?.hierarchy?.any { it.route == screen.route } == true
                 NavigationBarItem(
+                    modifier = Modifier.testTag(screen.testTag),
                     selected = selected,
                     onClick = {
                         navController.navigate(screen.route)

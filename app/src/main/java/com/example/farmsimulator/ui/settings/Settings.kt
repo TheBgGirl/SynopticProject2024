@@ -35,7 +35,9 @@ fun SettingsPage() {
     val context = LocalContext.current
     val locale = remember { mutableStateOf(context.resources.configuration.locales[0]) }
 
-    Column(modifier = Modifier.padding(16.dp).testTag("settingsPage")) {
+    Column(modifier = Modifier
+        .padding(16.dp)
+        .testTag("settingsPage")) {
         Text(
             text = stringResource(id = R.string.settings_title),
             style = MaterialTheme.typography.headlineMedium
@@ -66,13 +68,13 @@ fun LocalePicker(
 
             Text(
                 text = stringResource(id = R.string.select_locale),
-                modifier = Modifier.clickable { expanded = true }
+                modifier = Modifier.testTag("localePicker").clickable { expanded = true }
             )
 
             DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
-                modifier = Modifier.testTag("locale_dropdown")
+                modifier = Modifier.testTag("localeDropdown")
             ) {
                 availableLocales.forEach { availableLocale ->
                     DropdownMenuItem(
