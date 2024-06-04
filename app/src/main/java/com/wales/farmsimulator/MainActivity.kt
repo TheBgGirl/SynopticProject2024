@@ -69,7 +69,7 @@ fun LandingPage(navController: NavController) {
         Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = {
-                        val intent = Intent(context, OpenGLActivity::class.java)
+                        val intent = Intent(context, Obj3DView::class.java)
                         context.startActivity(intent)
                       },
             modifier = Modifier.testTag("navigateButton")

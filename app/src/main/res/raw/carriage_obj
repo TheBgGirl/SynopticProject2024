@@ -1,6 +1,6 @@
 # Blender 4.0.2
 # www.blender.org
-mtllib Bcarriage.mtl
+mtllib carriage_mtl
 o floor
 v -2.000000 2.750000 7.000000
 v -2.000000 3.750000 7.000000
