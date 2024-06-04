@@ -28,3 +28,10 @@ fun PlannerPage(latLng: LatLng, height: Double, width: Double, onBackNavigation:
         }
     }
 }
+
+@Composable
+fun EnterCropsForm() {
+    Column {
+        Text("Enter crop details")
+    }
+}

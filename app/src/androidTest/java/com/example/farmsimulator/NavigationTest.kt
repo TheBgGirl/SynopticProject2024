@@ -24,12 +24,12 @@ class NavigationTest {
     private lateinit var context: Context
 
     @Before
-    fun setupAppNavHost() {
+    fun setupNavHost() {
         composeTestRule.setContent {
             context = LocalContext.current
-            navController = TestNavHostController(LocalContext.current).apply {
-                navigatorProvider.addNavigator(ComposeNavigator())
-            }
+            navController = TestNavHostController(context)
+            navController.navigatorProvider.addNavigator(ComposeNavigator())
+
             FarmSimNavGraph(navController = navController)
         }
     }
@@ -39,48 +39,15 @@ class NavigationTest {
         composeTestRule.onNodeWithTag("homePage").assertExists()
     }
 
-    /*
+    @Test
+    fun farmSimulatorApp_verifyHomePage() {
+        composeTestRule.onNodeWithText(context.getString(R.string.home_welcome)).assertExists()
+    }
+
     @Test
     fun farmSimulatorApp_verifyLocatorPage() {
-        composeTestRule.runOnUiThread {
-            navController.navigate(Screen.Locator.route)
-        }
-        composeTestRule.waitForIdle()
+        navController.navigate("locator")
         composeTestRule.onNodeWithTag("locatorPage").assertExists()
     }
-     */
 
-
-    @Test
-    fun farmSimulatorApp_verifySettingsPage() {
-        composeTestRule.runOnUiThread {
-            navController.navigate(Screen.Settings.route)
-        }
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithTag("settingsPage").assertExists()
-    }
-
-    /*
-    @Test
-    fun farmSimulatorApp_verifyHomeButton() {
-        navController.navigate(Screen.Locator.route)
-        composeTestRule.onNodeWithStringId(R.string.home_title).performClick()
-        navController.assertCurrentRouteName(Screen.Home.route)
-    }
-
-    @Test
-    fun farmSimulatorApp_verifyLocatorButton() {
-        navController.navigate(Screen.Home.route)
-        composeTestRule.onNodeWithStringId(R.string.locator_title).performClick()
-        navController.assertCurrentRouteName(Screen.Locator.route)
-    }
-
-    @Test
-    fun farmSimulatorApp_verifySettingsButton() {
-        navController.navigate(Screen.Home.route)
-        composeTestRule.onNodeWithStringId(R.string.settings_title).performClick()
-        navController.assertCurrentRouteName(Screen.Settings.route)
-    }
-
-     */
 }

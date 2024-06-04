@@ -14,7 +14,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        setContent { FarmSimulatorApp() }
+        setContent {
+            FarmSimulatorApp()
+        }
     }
 }
 
