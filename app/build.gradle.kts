@@ -73,6 +73,7 @@ dependencies {
     implementation(libs.androidx.ui.text.google.fonts)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.navigation.testing)
     testImplementation(libs.junit)
 
     implementation(libs.android.maps.compose)

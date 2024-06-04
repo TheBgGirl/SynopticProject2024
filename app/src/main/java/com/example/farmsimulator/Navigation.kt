@@ -2,21 +2,28 @@ package com.example.farmsimulator
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavGraph
+import androidx.navigation.NavGraphNavigator
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -32,23 +39,23 @@ import com.google.android.gms.maps.model.LatLng
 
 sealed class Screen(
     val route: String,
-    val title: String,
+    @StringRes val title: Int,
     val icon: ImageVector,
     val onNavBar: Boolean = true,
     val parent: Screen? = null,
     val children: List<Screen> = emptyList()
 ) {
-    data object Home : Screen(route = "home", title = "Home", icon = Icons.Default.Home)
+    data object Home : Screen(route = "home", title = R.string.home_title, icon = Icons.Default.Home)
     data object Locator : Screen(
         route = "locator",
-        title = "Farm Locator",
+        title = R.string.locator_title,
         icon = Icons.Default.AddCircle,
         children = listOf(CropPlanner)
     )
 
     data object CropPlanner : Screen(
         route = "cropPlanner",
-        title = "Crop Planner",
+        title = R.string.crop_planner_title,
         icon = Icons.Default.AddCircle,
         onNavBar = false,
         parent = Locator
@@ -56,7 +63,7 @@ sealed class Screen(
 
     data object Settings : Screen(
         route = "settings",
-        title = "Settings",
+        title = R.string.settings_title,
         icon = Icons.Default.AddCircle
     )
 
@@ -67,7 +74,7 @@ sealed class Screen(
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
-fun NavGraph(
+fun FarmSimNavGraph(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController()
 ) {
@@ -76,7 +83,7 @@ fun NavGraph(
         navController = navController,
         startDestination = Screen.Home.route
     ) {
-        composable(Screen.Home.route) {
+        composable(route = Screen.Home.route) {
             HomePage()
         }
         composable(Screen.Locator.route) {
@@ -89,7 +96,7 @@ fun NavGraph(
             )
         }
 
-        composable("${Screen.CropPlanner.route}?height={height}&width={width}&lat={lat}&long={long}",
+        composable(route = "${Screen.CropPlanner.route}?height={height}&width={width}&lat={lat}&long={long}",
             arguments = listOf(
                 navArgument("height") { type = NavType.StringType; defaultValue = "0.0"; nullable = true },
                 navArgument("width") { type = NavType.StringType; defaultValue = "0.0"; nullable = true },
@@ -109,10 +116,35 @@ fun NavGraph(
             })
         }
 
-        composable(Screen.Settings.route) {
+        composable(route = Screen.Settings.route) {
             SettingsPage()
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TopBar(
+    navController: NavController,
+    modifier: Modifier = Modifier
+) {
+    val canNavigateBack = navController.previousBackStackEntry != null
+    val navigateUp: () -> Unit = { navController.navigateUp() }
+    val title = stringResource(id = R.string.app_name)
+
+    TopAppBar(title = {
+        Text(text = title)
+    },
+        navigationIcon = {
+        if (canNavigateBack) {
+            IconButton(onClick = navigateUp) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(id = R.string.back)
+                )
+            }
+        }
+    }, modifier = modifier)
 }
 
 @Composable
@@ -124,26 +156,19 @@ fun BottomNav(navController: NavController) {
         Screen.items.forEach { screen ->
             if (screen.onNavBar) {
                 val selected = currentRoute?.hierarchy?.any { it.route == screen.route } == true
-                val localeText = stringResource(id = when (screen) {
-                    is Screen.Home -> R.string.home_title
-                    is Screen.Locator -> R.string.locator_title
-                    is Screen.CropPlanner -> R.string.crop_planner_title
-                    is Screen.Settings -> R.string.settings_title
-                })
-
                 NavigationBarItem(
                     selected = selected,
                     onClick = {
                         navController.navigate(screen.route)
                     },
                     label = {
-                        Text(text = localeText, maxLines = 1)
+                        Text(text = stringResource(id = screen.title), maxLines = 1)
                     },
                     alwaysShowLabel = true,
                     icon = {
                         Icon(
                             imageVector = screen.icon,
-                            contentDescription = screen.title
+                            contentDescription = stringResource(id = screen.title)
                         )
                     }
                 )

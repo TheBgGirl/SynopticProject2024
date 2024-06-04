@@ -33,8 +33,9 @@ fun HomePage() {
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
-            .verticalScroll(scrollState),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .verticalScroll(scrollState)
+            .testTag("homePage"),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Card(
             modifier = Modifier
