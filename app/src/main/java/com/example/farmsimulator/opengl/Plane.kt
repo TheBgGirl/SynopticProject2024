@@ -18,30 +18,44 @@ class Plane(width: Int = 20, height: Int = 20)
 
     init {
         val vertices = ArrayList<Float>(rez * rez * 18)
-        val terrain = Array(rez) { Array(rez) { Random.nextFloat()} }
+        val terrain = Array(rez) { Array(rez) { 0.0f } }
 
-        // Smooth the terrain
-        for (i in 1 until rez -1) {
-            for (j in 1 until rez -1) {
-                val sum = terrain[i-1][j] + terrain[i+1][j] + terrain[i][j-1] + terrain[i][j+1]
-                terrain[i][j] = sum / 4.0f
+//        // Basic Terrain
+//        for (i in terrain.indices) {
+//            for (j in terrain[i].indices) {
+//                terrain[i][j] = 0.001f * i * j // or any function of i and j
+//            }
+//        }
+
+
+        val seedRez = 5 // Number of seed positions
+        val seedTerrain = Array(seedRez) { Array(seedRez) { (Random.nextFloat() * 0.7f) + 0.1f } }
+
+        // Interpolate and smooth the terrain
+        for (i in 0 until rez -1) {
+            for (j in 0 until rez -1) {
+                val seedI = i * (seedRez - 1) / (rez - 1)
+                val seedJ = j * (seedRez - 1) / (rez - 1)
+                val di = i * (seedRez - 1f) / (rez - 1) - seedI
+                val dj = j * (seedRez - 1f) / (rez - 1) - seedJ
+                terrain[i][j] = (1 - di) * ((1 - dj) * seedTerrain[seedI][seedJ] + dj * seedTerrain[seedI][seedJ + 1]) +
+                        di * ((1 - dj) * seedTerrain[seedI + 1][seedJ] + dj * seedTerrain[seedI + 1][seedJ + 1])
             }
         }
 
-//        val seedRez = 5 // Number of seed positions
-//        val seedTerrain = Array(seedRez) { Array(seedRez) { Random.nextFloat() } }
-//
-//// Interpolate and smooth the terrain
-//        for (i in 0 until rez -1) {
-//            for (j in 0 until rez -1) {
-//                val seedI = i * (seedRez - 1) / (rez - 1)
-//                val seedJ = j * (seedRez - 1) / (rez - 1)
-//                val di = i * (seedRez - 1f) / (rez - 1) - seedI
-//                val dj = j * (seedRez - 1f) / (rez - 1) - seedJ
-//                terrain[i][j] = (1 - di) * ((1 - dj) * seedTerrain[seedI][seedJ] + dj * seedTerrain[seedI][seedJ + 1]) +
-//                        di * ((1 - dj) * seedTerrain[seedI + 1][seedJ] + dj * seedTerrain[seedI + 1][seedJ + 1])
-//            }
-//        }
+        // Smooth the vertex heights
+        for (i in 0 until rez) {
+            for (j in 0 until rez) {
+                val neighbors = mutableListOf<Float>()
+
+                if (i > 0) neighbors.add(terrain[i-1][j])
+                if (i < rez - 1) neighbors.add(terrain[i+1][j])
+                if (j > 0) neighbors.add(terrain[i][j-1])
+                if (j < rez - 1) neighbors.add(terrain[i][j+1])
+
+                terrain[i][j] = neighbors.sum() / neighbors.size
+            }
+        }
 
         for (i in 0 until rez - 1)
         {
@@ -50,28 +64,28 @@ class Plane(width: Int = 20, height: Int = 20)
                 // First Triangle
                 vertices.add(-width / 2.0f + width * i/ rez.toFloat()) // v.x
 //                vertices.add(terrain[i][j]); // v.y
-                vertices.add(0.001f * i * j); // v.y
+                vertices.add(terrain[i][j]); // v.y
                 vertices.add(-height / 2.0f + height * j/ rez.toFloat()) // v.z
 
                 vertices.add(-width / 2.0f + width * (i+1)/ rez.toFloat()) // v.x
-                vertices.add(0.001f * i * j); // v.y
+                vertices.add(terrain[i+1][j]); // v.y
                 vertices.add(-height / 2.0f + height * j/ rez.toFloat()) // v.z
 
                 vertices.add(-width / 2.0f + width * i/ rez.toFloat()) // v.x
-                vertices.add(0.001f * i * j); // v.y
+                vertices.add(terrain[i][j+1]); // v.y
                 vertices.add(-height / 2.0f + height * (j+1)/ rez.toFloat()) // v.z
 
                 // Second Triangle
                 vertices.add(-width / 2.0f + width * (i+1)/ rez.toFloat()) // v.x
-                vertices.add(0.001f * i * j); // v.y
+                vertices.add(terrain[i+1][j]); // v.y
                 vertices.add(-height / 2.0f + height * (j)/ rez.toFloat()) // v.z
 
                 vertices.add(-width / 2.0f + width * i/ rez.toFloat()) // v.x
-                vertices.add(0.001f * i * j); // v.y
+                vertices.add(terrain[i][j+1]); // v.y
                 vertices.add(-height / 2.0f + height * (j+1)/ rez.toFloat()) // v.z
 
                 vertices.add(-width / 2.0f + width * (i+1)/ rez.toFloat()) // v.x
-                vertices.add(0.001f * i * j); // v.y
+                vertices.add(terrain[i+1][j+1]); // v.y
                 vertices.add(-height / 2.0f + height * (j+1)/ rez.toFloat()) // v.z
             }
         }
@@ -121,7 +135,7 @@ class Plane(width: Int = 20, height: Int = 20)
             }
 
         // Draw the square
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLES,0,rez * rez * 6)
+        GLES20.glDrawArrays(GLES20.GL_LINES,0,(rez * rez * 6)-1)
         // Disable vertex array
         GLES20.glDisableVertexAttribArray(positionHandle)
     }
