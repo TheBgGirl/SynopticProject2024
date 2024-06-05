@@ -2,6 +2,7 @@
 accompanistPermissions = "0.28.0"
 accompanistPermissionsVersion = "0.35.0-alpha"
 agp = "8.4.1"
+converterGson = "2.9.0"
 hiltAndroidCompiler = "2.51.1"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
@@ -16,6 +17,7 @@ mapsComposeVersion = "5.0.1"
 playServicesLocation = "21.2.0"
 playServicesMaps = "18.2.0"
 playServicesMapsVersion = "18.0.2"
+retrofit = "2.9.0"
 secretsGradlePlugin = "2.0.1"
 uiTextGoogleFonts = "1.6.7"
 navigationCompose = "2.7.7"
@@ -27,6 +29,7 @@ accompanist-permissions = { module = "com.google.accompanist:accompanist-permiss
 accompanist-permissions-v0350alpha = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissionsVersion" }
 android-maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "mapsComposeVersion" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroidCompiler" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroidCompiler" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -48,6 +51,7 @@ maps-compose-widgets = { module = "com.google.maps.android:maps-compose-widgets"
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
 play-services-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMaps" }
 play-services-maps-v1802 = { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMapsVersion" }
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 secrets-gradle-plugin = { module = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin", version.ref = "secretsGradlePlugin" }
 androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
