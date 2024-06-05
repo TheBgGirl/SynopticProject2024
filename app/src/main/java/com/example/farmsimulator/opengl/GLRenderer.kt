@@ -70,7 +70,7 @@ class MyGLRenderer : GLSurfaceView.Renderer
         GLES20.glClearColor(0.1f, 0.1f, 0.1f, 1.0f)
 
         shader = Shader(vertexShaderCode,fragmentShaderCode)
-        shader.setInt("isLines",0)
+
 
         triangle = Triangle(floatArrayOf(-0.5f,0f,-0.5f), floatArrayOf(0.5f,0f,-0.5f), floatArrayOf(0f,0f,0.5f))
 
@@ -89,6 +89,7 @@ class MyGLRenderer : GLSurfaceView.Renderer
         // Redraw background color
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
         shader.use()
+        shader.setFloat("isLines",0.0f)
 
         // Camera
         val viewMatrix = camera.getViewMatrix()
