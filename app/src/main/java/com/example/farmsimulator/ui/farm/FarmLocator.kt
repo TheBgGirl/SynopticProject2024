@@ -85,8 +85,6 @@ fun LocatorPage(onCropPlannerClick: (height: Double, width: Double, latLng: LatL
     val notificationHandler = NotificationHandler(context)
     val hasConnection by remember { mutableStateOf(false) }
 
-
-
     LaunchedEffect(Unit) {
         if (!postNotificationPermission.status.isGranted) {
             postNotificationPermission.launchPermissionRequest()
@@ -201,7 +199,8 @@ fun FarmDimensionsForm(
     locationAccessible: Boolean,
     loading: Boolean,
     onUseLocationChange: (Boolean) -> Unit,
-    onSubmit: (width: Double, height: Double) -> Unit
+    onSubmit: (width: Double, height: Double) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     var height by remember { mutableStateOf("") }
     var width by remember { mutableStateOf("") }
@@ -222,7 +221,8 @@ fun FarmDimensionsForm(
     }
 
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
     ) {
 
         Text(
@@ -406,21 +406,19 @@ fun WorldMap(
 fun isOnline(context: Context): Boolean {
     val connectivityManager =
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-    if (connectivityManager != null) {
-        val capabilities =
-            connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+    val capabilities =
+        connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
 
-        if (capabilities != null) {
-            if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
-                Log.i("Internet", "NetworkCapabilities.TRANSPORT_CELLULAR")
-                return true
-            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
-                Log.i("Internet", "NetworkCapabilities.TRANSPORT_WIFI")
-                return true
-            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
-                Log.i("Internet", "NetworkCapabilities.TRANSPORT_ETHERNET")
-                return true
-            }
+    if (capabilities != null) {
+        if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+            Log.i("Internet", "NetworkCapabilities.TRANSPORT_CELLULAR")
+            return true
+        } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+            Log.i("Internet", "NetworkCapabilities.TRANSPORT_WIFI")
+            return true
+        } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
+            Log.i("Internet", "NetworkCapabilities.TRANSPORT_ETHERNET")
+            return true
         }
     }
     return false
