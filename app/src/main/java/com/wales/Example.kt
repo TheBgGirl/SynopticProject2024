@@ -14,7 +14,6 @@ fun main() {
     weatherDataFetcher.fetchWeatherData(boundingBox, startDate, endDate) { success ->
         if (success) {
             println("Data fetched successfully.")
-            saveDataToCSV(weatherDataFetcher.weatherData, weatherDataFetcher.date)
         } else {
             println("Failed to fetch data.")
         }
