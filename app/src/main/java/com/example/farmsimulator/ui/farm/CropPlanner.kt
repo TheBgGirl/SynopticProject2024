@@ -1,6 +1,5 @@
 package com.example.farmsimulator.ui.farm
 
-import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,19 +18,20 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.farmsimulator.R
-import com.google.android.gms.maps.model.LatLng
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.KeyboardType
 import com.example.farmsimulator.ui.utils.InputField
+import com.example.farmsimulator.ui.utils.SelectTextField
+import com.google.android.gms.maps.model.LatLng
 
 @Composable
 fun PlannerPage(latLng: LatLng, height: Double, width: Double, onBackNavigation: () -> Unit) {
@@ -47,7 +47,7 @@ fun PlannerPage(latLng: LatLng, height: Double, width: Double, onBackNavigation:
     ) {
         EnterCropsForm()
 
-        Button(onClick = onBackNavigation) {
+        Button(onClick = onBackNavigation, modifier = Modifier.testTag("backButton")) {
             Text(text = stringResource(id = R.string.back))
         }
     }
@@ -60,8 +60,12 @@ sealed class CropTypes(@StringRes val name: Int) {
     data object Wheat : CropTypes(R.string.wheat)
     data object Rice : CropTypes(R.string.rice)
 
-    companion object {
+    private object Initializer {
         val items = listOf(None, Corn, Soy, Wheat, Rice)
+    }
+
+    companion object {
+        val items: List<CropTypes> by lazy { Initializer.items }
     }
 }
 
@@ -84,7 +88,7 @@ fun EnterCropsForm(modifier: Modifier = Modifier) {
                 addedCrops = addedCrops.toMutableList().apply { set(index, it) }
             })
         }
-        Button(onClick = {
+        Button(modifier = Modifier.testTag("addCropButton"), onClick = {
             addedCrops = addedCrops + CropInfo(CropTypes.None, 0.0, 0.0)
         }) {
             Text(text = stringResource(id = R.string.add_crop))
@@ -96,13 +100,13 @@ fun EnterCropsForm(modifier: Modifier = Modifier) {
 fun CropField(cropInfo: CropInfo, onCropInfoChange: (CropInfo) -> Unit) {
     var xError by remember { mutableStateOf("") }
     var yError by remember { mutableStateOf("") }
-    var showDropdown by remember { mutableStateOf(false) }
 
     Column {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp),
+                .padding(8.dp)
+                .testTag("cropFieldInput"),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -137,25 +141,18 @@ fun CropField(cropInfo: CropInfo, onCropInfoChange: (CropInfo) -> Unit) {
             )
 
             Spacer(modifier = Modifier.width(8.dp))
+            val cropType = stringResource(id = cropInfo.cropType.name)
+            val cropOptions = CropTypes.items.map { stringResource(id = it.name) }
 
-            Column {
-
-            Button(onClick = { showDropdown = !showDropdown }) {
-                Text(text = stringResource(id = cropInfo.cropType.name))
-            }
-
-            DropdownMenu(expanded = showDropdown, onDismissRequest = { showDropdown = false }) {
-                for (cropType in CropTypes.items) {
-                    if (cropType == CropTypes.None || cropType == cropInfo.cropType || cropType == null) continue
-                    DropdownMenuItem(
-                        text = { Text(text = stringResource(id = cropType.name)) },
-                        onClick = {
-                            onCropInfoChange(cropInfo.copy(cropType = cropType))
-                            showDropdown = false
-                        }
-                    )
-                }
-            }
+            Column (modifier = Modifier.width(150.dp)) {
+                SelectTextField(
+                    selectedValue = cropType,
+                    onValueChange = { onCropInfoChange(
+                        cropInfo.copy(cropType = CropTypes.items[cropOptions.indexOf(it)])
+                    ) },
+                    selectOptions = cropOptions,
+                    label = stringResource(id = R.string.crop_type),
+                )
             }
         }
     }
