@@ -48,6 +48,8 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "/META-INF/*.kotlin_module"
+            excludes += "META-INF/native-image/**"
         }
     }
     androidResources {
@@ -76,8 +78,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.navigation.testing)
-    implementation(libs.haifengl.smile.core)
-    implementation(libs.haifengl.smile.data)
+    implementation(libs.smile.kotlin)
     testImplementation(libs.junit)
 
     implementation(libs.android.maps.compose)

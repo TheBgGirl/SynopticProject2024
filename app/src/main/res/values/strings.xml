@@ -36,4 +36,5 @@
     <string name="soy">Soy</string>
     <string name="wheat">Wheat</string>
     <string name="rice">Rice</string>
+    <string name="add_crop">Add crop</string>
 </resources>

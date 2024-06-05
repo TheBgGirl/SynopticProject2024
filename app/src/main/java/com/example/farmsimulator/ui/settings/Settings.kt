@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
@@ -37,7 +38,7 @@ fun SettingsPage() {
 
     Column(modifier = Modifier
         .padding(16.dp)
-        .testTag("settingsPage")) {
+        .testTag("settingsPage").fillMaxWidth()) {
         Text(
             text = stringResource(id = R.string.settings_title),
             style = MaterialTheme.typography.headlineMedium
@@ -57,7 +58,7 @@ fun LocalePicker(
     Card(
         modifier = modifier,
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(16.dp).fillMaxWidth()) {
 
             Text(
                 text = stringResource(

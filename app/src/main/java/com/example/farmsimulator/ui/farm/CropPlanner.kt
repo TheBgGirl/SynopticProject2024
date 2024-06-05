@@ -79,20 +79,15 @@ fun EnterCropsForm(modifier: Modifier = Modifier) {
             style = MaterialTheme.typography.headlineMedium
         )
         for (crop in addedCrops) {
-            CropField(cropInfo = crop) {
-                addedCrops = addedCrops.map { cropInfo ->
-                    if (cropInfo == crop) {
-                        it
-                    } else {
-                        cropInfo
-                    }
-                }
-            }
+            CropField(cropInfo = crop, onCropInfoChange = {
+                val index = addedCrops.indexOf(crop)
+                addedCrops = addedCrops.toMutableList().apply { set(index, it) }
+            })
         }
         Button(onClick = {
             addedCrops = addedCrops + CropInfo(CropTypes.None, 0.0, 0.0)
         }) {
-            Text(text = "Add crop")
+            Text(text = stringResource(id = R.string.add_crop))
         }
     }
 }
