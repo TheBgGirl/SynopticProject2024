@@ -2,13 +2,14 @@ package com.example.farmsimulator.ui.settings
 
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -34,37 +35,58 @@ fun SettingsPage() {
     val context = LocalContext.current
     val locale = remember { mutableStateOf(context.resources.configuration.locales[0]) }
 
-    LocalePicker(locale = locale, context = context)
+    Column(modifier = Modifier
+        .padding(16.dp)
+        .testTag("settingsPage")) {
+        Text(
+            text = stringResource(id = R.string.settings_title),
+            style = MaterialTheme.typography.headlineMedium
+        )
+        LocalePicker(locale = locale, context = context)
+    }
 }
 
 @Composable
-fun LocalePicker(locale: MutableState<java.util.Locale>, modifier: Modifier = Modifier, context: Context) {
+fun LocalePicker(
+    locale: MutableState<java.util.Locale>,
+    modifier: Modifier = Modifier,
+    context: Context
+) {
     var expanded by remember { mutableStateOf(false) }
 
+    Card(
+        modifier = modifier,
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
 
-    Column(modifier = Modifier.padding(16.dp)) {
-        Text(text = stringResource(id = R.string.current_locale, locale.value.getDisplayName(locale.value)))
-        Text(
-            text = stringResource(id = R.string.select_locale),
-            modifier = Modifier.clickable { expanded = true }
-        )
-
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier.testTag("locale_dropdown")
-        ) {
-            availableLocales.forEach { availableLocale ->
-                DropdownMenuItem(
-                    modifier = Modifier.testTag("locale_${availableLocale.language}_${availableLocale.country}"),
-                    onClick = {
-                        locale.value = availableLocale
-                        expanded = false
-                        updateLocale(availableLocale)
-                        restartActivity(context)
-                    },
-                    text = { Text(text = availableLocale.getDisplayName(availableLocale)) }
+            Text(
+                text = stringResource(
+                    id = R.string.current_locale,
+                    locale.value.getDisplayName(locale.value)
                 )
+            )
+
+            Text(
+                text = stringResource(id = R.string.select_locale),
+                modifier = Modifier.testTag("localePicker").clickable { expanded = true }
+            )
+
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier.testTag("localeDropdown")
+            ) {
+                availableLocales.forEach { availableLocale ->
+                    DropdownMenuItem(
+                        modifier = Modifier.testTag("locale_${availableLocale.language}_${availableLocale.country}"),
+                        onClick = {
+                            locale.value = availableLocale
+                            expanded = false
+                            updateLocale(availableLocale)
+                        },
+                        text = { Text(text = availableLocale.getDisplayName(availableLocale)) }
+                    )
+                }
             }
         }
     }

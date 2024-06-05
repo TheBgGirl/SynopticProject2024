@@ -1,15 +1,11 @@
 package com.example.farmsimulator.ui.farm
 
 import android.content.Context
-import android.content.res.Resources.Theme
 import android.net.ConnectivityManager
-import android.net.Network
 import android.net.NetworkCapabilities
-import android.net.NetworkRequest
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,8 +18,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -38,17 +32,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.core.content.ContextCompat.getSystemService
 import com.example.farmsimulator.R
 import com.example.farmsimulator.utils.DEFAULT_LAT_LONG
 import com.example.farmsimulator.utils.NotificationHandler
@@ -67,7 +59,6 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.example.farmsimulator.ui.utils.InputField
 import com.example.farmsimulator.utils.createDialog
-import dagger.hilt.android.qualifiers.ApplicationContext
 
 @OptIn(ExperimentalPermissionsApi::class)
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -151,7 +142,8 @@ fun LocatorPage(onCropPlannerClick: (height: Double, width: Double, latLng: LatL
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
-            .verticalScroll(scrollState),
+            .verticalScroll(scrollState)
+            .testTag("locatorPage"),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
@@ -293,8 +285,8 @@ fun FarmDimensionsForm(
         val numberErrorString = stringResource(id = R.string.number_error)
         Button(
             onClick = {
-                val heightValidation = validateInput(height, parse = { it.toDoubleOrNull() }, predicates = listOf { it.toDouble() in 1.0..1000.0 })
-                val widthValidation = validateInput(width, parse = { it.toDoubleOrNull() }, predicates = listOf { it.toDouble() in 1.0..1000.0 })
+                val heightValidation = validateInput(height, parse = { it.toDoubleOrNull() }, predicates = listOf { it in 1.0..1000.0 })
+                val widthValidation = validateInput(width, parse = { it.toDoubleOrNull() }, predicates = listOf { it in 1.0..1000.0 })
 
                 if (heightValidation == DimensionInputError.NONE && widthValidation == DimensionInputError.NONE) {
                     onSubmit(width.toDouble(), height.toDouble())
@@ -334,10 +326,10 @@ enum class DimensionInputError {
     NONE
 }
 
-fun validateInput(
+inline fun <reified T> validateInput(
     input: String,
-    parse: (String) -> Any? = { it },
-    predicates: List<(String) -> Boolean> = emptyList()
+    parse: (String) -> T? = { if (it is T) it else null },
+    predicates: List<(T) -> Boolean> = emptyList()
 ): DimensionInputError {
 
     if (input.isEmpty()) {
@@ -350,7 +342,7 @@ fun validateInput(
         null
     } ?: return DimensionInputError.TYPE_MISMATCH
 
-    if (predicates.any { !it(input) }) {
+    if (predicates.any { !it(parsed) }) {
         return DimensionInputError.OUT_OF_RANGE
     }
 

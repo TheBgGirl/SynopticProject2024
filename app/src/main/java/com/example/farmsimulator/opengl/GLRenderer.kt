@@ -43,19 +43,22 @@ class MyGLRenderer : GLSurfaceView.Renderer
         // the coordinates of the objects that use this vertex shader
         "uniform mat4 uMVPMatrix;" +
                 "attribute vec4 vPosition;" +
+                "varying float yPosition;"+
                 "void main() {" +
                 // the matrix must be included as a modifier of gl_Position
                 // Note that the uMVPMatrix factor *must be first* in order
                 // for the matrix multiplication product to be correct.
                 "  gl_Position = uMVPMatrix * vPosition;" +
+                "yPosition = vPosition.y * 3.0;"+
                 "}"
 
 
     private val fragmentShaderCode =
         "precision mediump float;" +
                 "uniform vec4 vColor;" +
+                "varying float yPosition;"+
                 "void main() {" +
-                "  gl_FragColor = vColor;" +
+                "  gl_FragColor = vColor * yPosition;" +
                 "}"
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig)
@@ -122,9 +125,10 @@ class MyGLRenderer : GLSurfaceView.Renderer
         //val deltaX = -currentX
         val deltaY = -currentY
 
-        //val angleX = deltaX * sensitivity
+        //val angleX = camera.yaw+deltaX * sensitivity/width
         val angleY = camera.pitch+deltaY * sensitivity/height
 
+        //camera.yaw = angleX
         if(angleY < 90 && angleY > 15)
             camera.pitch = angleY
     }
