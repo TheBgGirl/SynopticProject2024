@@ -44,11 +44,9 @@ class MyGLRenderer : GLSurfaceView.Renderer
         "uniform mat4 uMVPMatrix;" +
                 "attribute vec4 vPosition;" +
                 "varying float yPosition;"+
+                "uniform float isLines;"+
                 "void main() {" +
-                // the matrix must be included as a modifier of gl_Position
-                // Note that the uMVPMatrix factor *must be first* in order
-                // for the matrix multiplication product to be correct.
-                "  gl_Position = uMVPMatrix * vPosition;" +
+                "gl_Position = uMVPMatrix * vec4(vPosition.x,vPosition.y + isLines ,vPosition.z,1.0);" +
                 "yPosition = vPosition.y * 3.0;"+
                 "}"
 
@@ -72,6 +70,7 @@ class MyGLRenderer : GLSurfaceView.Renderer
         GLES20.glClearColor(0.1f, 0.1f, 0.1f, 1.0f)
 
         shader = Shader(vertexShaderCode,fragmentShaderCode)
+        shader.setInt("isLines",0)
 
         triangle = Triangle(floatArrayOf(-0.5f,0f,-0.5f), floatArrayOf(0.5f,0f,-0.5f), floatArrayOf(0f,0f,0.5f))
 
