@@ -10,14 +10,16 @@ class WeatherDataFetcher {
             boundingBox,
             startDate,
             endDate,
-            "soil_moisture_0_to_7cm,temperature_2m",
-            "temperature_2m_mean,sunshine_duration,rain_sum",
+            "soil_moisture_0_to_7cm",
+            "temperature_2m_mean",
             "era5_land"
         )
 
         call.enqueue(object : Callback<List<WeatherResponse>> {
             override fun onResponse(call: Call<List<WeatherResponse>>, response: Response<List<WeatherResponse>>) {
-                println(response.body()?.get(0)?.daily)
+                for (ele in response.body()!!) {
+                    println("Long: ${ele.longitude} Lat: ${ele.latitude} Temp: ${ele.daily.temperature2mMean}")
+                }
             }
 
             override fun onFailure(call: Call<List<WeatherResponse>>, t: Throwable) {
