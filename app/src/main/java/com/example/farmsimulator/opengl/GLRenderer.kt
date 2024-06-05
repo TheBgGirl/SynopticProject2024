@@ -26,17 +26,21 @@ class MyGLRenderer : GLSurfaceView.Renderer
     private var camera: Camera = Camera()
 
     private val nearClip: Float = 3f
-    private val farClip: Float = 100f
+    private val farClip: Float = 500f
 
-    private val maxZoomDistance = 20f
-    private val minZoomDistance = 3f
+    private var maxZoomDistance = 20f
+    private var minZoomDistance = maxZoomDistance / 4f
 
-    private var moveSpeed: Float = 2.0f
+    private var moveSpeed: Float = minZoomDistance
     private var sensitivity: Float = 100f
 
 
     private var width: Float = 0f
     private var height: Float = 0f
+
+    // ----- FARM SETTINGS ----- //
+    private var farmWidth: Int = 20
+    private var farmHeight: Int = 50
 
     private val vertexShaderCode =
     // This matrix member variable provides a hook to manipulate
@@ -61,9 +65,6 @@ class MyGLRenderer : GLSurfaceView.Renderer
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig)
     {
-//        GLES20.glEnable(GLES20.GL_CULL_FACE) // Enable culling
-//        GLES20.glCullFace(GLES20.GL_BACK) // Specify the type of faces to cull
-
         GLES20.glEnable(GLES20.GL_DEPTH_TEST) // Enable depth testing
 
         // Set the background frame color
@@ -71,15 +72,24 @@ class MyGLRenderer : GLSurfaceView.Renderer
 
         shader = Shader(vertexShaderCode,fragmentShaderCode)
 
-
         triangle = Triangle(floatArrayOf(-0.5f,0f,-0.5f), floatArrayOf(0.5f,0f,-0.5f), floatArrayOf(0f,0f,0.5f))
-
         square = Square(floatArrayOf(0f,0f,0f),1f)
+        plane = Plane(farmWidth, farmHeight)
 
-        plane = Plane()
+        // Camera Zoom From Farm Size
+        if(farmHeight >= farmWidth){
+            maxZoomDistance = farmHeight.toFloat()
+        }
+        else{
+            maxZoomDistance = farmWidth.toFloat()
+        }
+        minZoomDistance = maxZoomDistance / 4f
 
+        moveSpeed = minZoomDistance
+
+        // Default Camera Values
         camera.position = floatArrayOf(0f, 0.5f, 0f)
-        camera.radius = 5f
+        camera.radius = minZoomDistance + 1f
         camera.pitch = 90f
 
     }

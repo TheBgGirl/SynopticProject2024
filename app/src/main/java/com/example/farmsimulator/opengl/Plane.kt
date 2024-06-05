@@ -21,7 +21,7 @@ class Plane(width: Int = 20, height: Int = 20)
     val color2 = floatArrayOf(0.0f, 0.0f, 0.0f, 1.0f)
 
     // ----- Terrain Settings ----- //
-    private var heightFactor: Float = 0.7f
+    private var heightFactor: Float = 1.0f
 
     init {
         vertices = ArrayList<Float>(rez * rez * 18)
@@ -154,6 +154,7 @@ class Plane(width: Int = 20, height: Int = 20)
 
         shader.setFloat("isLines",0.01f)
         // Draw the Outlines
+        GLES20.glLineWidth(3.0f)
         GLES20.glDrawArrays(GLES20.GL_LINES,0,vertices.size/3)
 
         // Disable vertex array
