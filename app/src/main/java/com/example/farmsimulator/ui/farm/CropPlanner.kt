@@ -15,12 +15,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,7 +31,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -43,8 +42,6 @@ import com.google.android.gms.maps.model.LatLng
 
 @Composable
 fun PlannerPage(latLng: LatLng, height: Int, width: Int, onBackNavigation: () -> Unit) {
-    val scrollState = rememberScrollState()
-
     var addedCrops by remember {
         mutableStateOf(listOf<CropInfo>())
     }
@@ -99,9 +96,13 @@ fun EnterCropsForm(modifier: Modifier = Modifier, addedCrops: List<CropInfo>, on
         for (crop in addedCrops) {
             CropField(cropInfo = crop, onCropInfoChange = {
                 val index = addedCrops.indexOf(crop)
-                val changedCrops = addedCrops.toMutableList().apply { set(index, it) }
+                val changedCrops = addedCrops.toMutableList().apply {
+                    set(index, it)
+                }
                 onCropsChange(changedCrops)
-            }, width = width, height = height)
+            }, width = width, height = height, onDelete = {
+                onCropsChange(addedCrops - it)
+            })
         }
         Button(modifier = Modifier.testTag("addCropButton"), onClick = {
             val newCrop = CropInfo(CropTypes.None, 0, 0)
@@ -114,26 +115,27 @@ fun EnterCropsForm(modifier: Modifier = Modifier, addedCrops: List<CropInfo>, on
 
 @Composable
 fun FarmGrid(modifier: Modifier = Modifier, height: Int, width: Int, crops: List<CropInfo>) {
-        LazyVerticalGrid(columns = GridCells.Fixed(width), modifier = modifier) {
-            items(height * width) { index ->
-                val crop = crops.firstOrNull() { it.x == index % width && it.y == index / width }
-                CropSquare(crop = crop)
-            }
+    LazyVerticalGrid(columns = GridCells.Fixed(width), modifier = modifier) {
+        items(height * width) { index ->
+            val crop = crops.firstOrNull { it.x == index % width && it.y == index / width }
+            CropSquare(crop = crop)
         }
+    }
 }
 
+
 @Composable
-fun CropSquare(crop: CropInfo?) {
+fun CropSquare(crop: CropInfo?, modifier: Modifier = Modifier) {
     val cropType = crop?.cropType
     val color = when (cropType) {
-        CropTypes.Corn -> Color(0xFFD4AF37)
-        CropTypes.Soy -> Color(0xFF708090)
-        CropTypes.Wheat -> Color(0xFFDAA520)
-        CropTypes.Rice -> Color(0xFFDAA520)
+        CropTypes.Corn -> Color.Yellow
+        CropTypes.Soy -> Color.Black
+        CropTypes.Wheat -> Color.Blue
+        CropTypes.Rice -> Color.Gray
         else -> Color.White
     }
 
-    Box(modifier = Modifier
+    Box(modifier = modifier
         .height(50.dp)
         .width(50.dp)
         .background(color)
@@ -142,7 +144,7 @@ fun CropSquare(crop: CropInfo?) {
 
 
 @Composable
-fun CropField(cropInfo: CropInfo, onCropInfoChange: (CropInfo) -> Unit, width: Int, height: Int) {
+fun CropField(cropInfo: CropInfo, onCropInfoChange: (CropInfo) -> Unit, onDelete: (CropInfo) -> Unit, width: Int, height: Int) {
     var xError by remember { mutableStateOf("") }
     var yError by remember { mutableStateOf("") }
 
@@ -195,7 +197,7 @@ fun CropField(cropInfo: CropInfo, onCropInfoChange: (CropInfo) -> Unit, width: I
 
             Spacer(modifier = Modifier.width(8.dp))
             val cropType = stringResource(id = cropInfo.cropType.name)
-            val cropOptions = CropTypes.items.map { stringResource(id = it.name) }
+            val cropOptions = CropTypes.items.filter { it != CropTypes.None }.map { stringResource(id = it.name) }
 
             Column (modifier = Modifier.width(150.dp)) {
                 SelectTextField(
@@ -206,6 +208,10 @@ fun CropField(cropInfo: CropInfo, onCropInfoChange: (CropInfo) -> Unit, width: I
                     selectOptions = cropOptions,
                     label = stringResource(id = R.string.crop_type),
                 )
+            }
+
+            IconButton(onClick = { onDelete(cropInfo) }) {
+                Icon(Icons.Default.Delete, contentDescription = "Delete")
             }
         }
     }
