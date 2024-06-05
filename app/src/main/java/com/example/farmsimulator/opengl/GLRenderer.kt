@@ -63,6 +63,11 @@ class MyGLRenderer : GLSurfaceView.Renderer
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig)
     {
+//        GLES20.glEnable(GLES20.GL_CULL_FACE) // Enable culling
+//        GLES20.glCullFace(GLES20.GL_BACK) // Specify the type of faces to cull
+
+        GLES20.glEnable(GLES20.GL_DEPTH_TEST) // Enable depth testing
+
         // Set the background frame color
         GLES20.glClearColor(0.1f, 0.1f, 0.1f, 1.0f)
 
@@ -83,7 +88,7 @@ class MyGLRenderer : GLSurfaceView.Renderer
     override fun onDrawFrame(unused: GL10)
     {
         // Redraw background color
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
         shader.use()
 
         // Camera
