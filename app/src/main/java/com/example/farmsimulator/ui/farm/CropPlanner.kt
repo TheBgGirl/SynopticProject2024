@@ -1,13 +1,20 @@
 package com.example.farmsimulator.ui.farm
 
+import android.provider.CalendarContract.Colors
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -23,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -34,23 +42,36 @@ import com.example.farmsimulator.ui.utils.SelectTextField
 import com.google.android.gms.maps.model.LatLng
 
 @Composable
-fun PlannerPage(latLng: LatLng, height: Double, width: Double, onBackNavigation: () -> Unit) {
+fun PlannerPage(latLng: LatLng, height: Int, width: Int, onBackNavigation: () -> Unit) {
     val scrollState = rememberScrollState()
+
+    var addedCrops by remember {
+        mutableStateOf(listOf<CropInfo>())
+    }
+
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
-            .verticalScroll(scrollState)
             .testTag("plannerPage"),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        EnterCropsForm()
+        FarmGrid(height = height, width = width, crops = addedCrops)
+
+        Text(
+            text = stringResource(id = R.string.enter_crops),
+            style = MaterialTheme.typography.headlineMedium
+        )
+        EnterCropsForm(addedCrops = addedCrops, onCropsChange = { addedCrops = it }, width = width, height = height)
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = onBackNavigation, modifier = Modifier.testTag("backButton")) {
             Text(text = stringResource(id = R.string.back))
         }
     }
+
 }
 
 sealed class CropTypes(@StringRes val name: Int) {
@@ -69,27 +90,22 @@ sealed class CropTypes(@StringRes val name: Int) {
     }
 }
 
-data class CropInfo(val cropType: CropTypes, val x: Double, val y: Double)
+data class CropInfo(val cropType: CropTypes, val x: Int, val y: Int)
 
 @Composable
-fun EnterCropsForm(modifier: Modifier = Modifier) {
-    var addedCrops by remember {
-        mutableStateOf(listOf<CropInfo>())
-    }
+fun EnterCropsForm(modifier: Modifier = Modifier, addedCrops: List<CropInfo>, onCropsChange: (List<CropInfo>) -> Unit = {}, width: Int, height: Int) {
 
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(
-            text = stringResource(id = R.string.enter_crops),
-            style = MaterialTheme.typography.headlineMedium
-        )
         for (crop in addedCrops) {
             CropField(cropInfo = crop, onCropInfoChange = {
                 val index = addedCrops.indexOf(crop)
-                addedCrops = addedCrops.toMutableList().apply { set(index, it) }
-            })
+                val changedCrops = addedCrops.toMutableList().apply { set(index, it) }
+                onCropsChange(changedCrops)
+            }, width = width, height = height)
         }
         Button(modifier = Modifier.testTag("addCropButton"), onClick = {
-            addedCrops = addedCrops + CropInfo(CropTypes.None, 0.0, 0.0)
+            val newCrop = CropInfo(CropTypes.None, 0, 0)
+            onCropsChange(addedCrops + newCrop)
         }) {
             Text(text = stringResource(id = R.string.add_crop))
         }
@@ -97,7 +113,36 @@ fun EnterCropsForm(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun CropField(cropInfo: CropInfo, onCropInfoChange: (CropInfo) -> Unit) {
+fun FarmGrid(modifier: Modifier = Modifier, height: Int, width: Int, crops: List<CropInfo>) {
+        LazyVerticalGrid(columns = GridCells.Fixed(width), modifier = modifier) {
+            items(height * width) { index ->
+                val crop = crops.firstOrNull() { it.x == index % width && it.y == index / width }
+                CropSquare(crop = crop)
+            }
+        }
+}
+
+@Composable
+fun CropSquare(crop: CropInfo?) {
+    val cropType = crop?.cropType
+    val color = when (cropType) {
+        CropTypes.Corn -> Color(0xFFD4AF37)
+        CropTypes.Soy -> Color(0xFF708090)
+        CropTypes.Wheat -> Color(0xFFDAA520)
+        CropTypes.Rice -> Color(0xFFDAA520)
+        else -> Color.White
+    }
+
+    Box(modifier = Modifier
+        .height(50.dp)
+        .width(50.dp)
+        .background(color)
+        .border(1.dp, Color.Black))
+}
+
+
+@Composable
+fun CropField(cropInfo: CropInfo, onCropInfoChange: (CropInfo) -> Unit, width: Int, height: Int) {
     var xError by remember { mutableStateOf("") }
     var yError by remember { mutableStateOf("") }
 
@@ -113,9 +158,13 @@ fun CropField(cropInfo: CropInfo, onCropInfoChange: (CropInfo) -> Unit) {
             InputField(
                 value = cropInfo.x.toString(),
                 onValueChange = {
-                    val value = it.toDoubleOrNull()
-                    onCropInfoChange(cropInfo.copy(x = value ?: 0.0))
-                    xError = if (value == null) "Invalid number" else ""
+                    val value = it.toIntOrNull()
+                    if (value == null || value < 0 || value >= width) {
+                        xError = "Invalid number"
+                    } else {
+                        onCropInfoChange(cropInfo.copy(x = value))
+                        xError = ""
+                    }
                 },
                 onValueError = { xError = it },
                 label = "X",
@@ -129,9 +178,13 @@ fun CropField(cropInfo: CropInfo, onCropInfoChange: (CropInfo) -> Unit) {
             InputField(
                 value = cropInfo.y.toString(),
                 onValueChange = {
-                    val value = it.toDoubleOrNull()
-                    onCropInfoChange(cropInfo.copy(y = value ?: 0.0))
-                    yError = if (value == null) "Invalid number" else ""
+                    val value = it.toIntOrNull()
+                    if (value == null || value < 0 || value >= height) {
+                        yError = "Invalid number"
+                    } else {
+                        onCropInfoChange(cropInfo.copy(y = value))
+                        yError = ""
+                    }
                 },
                 label = "Y",
                 error = yError,

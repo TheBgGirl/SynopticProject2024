@@ -27,7 +27,8 @@ fun InputField(
     error: String,
     onValueError: (String) -> Unit,
     modifier: Modifier = Modifier,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    trailingIcon : @Composable (() -> Unit)? = null
 ) {
     OutlinedTextField(
         value = value,
@@ -46,6 +47,7 @@ fun InputField(
         modifier = modifier,
         isError = error.isNotEmpty(),
         keyboardOptions = keyboardOptions,
+        trailingIcon = trailingIcon
     )
 }
 

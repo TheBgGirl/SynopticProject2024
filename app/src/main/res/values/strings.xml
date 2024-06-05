@@ -38,4 +38,5 @@
     <string name="rice">Rice</string>
     <string name="add_crop">Add crop</string>
     <string name="crop_type">Crop Type</string>
+    <string name="meters" translatable="false">m</string>
 </resources>

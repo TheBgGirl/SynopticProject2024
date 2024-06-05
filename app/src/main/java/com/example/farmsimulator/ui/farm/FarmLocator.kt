@@ -26,6 +26,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -63,13 +64,13 @@ import com.example.farmsimulator.utils.createDialog
 @OptIn(ExperimentalPermissionsApi::class)
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
-fun LocatorPage(onCropPlannerClick: (height: Double, width: Double, latLng: LatLng) -> Unit) {
+fun LocatorPage(onCropPlannerClick: (height: Int, width: Int, latLng: LatLng) -> Unit) {
     val context = LocalContext.current
     val locationClient = LocationServices.getFusedLocationProviderClient(context)
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    var height by remember { mutableDoubleStateOf(0.0) }
-    var width by remember { mutableDoubleStateOf(0.0) }
+    var height by remember { mutableIntStateOf(0) }
+    var width by remember { mutableIntStateOf(0) }
 
     var showMap by remember { mutableStateOf(false) }
     var latLng by remember { mutableStateOf(DEFAULT_LAT_LONG) }
@@ -199,7 +200,7 @@ fun FarmDimensionsForm(
     locationAccessible: Boolean,
     loading: Boolean,
     onUseLocationChange: (Boolean) -> Unit,
-    onSubmit: (width: Double, height: Double) -> Unit,
+    onSubmit: (width: Int, height: Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var height by remember { mutableStateOf("") }
@@ -234,7 +235,7 @@ fun FarmDimensionsForm(
             value = height,
             onValueChange = {
                 heightError = ""
-                if (it.toDoubleOrNull() != null || it.isEmpty()) {
+                if (it.toIntOrNull() != null || it.isEmpty()) {
                     height = it
                 }
             },
@@ -244,15 +245,20 @@ fun FarmDimensionsForm(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 12.dp, horizontal = 2.dp),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            trailingIcon = {
+                Text(
+                    text = stringResource(id = R.string.meters),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         )
 
         InputField(
             value = width,
             onValueChange = {
                 widthError = ""
-                if (it.toDoubleOrNull() != null || it.isEmpty()) {
+                if (it.toIntOrNull() != null || it.isEmpty()) {
                     width = it
                 }
             },
@@ -262,7 +268,13 @@ fun FarmDimensionsForm(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 12.dp, horizontal = 2.dp),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            trailingIcon = {
+                Text(
+                    text = stringResource(id = R.string.meters),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         )
 
         Row(
@@ -289,7 +301,7 @@ fun FarmDimensionsForm(
                 val widthValidation = validateInput(width, parse = { it.toDoubleOrNull() }, predicates = listOf { it in 1.0..1000.0 })
 
                 if (heightValidation == DimensionInputError.NONE && widthValidation == DimensionInputError.NONE) {
-                    onSubmit(width.toDouble(), height.toDouble())
+                    onSubmit(width.toInt(), height.toInt())
                 } else {
                     heightError = when (heightValidation) {
                         DimensionInputError.EMPTY -> emptyErrorString.format(heightString)

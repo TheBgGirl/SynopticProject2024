@@ -100,7 +100,7 @@ fun FarmSimNavGraph(
         }
         composable(Screen.Locator.route) {
             LocatorPage(
-                onCropPlannerClick = { height: Double, width: Double, latLng: LatLng ->
+                onCropPlannerClick = { height: Int, width: Int, latLng: LatLng ->
                     navController.navigate(
                         "${Screen.CropPlanner.route}?height=$height&width=$width&lat=${latLng.latitude}&long=${latLng.longitude}"
                     )
@@ -124,8 +124,8 @@ fun FarmSimNavGraph(
                 }
             )) {
 
-            val height = it.arguments?.getString("height")?.toDoubleOrNull() ?: 0.0
-            val width = it.arguments?.getString("width")?.toDoubleOrNull() ?: 0.0
+            val height = it.arguments?.getString("height")?.toIntOrNull() ?: 0
+            val width = it.arguments?.getString("width")?.toIntOrNull() ?: 0
             val lat = it.arguments?.getString("lat")?.toDoubleOrNull() ?: 0.0
             val long = it.arguments?.getString("long")?.toDoubleOrNull() ?: 0.0
 
