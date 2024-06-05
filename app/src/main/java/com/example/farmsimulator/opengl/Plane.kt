@@ -152,9 +152,9 @@ class Plane(width: Int = 20, height: Int = 20)
                 GLES20.glUniform4fv(colorHandle, 1, color2, 0)
             }
 
-        shader.setInt("isLines",1)
+        shader.setFloat("isLines",0.01f)
         // Draw the Outlines
-        GLES20.glDrawArrays(GLES20.GL_LINE_LOOP,0,vertices.size/3)
+        GLES20.glDrawArrays(GLES20.GL_LINES,0,vertices.size/3)
 
         // Disable vertex array
         GLES20.glDisableVertexAttribArray(positionHandle)

@@ -9,7 +9,7 @@ class Camera {
     var position = floatArrayOf(0f, 0f, 3f)
 
     private var target = FloatArray(3) {0f}
-    private var up = floatArrayOf(0f,0f,1f)
+    private var up = floatArrayOf(0f,1f,0f)
 
     var pitch : Float = 0f
         set(value) {
@@ -21,7 +21,7 @@ class Camera {
         }
 
 
-    private val yaw : Float = 0f
+    private val yaw : Float = 45f
 
     var radius : Float = 1f
 
@@ -47,8 +47,8 @@ class Camera {
     }
 
     fun move(dx: Float, dy: Float, dz: Float){
-        position[0] += dx
+        position[0] += (dx * cos(radians(yaw)) + dz * sin(radians(yaw)))
         position[1] += dy
-        position[2] += dz
+        position[2] += (dz * cos(radians(yaw)) - dx * sin(radians(yaw)))
     }
 }
