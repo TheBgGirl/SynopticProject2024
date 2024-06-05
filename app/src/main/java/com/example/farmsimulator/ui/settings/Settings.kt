@@ -25,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.os.LocaleListCompat
 import com.example.farmsimulator.R
+import com.example.farmsimulator.ui.utils.SelectTextField
 
 val availableLocales = listOf(
     java.util.Locale("en", "US"),
@@ -38,7 +39,8 @@ fun SettingsPage() {
 
     Column(modifier = Modifier
         .padding(16.dp)
-        .testTag("settingsPage").fillMaxWidth()) {
+        .testTag("settingsPage")
+        .fillMaxWidth()) {
         Text(
             text = stringResource(id = R.string.settings_title),
             style = MaterialTheme.typography.headlineMedium
@@ -54,41 +56,27 @@ fun LocalePicker(
     context: Context
 ) {
     var expanded by remember { mutableStateOf(false) }
-
     Card(
         modifier = modifier,
     ) {
-        Column(modifier = Modifier.padding(16.dp).fillMaxWidth()) {
+        Column(modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth()) {
 
-            Text(
-                text = stringResource(
-                    id = R.string.current_locale,
-                    locale.value.getDisplayName(locale.value)
-                )
+            SelectTextField(
+                selectedValue = locale.value.getDisplayName(locale.value),
+                label = stringResource(id = R.string.select_locale),
+                selectOptions = availableLocales.map { it.getDisplayName(it) },
+                onValueChange = { localeName ->
+                    val newLocale = availableLocales.find { it.getDisplayName(it) == localeName }
+                    if (newLocale != null) {
+                        locale.value = newLocale
+                        updateLocale(newLocale)
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
             )
 
-            Text(
-                text = stringResource(id = R.string.select_locale),
-                modifier = Modifier.testTag("localePicker").clickable { expanded = true }
-            )
-
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                modifier = Modifier.testTag("localeDropdown")
-            ) {
-                availableLocales.forEach { availableLocale ->
-                    DropdownMenuItem(
-                        modifier = Modifier.testTag("locale_${availableLocale.language}_${availableLocale.country}"),
-                        onClick = {
-                            locale.value = availableLocale
-                            expanded = false
-                            updateLocale(availableLocale)
-                        },
-                        text = { Text(text = availableLocale.getDisplayName(availableLocale)) }
-                    )
-                }
-            }
         }
     }
 }
