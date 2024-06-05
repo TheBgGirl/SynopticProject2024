@@ -79,6 +79,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.navigation.testing)
     implementation(libs.smile.kotlin)
+    implementation(files("..\\assimp-all.jar"))
     testImplementation(libs.junit)
 
     implementation(libs.android.maps.compose)
