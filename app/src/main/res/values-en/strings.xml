@@ -29,4 +29,12 @@
     <string name="select_locale">Select Locale</string>
     <string name="current_locale">Current Locale: %s</string>
     <string name="settings_title">Settings</string>
+    <string name="offline_title">We need internet connection</string>
+    <string name="offline_message">The next section requires an internet connection either continue and connect to the internet, or, use previously downloaded data.</string>
+    <string name="enter_crops">Add Crops</string>
+    <string name="none">None</string>
+    <string name="corn">Corn</string>
+    <string name="soy">Soy</string>
+    <string name="wheat">Wheat</string>
+    <string name="rice">Rice</string>
 </resources>

@@ -29,4 +29,12 @@
     <string name="select_locale">ជ្រើសរើសទីតាំង</string>
     <string name="current_locale">ទីតាំងបច្ចុប្បន្ន៖ %s</string>
     <string name="settings_title">ការកំណត់</string>
+    <string name="offline_title">យើងត្រូវការការតភ្ជាប់អ៊ីនធឺណិត</string>
+    <string name="offline_message">ផ្នែកបន្ទាប់ទាមទារការតភ្ជាប់អ៊ីនធឺណិត ទាំងបន្ត និងភ្ជាប់អ៊ីនធឺណិត ឬប្រើទិន្នន័យដែលបានទាញយកពីមុន។</string>
+    <string name="enter_crops">បន្ថែមដំណាំ</string>
+    <string name="none">គ្មាន</string>
+    <string name="corn">ពោត</string>
+    <string name="soy">សណ្តែកសៀង</string>
+    <string name="wheat">ស្រូវសាលី</string>
+    <string name="rice">អង្ករ</string>
 </resources>
