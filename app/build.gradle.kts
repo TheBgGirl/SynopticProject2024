@@ -76,6 +76,8 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.navigation.testing)
+    implementation(libs.haifengl.smile.core)
+    implementation(libs.haifengl.smile.data)
     testImplementation(libs.junit)
 
     implementation(libs.android.maps.compose)
