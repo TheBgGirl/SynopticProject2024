@@ -21,12 +21,11 @@ fun FarmSimulatorApp(navController: NavHostController = rememberNavController())
         Scaffold(modifier = Modifier.fillMaxSize(),
         bottomBar = {
             BottomNav(navController = navController)
-        }) { paddingValues ->
+        }, topBar = { TopBar(navController = navController) }) { paddingValues ->
             Box(modifier = Modifier.padding(paddingValues)) {
-                FarmSimNavGraph(navController = navController)
-                if (!fileExists("./res/user.csv")) {
-                    navController.navigate("locator")
-                }
+                val startDestination = if (fileExists("./res/user.csv")) Screen.Home.route else Screen.Locator.route
+
+                FarmSimNavGraph(navController = navController, startDestination = startDestination)
             }
         }
     }
