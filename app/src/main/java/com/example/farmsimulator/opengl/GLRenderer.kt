@@ -15,8 +15,8 @@ class MyGLRenderer : GLSurfaceView.Renderer
     private val mvpMatrix = FloatArray(16)
 
     private lateinit var triangle: Triangle
-
     private lateinit var square : Square
+    private lateinit var cube : Cube
 
     private lateinit var plane : Plane
 
@@ -74,6 +74,8 @@ class MyGLRenderer : GLSurfaceView.Renderer
 
         triangle = Triangle(floatArrayOf(-0.5f,0f,-0.5f), floatArrayOf(0.5f,0f,-0.5f), floatArrayOf(0f,0f,0.5f))
         square = Square(floatArrayOf(0f,0f,0f),1f)
+        cube = Cube(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f)
+
         plane = Plane(farmWidth, farmHeight)
 
         // Camera Zoom From Farm Size
@@ -114,6 +116,8 @@ class MyGLRenderer : GLSurfaceView.Renderer
         //triangle.draw(shader)
 
         plane.draw(shader)
+
+        //cube.draw(shader)
 
     }
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
