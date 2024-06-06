@@ -45,7 +45,7 @@ fun SettingsPage() {
             text = stringResource(id = R.string.settings_title),
             style = MaterialTheme.typography.headlineMedium
         )
-        LocalePicker(locale = locale, context = context)
+        LocalePicker(locale = locale)
     }
 }
 
@@ -53,7 +53,6 @@ fun SettingsPage() {
 fun LocalePicker(
     locale: MutableState<java.util.Locale>,
     modifier: Modifier = Modifier,
-    context: Context
 ) {
     var expanded by remember { mutableStateOf(false) }
     Card(
