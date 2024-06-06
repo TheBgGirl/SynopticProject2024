@@ -75,13 +75,13 @@ class Plane(var width: Int = 20, var height: Int = 20)
                 vertices.add(terrain[i][j]) // v.y
                 vertices.add(-height / 2.0f + height * j/ height.toFloat()) // v.z
 
-                vertices.add(-width / 2.0f + width * (i+1)/ width.toFloat()) // v.x
-                vertices.add(terrain[i+1][j]) // v.y
-                vertices.add(-height / 2.0f + height * j/ height.toFloat()) // v.z
-
                 vertices.add(-width / 2.0f + width * i/ width.toFloat()) // v.x
                 vertices.add(terrain[i][j+1]) // v.y
                 vertices.add(-height / 2.0f + height * (j+1)/ height.toFloat()) // v.z
+
+                vertices.add(-width / 2.0f + width * (i+1)/ width.toFloat()) // v.x
+                vertices.add(terrain[i+1][j]) // v.y
+                vertices.add(-height / 2.0f + height * j/ height.toFloat()) // v.z
 
                 // Second Triangle
                 vertices.add(-width / 2.0f + width * (i+1)/ width.toFloat()) // v.x

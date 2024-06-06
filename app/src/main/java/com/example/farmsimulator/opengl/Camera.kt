@@ -41,7 +41,9 @@ class Camera {
     {
         calculateTarget()
         val viewMatrix = FloatArray(16)
-        Matrix.setLookAtM(viewMatrix, 0, position[0]+target[0], position[1]+target[1], position[2]+target[2],
+        Matrix.setLookAtM(
+            viewMatrix, 0,
+            position[0]+target[0], position[1]+target[1], position[2]+target[2],
             position[0], position[1], position[2], up[0], up[1], up[2])
         return viewMatrix
     }
