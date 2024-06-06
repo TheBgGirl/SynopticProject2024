@@ -39,8 +39,8 @@ class MyGLRenderer : GLSurfaceView.Renderer
     private var height: Float = 0f
 
     // ----- FARM SETTINGS ----- //
-    private var farmWidth: Int = 100
-    private var farmHeight: Int = 100
+    private var farmWidth: Int = 10
+    private var farmHeight: Int = 10
 
     private val vertexShaderCode =
     // This matrix member variable provides a hook to manipulate
@@ -138,7 +138,13 @@ class MyGLRenderer : GLSurfaceView.Renderer
 
     fun moveCamera(dx : Float, dz : Float)
     {
-        camera.move((moveSpeed * -dx)/width, 0f, (moveSpeed * -dz)/height)
+        val newX = camera.position[0] + (moveSpeed * -dx)/width
+        val newZ = camera.position[2] + (moveSpeed * -dz)/height
+
+        // Check if the new position is within the boundaries
+        if (newX >= -farmWidth/2 && newX <= farmWidth/2 && newZ >= -farmHeight/2 && newZ <= farmHeight/2) {
+            camera.move((moveSpeed * -dx)/width, 0f, (moveSpeed * -dz)/height)
+        }
     }
 
     fun arcRotateCamera(currentX: Float, currentY: Float){
