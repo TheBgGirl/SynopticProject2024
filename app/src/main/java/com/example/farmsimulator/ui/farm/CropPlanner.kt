@@ -4,8 +4,10 @@ import android.provider.CalendarContract.Colors
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,7 +17,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
@@ -31,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -40,35 +45,81 @@ import com.example.farmsimulator.ui.utils.InputField
 import com.example.farmsimulator.ui.utils.SelectTextField
 import com.google.android.gms.maps.model.LatLng
 
+const val MAX_HEIGHT = 10
+const val MAX_WIDTH = 10
+
 @Composable
 fun PlannerPage(latLng: LatLng, height: Int, width: Int, onBackNavigation: () -> Unit) {
     var addedCrops by remember {
         mutableStateOf(listOf<CropInfo>())
     }
 
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
-            .testTag("plannerPage"),
+            .testTag("plannerPage")
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        FarmGrid(height = height, width = width, crops = addedCrops)
+        FarmGrid(height = height, width = width, crops = addedCrops, onCropAdd = {
+            addedCrops = addedCrops + it
+        }, actualWidth = width, actualHeight = height)
 
         Text(
             text = stringResource(id = R.string.enter_crops),
             style = MaterialTheme.typography.headlineMedium
         )
+
         EnterCropsForm(addedCrops = addedCrops, onCropsChange = { addedCrops = it }, width = width, height = height)
 
         Spacer(modifier = Modifier.height(16.dp))
+    }
+}
+@Composable
+fun FarmGrid(modifier: Modifier = Modifier, height: Int, width: Int, crops: List<CropInfo>, onCropAdd: (CropInfo) -> Unit, actualWidth: Int, actualHeight: Int) {
+    BoxWithConstraints(
+    modifier = modifier
+        .fillMaxWidth()
+    ) {
+        val maxWidth = maxWidth
+        val gridCellSize = maxWidth / width
 
-        Button(onClick = onBackNavigation, modifier = Modifier.testTag("backButton")) {
-            Text(text = stringResource(id = R.string.back))
+    LazyVerticalGrid(columns = GridCells.Fixed(width), modifier = modifier.height(gridCellSize * height)) {
+        items(count = height * width, key = {
+            it
+        }) { index ->
+            val x = index % width
+            val y = index / width
+
+            val crop = crops.firstOrNull { it.x == x && it.y ==  y }
+            CropSquare(crop = crop, onCropAdd = onCropAdd, y = y, x = x, modifier = Modifier.width(gridCellSize).height(gridCellSize));
         }
     }
+    }
+}
 
+
+@Composable
+fun CropSquare(crop: CropInfo?, modifier: Modifier = Modifier, onCropAdd: (CropInfo) -> Unit, x: Int, y: Int) {
+    val cropType = crop?.cropType
+    val color = when (cropType) {
+        CropTypes.Corn -> Color.Yellow
+        CropTypes.Soy -> Color.Black
+        CropTypes.Wheat -> Color.Blue
+        CropTypes.Rice -> Color.Gray
+        else -> Color.Green
+    }
+
+    Box(modifier = modifier
+        .height(50.dp)
+        .width(50.dp)
+        .background(color)
+        .border(1.dp, Color.Black)
+        .testTag("cropSquare")
+        .clickable(enabled = crop == null) {
+            onCropAdd(CropInfo(CropTypes.Corn, x, y))
+        })
 }
 
 sealed class CropTypes(@StringRes val name: Int) {
@@ -91,7 +142,6 @@ data class CropInfo(val cropType: CropTypes, val x: Int, val y: Int)
 
 @Composable
 fun EnterCropsForm(modifier: Modifier = Modifier, addedCrops: List<CropInfo>, onCropsChange: (List<CropInfo>) -> Unit = {}, width: Int, height: Int) {
-
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         for (crop in addedCrops) {
             CropField(cropInfo = crop, onCropInfoChange = {
@@ -113,34 +163,6 @@ fun EnterCropsForm(modifier: Modifier = Modifier, addedCrops: List<CropInfo>, on
     }
 }
 
-@Composable
-fun FarmGrid(modifier: Modifier = Modifier, height: Int, width: Int, crops: List<CropInfo>) {
-    LazyVerticalGrid(columns = GridCells.Fixed(width), modifier = modifier) {
-        items(height * width) { index ->
-            val crop = crops.firstOrNull { it.x == index % width && it.y == index / width }
-            CropSquare(crop = crop)
-        }
-    }
-}
-
-
-@Composable
-fun CropSquare(crop: CropInfo?, modifier: Modifier = Modifier) {
-    val cropType = crop?.cropType
-    val color = when (cropType) {
-        CropTypes.Corn -> Color.Yellow
-        CropTypes.Soy -> Color.Black
-        CropTypes.Wheat -> Color.Blue
-        CropTypes.Rice -> Color.Gray
-        else -> Color.White
-    }
-
-    Box(modifier = modifier
-        .height(50.dp)
-        .width(50.dp)
-        .background(color)
-        .border(1.dp, Color.Black))
-}
 
 
 @Composable
@@ -203,7 +225,7 @@ fun CropField(cropInfo: CropInfo, onCropInfoChange: (CropInfo) -> Unit, onDelete
                 SelectTextField(
                     selectedValue = cropType,
                     onValueChange = { onCropInfoChange(
-                        cropInfo.copy(cropType = CropTypes.items[cropOptions.indexOf(it)])
+                        cropInfo.copy(cropType = CropTypes.items[cropOptions.indexOf(it) + 1])
                     ) },
                     selectOptions = cropOptions,
                     label = stringResource(id = R.string.crop_type),
