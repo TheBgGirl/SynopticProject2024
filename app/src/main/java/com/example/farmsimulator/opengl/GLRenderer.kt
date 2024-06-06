@@ -39,8 +39,8 @@ class MyGLRenderer : GLSurfaceView.Renderer
     private var height: Float = 0f
 
     // ----- FARM SETTINGS ----- //
-    private var farmWidth: Int = 20
-    private var farmHeight: Int = 50
+    private var farmWidth: Int = 10
+    private var farmHeight: Int = 10
 
     private val vertexShaderCode =
     // This matrix member variable provides a hook to manipulate

@@ -6,11 +6,10 @@ import java.nio.ByteOrder
 import java.nio.FloatBuffer
 import kotlin.random.Random
 
-class Plane(width: Int = 20, height: Int = 20)
+class Plane(var width: Int = 20, var height: Int = 20)
 {
 
     private var vertexBuffer: FloatBuffer
-    private val rez : Int = 30
     private var positionHandle: Int = 0
     private var mColorHandle: Int = 0
 
@@ -24,10 +23,11 @@ class Plane(width: Int = 20, height: Int = 20)
     private var heightFactor: Float = 1.0f
 
     init {
-        vertices = ArrayList<Float>(rez * rez * 18)
-        val terrain = Array(rez) { Array(rez) { 0.0f } }
+        width++
+        height++
 
-//        heightFactor = width.toFloat()/height.toFloat()
+        vertices = ArrayList<Float>(width * height * 18)
+        val terrain = Array(width) { Array(height) { 0.0f } }
 
 //        // Basic Terrain
 //        for (i in terrain.indices) {
@@ -37,64 +37,64 @@ class Plane(width: Int = 20, height: Int = 20)
 //        }
 
 
-        val seedRez = 10 // Number of seed positions
+        val seedRez = 5 // Number of seed positions
         val seedTerrain = Array(seedRez) { Array(seedRez) { (Random.nextFloat() * heightFactor) + 0.1f } }
 
         // Bilinear Interpolate and smooth the terrain
-        for (i in 0 until rez -1) {
-            for (j in 0 until rez -1) {
-                val seedI = i * (seedRez - 1) / (rez - 1)
-                val seedJ = j * (seedRez - 1) / (rez - 1)
-                val di = i * (seedRez - 1f) / (rez - 1) - seedI
-                val dj = j * (seedRez - 1f) / (rez - 1) - seedJ
+        for (i in 0 until width -1) {
+            for (j in 0 until height -1) {
+                val seedI = i * (seedRez - 1) / (width - 1)
+                val seedJ = j * (seedRez - 1) / (height - 1)
+                val di = i * (seedRez - 1f) / (width - 1) - seedI
+                val dj = j * (seedRez - 1f) / (height - 1) - seedJ
                 terrain[i][j] = (1 - di) * ((1 - dj) * seedTerrain[seedI][seedJ] + dj * seedTerrain[seedI][seedJ + 1]) +
                         di * ((1 - dj) * seedTerrain[seedI + 1][seedJ] + dj * seedTerrain[seedI + 1][seedJ + 1])
             }
         }
 
         // Smooth the vertex heights
-        for (i in 0 until rez) {
-            for (j in 0 until rez) {
+        for (i in 0 until width) {
+            for (j in 0 until height) {
                 val neighbors = mutableListOf<Float>()
 
                 if (i > 0) neighbors.add(terrain[i-1][j])
-                if (i < rez - 1) neighbors.add(terrain[i+1][j])
+                if (i < width - 1) neighbors.add(terrain[i+1][j])
                 if (j > 0) neighbors.add(terrain[i][j-1])
-                if (j < rez - 1) neighbors.add(terrain[i][j+1])
+                if (j < height - 1) neighbors.add(terrain[i][j+1])
 
                 terrain[i][j] = neighbors.sum() / neighbors.size
             }
         }
 
-        for (i in 0 until rez - 1)
+        for (i in 0 until width - 1)
         {
-            for (j in 0 until rez - 1)
+            for (j in 0 until height - 1)
             {
                 // First Triangle
-                vertices.add(-width / 2.0f + width * i/ rez.toFloat()) // v.x
+                vertices.add(-width / 2.0f + width * i/ width.toFloat()) // v.x
                 vertices.add(terrain[i][j]) // v.y
-                vertices.add(-height / 2.0f + height * j/ rez.toFloat()) // v.z
+                vertices.add(-height / 2.0f + height * j/ height.toFloat()) // v.z
 
-                vertices.add(-width / 2.0f + width * (i+1)/ rez.toFloat()) // v.x
+                vertices.add(-width / 2.0f + width * (i+1)/ width.toFloat()) // v.x
                 vertices.add(terrain[i+1][j]) // v.y
-                vertices.add(-height / 2.0f + height * j/ rez.toFloat()) // v.z
+                vertices.add(-height / 2.0f + height * j/ height.toFloat()) // v.z
 
-                vertices.add(-width / 2.0f + width * i/ rez.toFloat()) // v.x
+                vertices.add(-width / 2.0f + width * i/ width.toFloat()) // v.x
                 vertices.add(terrain[i][j+1]) // v.y
-                vertices.add(-height / 2.0f + height * (j+1)/ rez.toFloat()) // v.z
+                vertices.add(-height / 2.0f + height * (j+1)/ height.toFloat()) // v.z
 
                 // Second Triangle
-                vertices.add(-width / 2.0f + width * (i+1)/ rez.toFloat()) // v.x
+                vertices.add(-width / 2.0f + width * (i+1)/ width.toFloat()) // v.x
                 vertices.add(terrain[i+1][j]) // v.y
-                vertices.add(-height / 2.0f + height * (j)/ rez.toFloat()) // v.z
+                vertices.add(-height / 2.0f + height * (j)/ height.toFloat()) // v.z
 
-                vertices.add(-width / 2.0f + width * i/ rez.toFloat()) // v.x
+                vertices.add(-width / 2.0f + width * i/ width.toFloat()) // v.x
                 vertices.add(terrain[i][j+1]) // v.y
-                vertices.add(-height / 2.0f + height * (j+1)/ rez.toFloat()) // v.z
+                vertices.add(-height / 2.0f + height * (j+1)/ height.toFloat()) // v.z
 
-                vertices.add(-width / 2.0f + width * (i+1)/ rez.toFloat()) // v.x
+                vertices.add(-width / 2.0f + width * (i+1)/ width.toFloat()) // v.x
                 vertices.add(terrain[i+1][j+1]) // v.y
-                vertices.add(-height / 2.0f + height * (j+1)/ rez.toFloat()) // v.z
+                vertices.add(-height / 2.0f + height * (j+1)/ height.toFloat()) // v.z
             }
         }
 
