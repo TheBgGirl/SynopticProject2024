@@ -49,18 +49,22 @@ class MyGLRenderer : GLSurfaceView.Renderer
                 "attribute vec4 vPosition;" +
                 "varying float yPosition;"+
                 "uniform float isLines;"+
+                "attribute vec2 a_TexCoordinate;" +
+                "varying vec2 v_TexCoordinate;" +
                 "void main() {" +
                 "gl_Position = uMVPMatrix * vec4(vPosition.x,vPosition.y + isLines ,vPosition.z,1.0);" +
                 "yPosition = vPosition.y * 3.0;"+
+                "v_TexCoordinate = a_TexCoordinate;"+
                 "}"
-
 
     private val fragmentShaderCode =
         "precision mediump float;" +
                 "uniform vec4 vColor;" +
                 "varying float yPosition;"+
+                "uniform sampler2D u_Texture;" +
+                "varying vec2 v_TexCoordinate;" +
                 "void main() {" +
-                "  gl_FragColor = vColor * yPosition;" +
+                " gl_FragColor = vColor * yPosition;// * texture2D(u_Texture, v_TexCoordinate);\n" +
                 "}"
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig)
