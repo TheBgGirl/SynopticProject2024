@@ -6,6 +6,7 @@ import javax.microedition.khronos.opengles.GL10
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
+import android.util.Log
 
 class MyGLRenderer : GLSurfaceView.Renderer
 {
@@ -13,6 +14,7 @@ class MyGLRenderer : GLSurfaceView.Renderer
     private val projectionMatrix = FloatArray(16)
     private val model = FloatArray(16)
     private val mvpMatrix = FloatArray(16)
+    private var viewMatrix = FloatArray(16)
 
     private lateinit var triangle: Triangle
     private lateinit var square : Square
@@ -80,12 +82,12 @@ class MyGLRenderer : GLSurfaceView.Renderer
 
         // Camera Zoom From Farm Size
         if(farmHeight >= farmWidth){
-            maxZoomDistance = farmHeight.toFloat()
+            maxZoomDistance = farmHeight.toFloat() * 1.5f
         }
         else{
-            maxZoomDistance = farmWidth.toFloat()
+            maxZoomDistance = farmWidth.toFloat() * 1.5f
         }
-        minZoomDistance = maxZoomDistance / 4f
+        minZoomDistance = maxZoomDistance / 2f
 
         moveSpeed = minZoomDistance
 
@@ -104,7 +106,7 @@ class MyGLRenderer : GLSurfaceView.Renderer
         shader.setFloat("isLines",0.0f)
 
         // Camera
-        val viewMatrix = camera.getViewMatrix()
+        viewMatrix = camera.getViewMatrix()
         Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
 
         Matrix.setIdentityM(model,0)
@@ -131,10 +133,13 @@ class MyGLRenderer : GLSurfaceView.Renderer
         Matrix.frustumM(projectionMatrix, 0, -aspectRatio, aspectRatio, -1f, 1f, nearClip, farClip)
     }
 
-//    fun onSingleTap()
-//    {
-//
-//    }
+    fun onSingleTap(x: Float, y: Float)
+    {
+        val worldCoords = FloatArray(3)
+        unProject(x, 0.0f, y, model, projectionMatrix, viewMatrix, worldCoords)
+        Log.d("World Coords X", worldCoords[0].toString())
+        Log.d("World Coords Z", worldCoords[2].toString())
+    }
 
     fun moveCamera(dx : Float, dz : Float)
     {
@@ -166,5 +171,37 @@ class MyGLRenderer : GLSurfaceView.Renderer
             moveSpeed /= scaleFactor
             sensitivity /= scaleFactor
         }
+    }
+
+    fun unProject(
+        winX: Float, winY: Float, winZ: Float,
+        modelMatrix: FloatArray, projMatrix: FloatArray,
+        view: FloatArray, objCoords: FloatArray
+    ) {
+        val invertModelMatrix = FloatArray(16)
+        Matrix.invertM(invertModelMatrix, 0, modelMatrix, 0)
+
+        val invertProjectionMatrix = FloatArray(16)
+        Matrix.invertM(invertProjectionMatrix, 0, projMatrix, 0)
+
+        val normalizedX = (winX - view[0]) / view[2] * 2.0f - 1.0f
+        val normalizedY = (winY - view[1]) / view[3] * 2.0f - 1.0f
+        val normalizedZ = winZ * 2.0f - 1.0f
+
+        val clipCoords = floatArrayOf(normalizedX, normalizedY, normalizedZ, 1.0f)
+
+        val eyeCoords = FloatArray(4)
+        Matrix.multiplyMV(eyeCoords, 0, invertProjectionMatrix, 0, clipCoords, 0)
+
+        val worldCoords = FloatArray(4)
+        Matrix.multiplyMV(worldCoords, 0, invertModelMatrix, 0, eyeCoords, 0)
+
+        if (worldCoords[3] == 0.0f) {
+            throw RuntimeException("Zero homogeneous coordinate")
+        }
+
+        objCoords[0] = worldCoords[0] / worldCoords[3]
+        objCoords[1] = worldCoords[1] / worldCoords[3]
+        objCoords[2] = worldCoords[2] / worldCoords[3]
     }
 }
