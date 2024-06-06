@@ -22,7 +22,7 @@ class MyGLRenderer : GLSurfaceView.Renderer
 
     private lateinit var shader : Shader
 
-    // ----- CAMERA SETTING ----- //
+    // ----- CAMERA SETTINGS ----- //
     private var camera: Camera = Camera()
 
     private val nearClip: Float = 3f
@@ -39,8 +39,8 @@ class MyGLRenderer : GLSurfaceView.Renderer
     private var height: Float = 0f
 
     // ----- FARM SETTINGS ----- //
-    private var farmWidth: Int = 10
-    private var farmHeight: Int = 10
+    private var farmWidth: Int = 100
+    private var farmHeight: Int = 100
 
     private val vertexShaderCode =
     // This matrix member variable provides a hook to manipulate
@@ -126,7 +126,9 @@ class MyGLRenderer : GLSurfaceView.Renderer
         this.width = width.toFloat()
         this.height = height.toFloat()
 
-        Matrix.frustumM(projectionMatrix, 0, -1f, 1f, -1f, 1f, nearClip, farClip)
+        val aspectRatio: Float = width.toFloat() / height.toFloat()
+
+        Matrix.frustumM(projectionMatrix, 0, -aspectRatio, aspectRatio, -1f, 1f, nearClip, farClip)
     }
 
 //    fun onSingleTap()

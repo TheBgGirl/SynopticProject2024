@@ -37,7 +37,7 @@ class Plane(var width: Int = 20, var height: Int = 20)
 //        }
 
 
-        val seedRez = 5 // Number of seed positions
+        val seedRez = 10 // Number of seed positions
         val seedTerrain = Array(seedRez) { Array(seedRez) { (Random.nextFloat() * heightFactor) + 0.1f } }
 
         // Bilinear Interpolate and smooth the terrain
