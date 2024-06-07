@@ -42,6 +42,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.farmsimulator.R
+import com.example.farmsimulator.stores.SettingsRepository
 import com.example.farmsimulator.utils.DEFAULT_LAT_LONG
 import com.example.farmsimulator.utils.NotificationHandler
 import com.example.farmsimulator.utils.RequestLocationPermissionBinary
@@ -63,7 +64,7 @@ import com.example.farmsimulator.ui.utils.createDialog
 @OptIn(ExperimentalPermissionsApi::class)
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
-fun LocatorPage(onCropPlannerClick: (height: Int, width: Int, latLng: LatLng) -> Unit) {
+fun LocatorPage(onCropPlannerClick: (height: Int, width: Int, latLng: LatLng) -> Unit, settingsRepository: SettingsRepository) {
     val context = LocalContext.current
     val locationClient = LocationServices.getFusedLocationProviderClient(context)
     val keyboardController = LocalSoftwareKeyboardController.current

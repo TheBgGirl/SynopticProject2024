@@ -11,13 +11,14 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.farmsimulator.stores.SettingsRepository
 import com.example.farmsimulator.ui.theme.FarmSimulator
 import com.example.farmsimulator.utils.fileExists
 
 // ill fix this
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
-fun FarmSimulatorApp(navController: NavHostController = rememberNavController()) {
+fun FarmSimulatorApp(navController: NavHostController = rememberNavController(), settingsRepository: SettingsRepository) {
     FarmSimulator {
         val backStackEntry = navController.currentBackStackEntryAsState()
         val currentRoute = backStackEntry.value?.destination?.route
@@ -40,7 +41,7 @@ fun FarmSimulatorApp(navController: NavHostController = rememberNavController())
             Box(modifier = Modifier.padding(paddingValues)) {
                 val startDestination = if (fileExists("./res/user.csv")) Screen.Home.route else Screen.Locator.route
 
-                FarmSimNavGraph(navController = navController, startDestination = startDestination)
+                FarmSimNavGraph(navController = navController, startDestination = startDestination, settingsRepository = settingsRepository)
             }
         }
     }

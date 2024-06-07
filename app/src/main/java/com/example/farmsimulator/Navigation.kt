@@ -29,6 +29,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.farmsimulator.stores.SettingsRepository
 import com.example.farmsimulator.ui.farm.LocatorPage
 import com.example.farmsimulator.ui.farm.PlannerPage
 import com.example.farmsimulator.ui.home.HomePage
@@ -88,7 +89,8 @@ sealed class Screen(
 fun FarmSimNavGraph(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
-    startDestination: String = Screen.Home.route
+    startDestination: String = Screen.Home.route,
+    settingsRepository: SettingsRepository
 ) {
     NavHost(
         modifier = modifier,
@@ -96,7 +98,7 @@ fun FarmSimNavGraph(
         startDestination = startDestination,
     ) {
         composable(route = Screen.Home.route) {
-            HomePage()
+            HomePage(settingsRepository)
         }
         composable(Screen.Locator.route) {
             LocatorPage(
@@ -104,7 +106,7 @@ fun FarmSimNavGraph(
                     navController.navigate(
                         "${Screen.CropPlanner.route}?height=$height&width=$width&lat=${latLng.latitude}&long=${latLng.longitude}"
                     )
-                }
+                }, settingsRepository = settingsRepository
             )
         }
 
@@ -133,11 +135,11 @@ fun FarmSimNavGraph(
 
             PlannerPage(latLng = latLng, height = height, width = width, onBackNavigation = {
                 navController.navigate(Screen.Locator.route)
-            })
+            }, settingsRepository = settingsRepository)
         }
 
         composable(route = Screen.Settings.route) {
-            SettingsPage()
+            SettingsPage(settingsRepository)
         }
     }
 }

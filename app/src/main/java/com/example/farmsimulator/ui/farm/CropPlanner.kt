@@ -45,6 +45,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.farmsimulator.R
+import com.example.farmsimulator.stores.SettingsRepository
 import com.example.farmsimulator.ui.utils.InputField
 import com.example.farmsimulator.ui.utils.SelectTextField
 import com.google.android.gms.maps.model.LatLng
@@ -71,7 +72,7 @@ sealed class CropTypes(@StringRes val name: Int) {
 data class CropInfo(val cropType: CropTypes, val x: Int, val y: Int)
 
 @Composable
-fun PlannerPage(latLng: LatLng, height: Int, width: Int, onBackNavigation: () -> Unit) {
+fun PlannerPage(latLng: LatLng, height: Int, width: Int, onBackNavigation: () -> Unit, settingsRepository: SettingsRepository) {
     var addedCrops by remember {
         mutableStateOf(listOf<CropInfo>())
     }
@@ -129,7 +130,7 @@ fun FarmGrid(
             onCropAdd = onCropAdd,
             onDismiss = {
                 showChooseCrop = false; selectedCells = listOf()
-                        },
+            },
             selectedCells = selectedCells,
         )
     }

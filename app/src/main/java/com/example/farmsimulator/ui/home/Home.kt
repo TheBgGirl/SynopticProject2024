@@ -25,9 +25,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.farmsimulator.R
 import com.example.farmsimulator.opengl.OpenGLActivity
+import com.example.farmsimulator.stores.SettingsRepository
 
 @Composable
-fun HomePage() {
+fun HomePage(settingsRepository: SettingsRepository) {
     val scrollState = rememberScrollState()
     Column(
         modifier = Modifier

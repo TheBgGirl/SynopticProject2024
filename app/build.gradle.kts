@@ -81,6 +81,8 @@ dependencies {
     implementation(libs.smile.kotlin)
     testImplementation(libs.junit)
 
+    implementation(libs.androidx.datastore.preferences)
+
     implementation(libs.android.maps.compose)
     implementation(libs.maps.compose.utils)
     implementation(libs.maps.compose.widgets)

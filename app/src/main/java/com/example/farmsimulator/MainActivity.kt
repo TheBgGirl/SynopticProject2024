@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import com.example.farmsimulator.stores.SettingsRepository
 import com.example.farmsimulator.utils.fileExists
 
 class MainActivity : AppCompatActivity() {
@@ -14,8 +15,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        val settingsRepository = SettingsRepository(this)
         setContent {
-            FarmSimulatorApp()
+            FarmSimulatorApp(settingsRepository = settingsRepository)
         }
     }
 }

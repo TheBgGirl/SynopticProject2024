@@ -39,4 +39,7 @@
     <string name="rice">អង្ករ</string>
     <string name="add_crop">បន្ថែមដំណាំ</string>
     <string name="crop_type">ប្រភេទដំណាំ</string>
+    <string name="meters">ម៉ែត្រ</string>
+    <string name="cancel">បោះបង់</string>
+    <string name="choose_crop">ជ្រើសរើសប្រភេទដំណាំសម្រាប់ការជ្រើសរើស</string>
 </resources>

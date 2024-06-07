@@ -3,6 +3,7 @@ accompanistPermissions = "0.28.0"
 accompanistPermissionsVersion = "0.35.0-alpha"
 agp = "8.4.1"
 converterGson = "2.9.0"
+datastorePreferences = "1.1.1"
 hiltAndroidCompiler = "2.51.1"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
@@ -32,6 +33,7 @@ accompanist-permissions = { module = "com.google.accompanist:accompanist-permiss
 accompanist-permissions-v0350alpha = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissionsVersion" }
 android-maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "mapsComposeVersion" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroidCompiler" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroidCompiler" }
