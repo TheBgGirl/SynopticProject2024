@@ -37,4 +37,6 @@
     <string name="soy">សណ្តែកសៀង</string>
     <string name="wheat">ស្រូវសាលី</string>
     <string name="rice">អង្ករ</string>
+    <string name="add_crop">បន្ថែមដំណាំ</string>
+    <string name="crop_type">ប្រភេទដំណាំ</string>
 </resources>

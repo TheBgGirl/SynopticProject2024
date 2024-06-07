@@ -21,21 +21,25 @@ class Square(private val position : FloatArray, private val width : Float)
     private val drawListBuffer: ShortBuffer
     private var positionHandle: Int = 0
     private var mColorHandle: Int = 0
-    private val drawOrder = shortArrayOf(0, 2, 3,0,1,3) // order to draw vertices
+    private val drawOrder = shortArrayOf(1, 2, 3, 1, 2, 0) // order to draw vertices
 
     init {
+        //Bottom right
         squareCoords[0]  = -width/2
         squareCoords[1]  = 0f
         squareCoords[2]  = -width/2
 
+        //Bottom left
         squareCoords[3]  = width/2
         squareCoords[4]  = 0f
         squareCoords[5]  = -width/2
 
+        //Top right
         squareCoords[6]  = -width/2
         squareCoords[7]  = 0f
         squareCoords[8]  = width/2
 
+        //Top left
         squareCoords[9]  = width/2
         squareCoords[10]  = 0f
         squareCoords[11]  = width/2

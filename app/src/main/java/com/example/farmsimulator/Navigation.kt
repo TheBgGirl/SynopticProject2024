@@ -21,10 +21,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
-import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.NavGraph
-import androidx.navigation.NavGraphNavigator
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -47,7 +44,13 @@ sealed class Screen(
     val parent: Screen? = null,
     val children: List<Screen> = emptyList()
 ) {
-    data object Home : Screen(route = "home", title = R.string.home_title, icon = Icons.Default.Home, testTag = "homeButton")
+    data object Home : Screen(
+        route = "home",
+        title = R.string.home_title,
+        icon = Icons.Default.Home,
+        testTag = "homeButton"
+    )
+
     data object Locator : Screen(
         route = "locator",
         title = R.string.locator_title,
@@ -71,8 +74,12 @@ sealed class Screen(
         testTag = "settingsButton"
     )
 
-    companion object {
+    private object Initializer {
         val items = listOf(Home, Locator, CropPlanner, Settings)
+    }
+
+    companion object {
+        val items: List<Screen> by lazy { Initializer.items }
     }
 }
 
@@ -80,19 +87,20 @@ sealed class Screen(
 @Composable
 fun FarmSimNavGraph(
     modifier: Modifier = Modifier,
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    startDestination: String = Screen.Home.route
 ) {
     NavHost(
         modifier = modifier,
         navController = navController,
-        startDestination = Screen.Home.route
+        startDestination = startDestination,
     ) {
         composable(route = Screen.Home.route) {
             HomePage()
         }
         composable(Screen.Locator.route) {
             LocatorPage(
-                onCropPlannerClick = { height: Double, width: Double, latLng: LatLng ->
+                onCropPlannerClick = { height: Int, width: Int, latLng: LatLng ->
                     navController.navigate(
                         "${Screen.CropPlanner.route}?height=$height&width=$width&lat=${latLng.latitude}&long=${latLng.longitude}"
                     )
@@ -102,14 +110,22 @@ fun FarmSimNavGraph(
 
         composable(route = "${Screen.CropPlanner.route}?height={height}&width={width}&lat={lat}&long={long}",
             arguments = listOf(
-                navArgument("height") { type = NavType.StringType; defaultValue = "0.0"; nullable = true },
-                navArgument("width") { type = NavType.StringType; defaultValue = "0.0"; nullable = true },
-                navArgument("lat") { type = NavType.StringType; defaultValue = "0.0"; nullable = true },
-                navArgument("long") { type = NavType.StringType; defaultValue = "0.0"; nullable = true }
+                navArgument("height") {
+                    type = NavType.StringType; defaultValue = "0.0"; nullable = true
+                },
+                navArgument("width") {
+                    type = NavType.StringType; defaultValue = "0.0"; nullable = true
+                },
+                navArgument("lat") {
+                    type = NavType.StringType; defaultValue = "0.0"; nullable = true
+                },
+                navArgument("long") {
+                    type = NavType.StringType; defaultValue = "0.0"; nullable = true
+                }
             )) {
 
-            val height = it.arguments?.getString("height")?.toDoubleOrNull() ?: 0.0
-            val width = it.arguments?.getString("width")?.toDoubleOrNull() ?: 0.0
+            val height = it.arguments?.getString("height")?.toIntOrNull() ?: 0
+            val width = it.arguments?.getString("width")?.toIntOrNull() ?: 0
             val lat = it.arguments?.getString("lat")?.toDoubleOrNull() ?: 0.0
             val long = it.arguments?.getString("long")?.toDoubleOrNull() ?: 0.0
 
@@ -129,26 +145,26 @@ fun FarmSimNavGraph(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(
-    navController: NavController,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    canNavigateBack: Boolean = false,
+    navigateUp: () -> Unit
 ) {
-    val canNavigateBack = navController.previousBackStackEntry != null
-    val navigateUp: () -> Unit = { navController.navigateUp() }
     val title = stringResource(id = R.string.app_name)
 
     TopAppBar(title = {
         Text(text = title)
     },
         navigationIcon = {
-        if (canNavigateBack) {
-            IconButton(onClick = navigateUp) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = stringResource(id = R.string.back)
-                )
+            if (canNavigateBack) {
+                IconButton(onClick = navigateUp) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(id = R.string.back)
+                    )
+                }
             }
-        }
-    }, modifier = modifier)
+        }, modifier = modifier
+    )
 }
 
 @Composable

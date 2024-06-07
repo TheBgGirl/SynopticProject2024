@@ -6,6 +6,7 @@ import javax.microedition.khronos.opengles.GL10
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
+import android.util.Log
 
 class MyGLRenderer : GLSurfaceView.Renderer
 {
@@ -13,30 +14,35 @@ class MyGLRenderer : GLSurfaceView.Renderer
     private val projectionMatrix = FloatArray(16)
     private val model = FloatArray(16)
     private val mvpMatrix = FloatArray(16)
+    private var viewMatrix = FloatArray(16)
 
     private lateinit var triangle: Triangle
-
     private lateinit var square : Square
+    private lateinit var cube : Cube
 
     private lateinit var plane : Plane
 
     private lateinit var shader : Shader
 
-    // ----- CAMERA SETTING ----- //
+    // ----- CAMERA SETTINGS ----- //
     private var camera: Camera = Camera()
 
     private val nearClip: Float = 3f
-    private val farClip: Float = 100f
+    private val farClip: Float = 500f
 
-    private val maxZoomDistance = 20f
-    private val minZoomDistance = 3f
+    private var maxZoomDistance = 20f
+    private var minZoomDistance = maxZoomDistance / 4f
 
-    private var moveSpeed: Float = 2.0f
+    private var moveSpeed: Float = minZoomDistance
     private var sensitivity: Float = 100f
 
 
     private var width: Float = 0f
     private var height: Float = 0f
+
+    // ----- FARM SETTINGS ----- //
+    private var farmWidth: Int = 10
+    private var farmHeight: Int = 10
 
     private val vertexShaderCode =
     // This matrix member variable provides a hook to manipulate
@@ -44,38 +50,54 @@ class MyGLRenderer : GLSurfaceView.Renderer
         "uniform mat4 uMVPMatrix;" +
                 "attribute vec4 vPosition;" +
                 "varying float yPosition;"+
+                "uniform float isLines;"+
+                "attribute vec2 a_TexCoordinate;" +
+                "varying vec2 v_TexCoordinate;" +
                 "void main() {" +
-                // the matrix must be included as a modifier of gl_Position
-                // Note that the uMVPMatrix factor *must be first* in order
-                // for the matrix multiplication product to be correct.
-                "  gl_Position = uMVPMatrix * vPosition;" +
+                "gl_Position = uMVPMatrix * vec4(vPosition.x,vPosition.y + isLines ,vPosition.z,1.0);" +
                 "yPosition = vPosition.y * 3.0;"+
+                "v_TexCoordinate = a_TexCoordinate;"+
                 "}"
-
 
     private val fragmentShaderCode =
         "precision mediump float;" +
                 "uniform vec4 vColor;" +
                 "varying float yPosition;"+
+                "uniform sampler2D u_Texture;" +
+                "varying vec2 v_TexCoordinate;" +
                 "void main() {" +
-                "  gl_FragColor = vColor * yPosition;" +
+                " gl_FragColor = vColor * yPosition;// * texture2D(u_Texture, v_TexCoordinate);\n" +
                 "}"
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig)
     {
+        GLES20.glEnable(GLES20.GL_DEPTH_TEST) // Enable depth testing
+
         // Set the background frame color
         GLES20.glClearColor(0.1f, 0.1f, 0.1f, 1.0f)
 
         shader = Shader(vertexShaderCode,fragmentShaderCode)
 
         triangle = Triangle(floatArrayOf(-0.5f,0f,-0.5f), floatArrayOf(0.5f,0f,-0.5f), floatArrayOf(0f,0f,0.5f))
-
         square = Square(floatArrayOf(0f,0f,0f),1f)
+        cube = Cube(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f)
 
-        plane = Plane()
+        plane = Plane(farmWidth, farmHeight)
 
+        // Camera Zoom From Farm Size
+        if(farmHeight >= farmWidth){
+            maxZoomDistance = farmHeight.toFloat() * 1.5f
+        }
+        else{
+            maxZoomDistance = farmWidth.toFloat() * 1.5f
+        }
+        minZoomDistance = maxZoomDistance / 2f
+
+        moveSpeed = minZoomDistance
+
+        // Default Camera Values
         camera.position = floatArrayOf(0f, 0.5f, 0f)
-        camera.radius = 5f
+        camera.radius = minZoomDistance + 1f
         camera.pitch = 90f
 
     }
@@ -83,11 +105,12 @@ class MyGLRenderer : GLSurfaceView.Renderer
     override fun onDrawFrame(unused: GL10)
     {
         // Redraw background color
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
         shader.use()
+        shader.setFloat("isLines",0.0f)
 
         // Camera
-        val viewMatrix = camera.getViewMatrix()
+        viewMatrix = camera.getViewMatrix()
         Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
 
         Matrix.setIdentityM(model,0)
@@ -100,6 +123,8 @@ class MyGLRenderer : GLSurfaceView.Renderer
 
         plane.draw(shader)
 
+        //cube.draw(shader)
+
     }
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
         GLES20.glViewport(0, 0, width, height)
@@ -107,17 +132,28 @@ class MyGLRenderer : GLSurfaceView.Renderer
         this.width = width.toFloat()
         this.height = height.toFloat()
 
-        Matrix.frustumM(projectionMatrix, 0, -1f, 1f, -1f, 1f, nearClip, farClip)
+        val aspectRatio: Float = width.toFloat() / height.toFloat()
+
+        Matrix.frustumM(projectionMatrix, 0, -aspectRatio, aspectRatio, -1f, 1f, nearClip, farClip)
     }
 
-//    fun onSingleTap()
-//    {
-//
-//    }
+    fun onSingleTap(x: Float, y: Float)
+    {
+        val worldCoords = FloatArray(3)
+        unProject(x, 0.0f, y, model, projectionMatrix, viewMatrix, worldCoords)
+        Log.d("World Coords X", worldCoords[0].toString())
+        Log.d("World Coords Z", worldCoords[2].toString())
+    }
 
     fun moveCamera(dx : Float, dz : Float)
     {
-        camera.move((moveSpeed * -dx)/width, 0f, (moveSpeed * -dz)/height)
+        val newX = camera.position[0] + (moveSpeed * -dx)/width
+        val newZ = camera.position[2] + (moveSpeed * -dz)/height
+
+        // Check if the new position is within the boundaries
+        if (newX >= -farmWidth/2 && newX <= farmWidth/2 && newZ >= -farmHeight/2 && newZ <= farmHeight/2) {
+            camera.move((moveSpeed * -dx)/width, 0f, (moveSpeed * -dz)/height)
+        }
     }
 
     fun arcRotateCamera(currentX: Float, currentY: Float){
@@ -139,5 +175,37 @@ class MyGLRenderer : GLSurfaceView.Renderer
             moveSpeed /= scaleFactor
             sensitivity /= scaleFactor
         }
+    }
+
+    fun unProject(
+        winX: Float, winY: Float, winZ: Float,
+        modelMatrix: FloatArray, projMatrix: FloatArray,
+        view: FloatArray, objCoords: FloatArray
+    ) {
+        val invertModelMatrix = FloatArray(16)
+        Matrix.invertM(invertModelMatrix, 0, modelMatrix, 0)
+
+        val invertProjectionMatrix = FloatArray(16)
+        Matrix.invertM(invertProjectionMatrix, 0, projMatrix, 0)
+
+        val normalizedX = (winX - view[0]) / view[2] * 2.0f - 1.0f
+        val normalizedY = (winY - view[1]) / view[3] * 2.0f - 1.0f
+        val normalizedZ = winZ * 2.0f - 1.0f
+
+        val clipCoords = floatArrayOf(normalizedX, normalizedY, normalizedZ, 1.0f)
+
+        val eyeCoords = FloatArray(4)
+        Matrix.multiplyMV(eyeCoords, 0, invertProjectionMatrix, 0, clipCoords, 0)
+
+        val worldCoords = FloatArray(4)
+        Matrix.multiplyMV(worldCoords, 0, invertModelMatrix, 0, eyeCoords, 0)
+
+        if (worldCoords[3] == 0.0f) {
+            throw RuntimeException("Zero homogeneous coordinate")
+        }
+
+        objCoords[0] = worldCoords[0] / worldCoords[3]
+        objCoords[1] = worldCoords[1] / worldCoords[3]
+        objCoords[2] = worldCoords[2] / worldCoords[3]
     }
 }

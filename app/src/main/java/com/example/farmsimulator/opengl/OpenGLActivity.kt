@@ -71,8 +71,8 @@ class OpenGLActivity : ComponentActivity()
 //            }
 
             override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-                //gLView.getRender().onSingleTap()
-                Log.d(DEBUG_TAG,"awdawda")
+                gLView.getRender().onSingleTap(e.x, e.y)
+                Log.d(DEBUG_TAG,"Single Tap")
                 return true
             }
 

@@ -19,6 +19,7 @@ playServicesMaps = "18.2.0"
 playServicesMapsVersion = "18.0.2"
 retrofit = "2.9.0"
 secretsGradlePlugin = "2.0.1"
+smileKotlin = "3.1.0"
 uiTextGoogleFonts = "1.6.7"
 navigationCompose = "2.7.7"
 appcompat = "1.7.0"
@@ -59,10 +60,7 @@ androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 androidx-navigation-testing = { group = "androidx.navigation", name = "navigation-testing", version.ref = "navigationTesting" }
-smile-core = { module = "com.gitub.haifengl:smile-core" }
-smile-data = { module = "com.github.haifengl:smile-data" }
-haifengl-smile-core = { group = "com.github.haifengl", name = "smile-core", version.ref = "smileCore" }
-haifengl-smile-data = { group = "com.github.haifengl", name = "smile-data", version.ref = "smileData" }
+smile-kotlin = { module = "com.github.haifengl:smile-kotlin", version.ref = "smileKotlin" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

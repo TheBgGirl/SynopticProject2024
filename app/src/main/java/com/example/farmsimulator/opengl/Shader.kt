@@ -51,4 +51,19 @@ class Shader(vertexShaderCode: String, fragmentShaderCode: String)
             GLES20.glGetUniformLocation(id, name), 1, false, value, 0)
 
     }
+
+    fun setInt(name:String,value:Int)
+    {
+        // Pass the projection and view transformation to the shader
+        GLES20.glUniform1i(        // get handle to shape's transformation matrix
+            GLES20.glGetUniformLocation(id, name), value)
+
+    }
+    fun setFloat(name:String,value:Float)
+    {
+        // Pass the projection and view transformation to the shader
+        GLES20.glUniform1f(        // get handle to shape's transformation matrix
+            GLES20.glGetUniformLocation(id, name), value)
+
+    }
 }
