@@ -1,4 +1,4 @@
-package com.example.farmsimulator.utils
+package com.example.farmsimulator.ui.utils
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon

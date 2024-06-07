@@ -1,6 +1,5 @@
 package com.example.farmsimulator.ui.farm
 
-import android.provider.CalendarContract.Colors
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,6 +22,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -52,6 +52,24 @@ import com.google.android.gms.maps.model.LatLng
 const val MAX_HEIGHT = 10
 const val MAX_WIDTH = 10
 
+sealed class CropTypes(@StringRes val name: Int) {
+    data object None : CropTypes(R.string.none)
+    data object Corn : CropTypes(R.string.corn)
+    data object Soy : CropTypes(R.string.soy)
+    data object Wheat : CropTypes(R.string.wheat)
+    data object Rice : CropTypes(R.string.rice)
+
+    private object Initializer {
+        val items = listOf(None, Corn, Soy, Wheat, Rice)
+    }
+
+    companion object {
+        val items: List<CropTypes> by lazy { Initializer.items }
+    }
+}
+
+data class CropInfo(val cropType: CropTypes, val x: Int, val y: Int)
+
 @Composable
 fun PlannerPage(latLng: LatLng, height: Int, width: Int, onBackNavigation: () -> Unit) {
     var addedCrops by remember {
@@ -75,13 +93,27 @@ fun PlannerPage(latLng: LatLng, height: Int, width: Int, onBackNavigation: () ->
             style = MaterialTheme.typography.headlineMedium
         )
 
-        EnterCropsForm(addedCrops = addedCrops, onCropsChange = { addedCrops = it }, width = width, height = height)
+        EnterCropsForm(
+            addedCrops = addedCrops,
+            onCropsChange = { addedCrops = it },
+            width = width,
+            height = height
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
     }
 }
+
 @Composable
-fun FarmGrid(modifier: Modifier = Modifier, height: Int, width: Int, crops: List<CropInfo>, onCropAdd: (CropInfo) -> Unit, actualWidth: Int, actualHeight: Int) {
+fun FarmGrid(
+    modifier: Modifier = Modifier,
+    height: Int,
+    width: Int,
+    crops: List<CropInfo>,
+    onCropAdd: (CropInfo) -> Unit,
+    actualWidth: Int,
+    actualHeight: Int
+) {
     var selectedCells by remember {
         mutableStateOf(listOf<Pair<Int, Int>>())
     }
@@ -90,62 +122,129 @@ fun FarmGrid(modifier: Modifier = Modifier, height: Int, width: Int, crops: List
     }
 
     var gridOffset by remember { mutableStateOf(Offset.Zero) }
+    var showChooseCrop by remember { mutableStateOf(false) }
+
+    if (showChooseCrop) {
+        ChooseCropDialog(
+            onCropAdd = onCropAdd,
+            onDismiss = {
+                showChooseCrop = false; selectedCells = listOf()
+                        },
+            selectedCells = selectedCells,
+        )
+    }
 
     BoxWithConstraints(
-    modifier = modifier
-        .fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
     ) {
         val maxWidth = maxWidth
         val gridCellSize = maxWidth / width
 
-    LazyVerticalGrid(columns = GridCells.Fixed(width), modifier = modifier
-        .height(gridCellSize * height)
-        .onGloballyPositioned { coordinates ->
-            val position = coordinates.positionInRoot()
-            gridOffset = Offset(position.x, position.y)
-        }
-        .pointerInput(Unit) {
-            detectDragGestures(
-                onDragStart = {
-                    isDragging = true
-                    selectedCells = listOf()
-                },
-                onDrag = { change, _ ->
-                    val x = change.position.x / gridCellSize.value
-                    val y = change.position.y / gridCellSize.value
-                    if (x >= 0 && x < width && y >= 0 && y < height) {
-                        selectedCells = selectedCells + (x.toInt() to y.toInt())
+        LazyVerticalGrid(columns = GridCells.Fixed(width), modifier = modifier
+            .height(gridCellSize * height)
+            .onGloballyPositioned { coordinates ->
+                val position = coordinates.positionInRoot()
+                gridOffset = Offset(position.x, position.y)
+            }
+            .pointerInput(Unit) {
+                detectDragGestures(
+                    onDragStart = {
+                        isDragging = true
+                        selectedCells = listOf()
+                    },
+                    onDrag = { change, _ ->
+                        val x: Int =
+                            ((change.position.x - gridOffset.x) / gridCellSize.toPx()).toInt()
+                        val y: Int =
+                            ((change.position.y - gridOffset.y) / gridCellSize.toPx()).toInt()
+                        if (x in 0 until width && y in 0 until height) {
+                            val cell = x to y
+                            if (!selectedCells.contains(cell)) {
+                                selectedCells = selectedCells + cell
+                            }
+                        }
+                    },
+                    onDragEnd = {
+                        isDragging = false
+                        showChooseCrop = true
                     }
-                },
-                onDragEnd = {
-                    isDragging = false
-                    selectedCells.forEach { (x, y) ->
-                            onCropAdd(CropInfo(CropTypes.Corn, x, y))
-                    }
-                    selectedCells = listOf()
-                }
-            )
-        }
-    ) {
-        items(count = height * width, key = {
-            it
-        }) { index ->
-            val x = index % width
-            val y = index / width
+                )
+            }
+        ) {
+            items(count = height * width, key = {
+                it
+            }) { index ->
+                val x = index % width
+                val y = index / width
 
-            val crop = crops.firstOrNull { it.x == x && it.y ==  y }
-            val isSelected = selectedCells.contains(x to y)
-            CropSquare(crop = crop, onCropAdd = onCropAdd, y = y, x = x, isSelected = isSelected, modifier = Modifier
-                .width(gridCellSize)
-                .height(gridCellSize));
+                val crop = crops.firstOrNull { it.x == x && it.y == y }
+                val isSelected = selectedCells.contains(x to y)
+                CropSquare(
+                    crop = crop,
+                    onCropAdd = onCropAdd,
+                    y = y,
+                    x = x,
+                    isSelected = isSelected,
+                    modifier = Modifier
+                        .width(gridCellSize)
+                        .height(gridCellSize)
+                )
+            }
         }
-    }
     }
 }
 
+@Composable
+fun ChooseCropDialog(
+    onCropAdd: (CropInfo) -> Unit,
+    onDismiss: () -> Unit,
+    selectedCells: List<Pair<Int, Int>>,
+) {
+    var chosenType by remember {
+        mutableStateOf<CropTypes>(CropTypes.None)
+    }
+
+    val cropNames = CropTypes.items.map { stringResource(id = it.name) }
+
+    AlertDialog(onDismissRequest = onDismiss, confirmButton = {
+        Button(onClick = {
+            for (cell in selectedCells) {
+                onCropAdd(CropInfo(chosenType, cell.first, cell.second))
+            }
+            onDismiss()
+        }) {
+            Text(text = stringResource(id = R.string.add_crop))
+        }
+    }, dismissButton = {
+        Button(onClick = onDismiss) {
+            Text(text = stringResource(id = R.string.cancel))
+        }
+    }, title = {
+        Text(text = stringResource(id = R.string.choose_crop))
+    }, text = {
+        Column {
+            SelectTextField(
+                selectedValue = stringResource(id = chosenType.name),
+                onValueChange = {
+                    chosenType = CropTypes.items[cropNames.indexOf(it)]
+                },
+                selectOptions = CropTypes.items.map { stringResource(id = it.name) },
+                label = stringResource(id = R.string.crop_type)
+            )
+        }
+    })
+}
 
 @Composable
-fun CropSquare(crop: CropInfo?, modifier: Modifier = Modifier, isSelected: Boolean, onCropAdd: (CropInfo) -> Unit, x: Int, y: Int) {
+fun CropSquare(
+    crop: CropInfo?,
+    modifier: Modifier = Modifier,
+    isSelected: Boolean,
+    onCropAdd: (CropInfo) -> Unit,
+    x: Int,
+    y: Int
+) {
     val cropType = crop?.cropType
     val color = when {
         isSelected -> Color.Red
@@ -167,26 +266,15 @@ fun CropSquare(crop: CropInfo?, modifier: Modifier = Modifier, isSelected: Boole
         })
 }
 
-sealed class CropTypes(@StringRes val name: Int) {
-    data object None : CropTypes(R.string.none)
-    data object Corn : CropTypes(R.string.corn)
-    data object Soy : CropTypes(R.string.soy)
-    data object Wheat : CropTypes(R.string.wheat)
-    data object Rice : CropTypes(R.string.rice)
-
-    private object Initializer {
-        val items = listOf(None, Corn, Soy, Wheat, Rice)
-    }
-
-    companion object {
-        val items: List<CropTypes> by lazy { Initializer.items }
-    }
-}
-
-data class CropInfo(val cropType: CropTypes, val x: Int, val y: Int)
 
 @Composable
-fun EnterCropsForm(modifier: Modifier = Modifier, addedCrops: List<CropInfo>, onCropsChange: (List<CropInfo>) -> Unit = {}, width: Int, height: Int) {
+fun EnterCropsForm(
+    modifier: Modifier = Modifier,
+    addedCrops: List<CropInfo>,
+    onCropsChange: (List<CropInfo>) -> Unit = {},
+    width: Int,
+    height: Int
+) {
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         for (crop in addedCrops) {
             CropField(cropInfo = crop, onCropInfoChange = {
@@ -209,9 +297,14 @@ fun EnterCropsForm(modifier: Modifier = Modifier, addedCrops: List<CropInfo>, on
 }
 
 
-
 @Composable
-fun CropField(cropInfo: CropInfo, onCropInfoChange: (CropInfo) -> Unit, onDelete: (CropInfo) -> Unit, width: Int, height: Int) {
+fun CropField(
+    cropInfo: CropInfo,
+    onCropInfoChange: (CropInfo) -> Unit,
+    onDelete: (CropInfo) -> Unit,
+    width: Int,
+    height: Int
+) {
     var xError by remember { mutableStateOf("") }
     var yError by remember { mutableStateOf("") }
 
@@ -264,14 +357,17 @@ fun CropField(cropInfo: CropInfo, onCropInfoChange: (CropInfo) -> Unit, onDelete
 
             Spacer(modifier = Modifier.width(8.dp))
             val cropType = stringResource(id = cropInfo.cropType.name)
-            val cropOptions = CropTypes.items.filter { it != CropTypes.None }.map { stringResource(id = it.name) }
+            val cropOptions =
+                CropTypes.items.filter { it != CropTypes.None }.map { stringResource(id = it.name) }
 
-            Column (modifier = Modifier.width(150.dp)) {
+            Column(modifier = Modifier.width(150.dp)) {
                 SelectTextField(
                     selectedValue = cropType,
-                    onValueChange = { onCropInfoChange(
-                        cropInfo.copy(cropType = CropTypes.items[cropOptions.indexOf(it) + 1])
-                    ) },
+                    onValueChange = {
+                        onCropInfoChange(
+                            cropInfo.copy(cropType = CropTypes.items[cropOptions.indexOf(it) + 1])
+                        )
+                    },
                     selectOptions = cropOptions,
                     label = stringResource(id = R.string.crop_type),
                 )

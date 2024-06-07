@@ -58,7 +58,7 @@ import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.example.farmsimulator.ui.utils.InputField
-import com.example.farmsimulator.utils.createDialog
+import com.example.farmsimulator.ui.utils.createDialog
 
 @OptIn(ExperimentalPermissionsApi::class)
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
