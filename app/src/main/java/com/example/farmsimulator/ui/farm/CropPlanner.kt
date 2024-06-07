@@ -5,6 +5,7 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -34,8 +35,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -78,6 +82,15 @@ fun PlannerPage(latLng: LatLng, height: Int, width: Int, onBackNavigation: () ->
 }
 @Composable
 fun FarmGrid(modifier: Modifier = Modifier, height: Int, width: Int, crops: List<CropInfo>, onCropAdd: (CropInfo) -> Unit, actualWidth: Int, actualHeight: Int) {
+    var selectedCells by remember {
+        mutableStateOf(listOf<Pair<Int, Int>>())
+    }
+    var isDragging by remember {
+        mutableStateOf(false)
+    }
+
+    var gridOffset by remember { mutableStateOf(Offset.Zero) }
+
     BoxWithConstraints(
     modifier = modifier
         .fillMaxWidth()
@@ -85,7 +98,35 @@ fun FarmGrid(modifier: Modifier = Modifier, height: Int, width: Int, crops: List
         val maxWidth = maxWidth
         val gridCellSize = maxWidth / width
 
-    LazyVerticalGrid(columns = GridCells.Fixed(width), modifier = modifier.height(gridCellSize * height)) {
+    LazyVerticalGrid(columns = GridCells.Fixed(width), modifier = modifier
+        .height(gridCellSize * height)
+        .onGloballyPositioned { coordinates ->
+            val position = coordinates.positionInRoot()
+            gridOffset = Offset(position.x, position.y)
+        }
+        .pointerInput(Unit) {
+            detectDragGestures(
+                onDragStart = {
+                    isDragging = true
+                    selectedCells = listOf()
+                },
+                onDrag = { change, _ ->
+                    val x = change.position.x / gridCellSize.value
+                    val y = change.position.y / gridCellSize.value
+                    if (x >= 0 && x < width && y >= 0 && y < height) {
+                        selectedCells = selectedCells + (x.toInt() to y.toInt())
+                    }
+                },
+                onDragEnd = {
+                    isDragging = false
+                    selectedCells.forEach { (x, y) ->
+                            onCropAdd(CropInfo(CropTypes.Corn, x, y))
+                    }
+                    selectedCells = listOf()
+                }
+            )
+        }
+    ) {
         items(count = height * width, key = {
             it
         }) { index ->
@@ -93,7 +134,10 @@ fun FarmGrid(modifier: Modifier = Modifier, height: Int, width: Int, crops: List
             val y = index / width
 
             val crop = crops.firstOrNull { it.x == x && it.y ==  y }
-            CropSquare(crop = crop, onCropAdd = onCropAdd, y = y, x = x, modifier = Modifier.width(gridCellSize).height(gridCellSize));
+            val isSelected = selectedCells.contains(x to y)
+            CropSquare(crop = crop, onCropAdd = onCropAdd, y = y, x = x, isSelected = isSelected, modifier = Modifier
+                .width(gridCellSize)
+                .height(gridCellSize));
         }
     }
     }
@@ -101,13 +145,14 @@ fun FarmGrid(modifier: Modifier = Modifier, height: Int, width: Int, crops: List
 
 
 @Composable
-fun CropSquare(crop: CropInfo?, modifier: Modifier = Modifier, onCropAdd: (CropInfo) -> Unit, x: Int, y: Int) {
+fun CropSquare(crop: CropInfo?, modifier: Modifier = Modifier, isSelected: Boolean, onCropAdd: (CropInfo) -> Unit, x: Int, y: Int) {
     val cropType = crop?.cropType
-    val color = when (cropType) {
-        CropTypes.Corn -> Color.Yellow
-        CropTypes.Soy -> Color.Black
-        CropTypes.Wheat -> Color.Blue
-        CropTypes.Rice -> Color.Gray
+    val color = when {
+        isSelected -> Color.Red
+        cropType == CropTypes.Corn -> Color.Yellow
+        cropType == CropTypes.Soy -> Color.Black
+        cropType == CropTypes.Wheat -> Color.Blue
+        cropType == CropTypes.Rice -> Color.Gray
         else -> Color.Green
     }
 

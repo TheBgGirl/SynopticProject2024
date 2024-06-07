@@ -296,8 +296,8 @@ fun FarmDimensionsForm(
         val numberErrorString = stringResource(id = R.string.number_error)
         Button(
             onClick = {
-                val heightValidation = validateInput(height, parse = { it.toDoubleOrNull() }, predicates = listOf { it in 1.0..1000.0 })
-                val widthValidation = validateInput(width, parse = { it.toDoubleOrNull() }, predicates = listOf { it in 1.0..1000.0 })
+                val heightValidation = validateInput(height, parse = { it.toDoubleOrNull() }, predicates = listOf { it in 1.0..25.0 })
+                val widthValidation = validateInput(width, parse = { it.toDoubleOrNull() }, predicates = listOf { it in 1.0..25.0 })
 
                 if (heightValidation == DimensionInputError.NONE && widthValidation == DimensionInputError.NONE) {
                     onSubmit(width.toInt(), height.toInt())
@@ -305,13 +305,13 @@ fun FarmDimensionsForm(
                     heightError = when (heightValidation) {
                         DimensionInputError.EMPTY -> emptyErrorString.format(heightString)
                         DimensionInputError.TYPE_MISMATCH -> numberErrorString.format(heightString)
-                        DimensionInputError.OUT_OF_RANGE -> rangeErrorString.format(heightString, 1, 1000)
+                        DimensionInputError.OUT_OF_RANGE -> rangeErrorString.format(heightString, 1, 25)
                         DimensionInputError.NONE -> ""
                     }
                     widthError = when (widthValidation) {
                         DimensionInputError.EMPTY -> emptyErrorString.format(widthString)
                         DimensionInputError.TYPE_MISMATCH -> numberErrorString.format(widthString)
-                        DimensionInputError.OUT_OF_RANGE -> rangeErrorString.format(widthString, 1, 1000)
+                        DimensionInputError.OUT_OF_RANGE -> rangeErrorString.format(widthString, 1, 25)
                         DimensionInputError.NONE -> ""
                     }
                 }
