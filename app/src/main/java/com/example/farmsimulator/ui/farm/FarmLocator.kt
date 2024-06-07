@@ -23,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -85,6 +86,7 @@ fun LocatorPage(onCropPlannerClick: (height: Int, width: Int, latLng: LatLng) ->
         rememberPermissionState(permission = android.Manifest.permission.POST_NOTIFICATIONS)
     val notificationHandler = NotificationHandler(context)
     val hasConnection by remember { mutableStateOf(false) }
+    val lowDataMode = settingsRepository.lowDataModeFlow.collectAsState(initial = false).value
 
     LaunchedEffect(Unit) {
         if (!postNotificationPermission.status.isGranted) {
@@ -92,6 +94,7 @@ fun LocatorPage(onCropPlannerClick: (height: Int, width: Int, latLng: LatLng) ->
         }
     }
 
+    if (!lowDataMode) {
     RequestLocationPermissionBinary {
         /*
         if (it) {
@@ -103,6 +106,7 @@ fun LocatorPage(onCropPlannerClick: (height: Int, width: Int, latLng: LatLng) ->
 
         locationAccessible = it
     }
+    }
 
     val locationAcquiredString = stringResource(id = R.string.location_acquired)
     val locationNotAcquiredString = stringResource(id = R.string.location_not_acquired)
@@ -110,7 +114,7 @@ fun LocatorPage(onCropPlannerClick: (height: Int, width: Int, latLng: LatLng) ->
     val defaultLocationString = stringResource(id = R.string.default_location)
 
     LaunchedEffect(useLocation) {
-        if (useLocation && locationAccessible) {
+        if (useLocation && locationAccessible && !lowDataMode) {
             loading = true
             getLocation(
                 context = context,
@@ -148,8 +152,8 @@ fun LocatorPage(onCropPlannerClick: (height: Int, width: Int, latLng: LatLng) ->
 
 
         FarmDimensionsForm(
-            useLocation = useLocation,
-            locationAccessible = locationAccessible,
+            useLocation = useLocation && !lowDataMode,
+            locationAccessible = locationAccessible && !lowDataMode,
             context = context,
             loading = loading,
             onUseLocationChange = { useLocation = it },
@@ -167,7 +171,7 @@ fun LocatorPage(onCropPlannerClick: (height: Int, width: Int, latLng: LatLng) ->
                 latLng = latLng,
                 setLatLng = {
                     latLng = it
-                })
+                }, lowDataMode = lowDataMode)
         }
 
         if (isPositioned) {
@@ -364,6 +368,7 @@ inline fun <reified T> validateInput(
 @Composable
 fun WorldMap(
     latLng: LatLng, setLatLng: (LatLng) -> Unit,
+    lowDataMode: Boolean,
     modifier: Modifier = Modifier
 ) {
     var isMapLoaded by remember { mutableStateOf(false) }
@@ -399,19 +404,21 @@ fun WorldMap(
             }
     }
 
-    Box(modifier = modifier) {
-        GoogleMap(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .padding(16.dp)
-                .size(300.dp),
-            onMapLoaded = {
-                isMapLoaded = true
-            },
-            cameraPositionState = cameraPositionState,
-            uiSettings = uiSettings,
-            properties = properties
-        )
+    if (!lowDataMode) {
+        Box(modifier = modifier) {
+            GoogleMap(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(16.dp)
+                    .size(300.dp),
+                onMapLoaded = {
+                    isMapLoaded = true
+                },
+                cameraPositionState = cameraPositionState,
+                uiSettings = uiSettings,
+                properties = properties
+            )
+        }
     }
 }
 

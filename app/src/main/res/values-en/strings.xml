@@ -42,4 +42,7 @@
     <string name="meters">m</string>
     <string name="cancel">Cancel</string>
     <string name="choose_crop">Choose Crop Type For Selection</string>
+    <string name="low_data_mode">Low Data Mode</string>
+    <string name="on">On</string>
+    <string name="locale">Locale</string>
 </resources>

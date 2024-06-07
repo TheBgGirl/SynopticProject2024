@@ -42,4 +42,7 @@
     <string name="meters">ម៉ែត្រ</string>
     <string name="cancel">បោះបង់</string>
     <string name="choose_crop">ជ្រើសរើសប្រភេទដំណាំសម្រាប់ការជ្រើសរើស</string>
+    <string name="low_data_mode">របៀបទិន្នន័យទាប</string>
+    <string name="on">បើក</string>
+    <string name="locale">ទីតាំង</string>
 </resources>
