@@ -34,7 +34,8 @@ data class WeatherResponse(
 
     data class Daily(
         @SerializedName("time") val time: List<String>,
-        @SerializedName("temperature_2m_mean") var temperature2mMean: List<Double>
+        @SerializedName("temperature_2m_mean") var temperature2mMean: List<Double>,
+        @SerializedName("precipitation_sum") var preciptiation: List<Double>
     )
 }
 

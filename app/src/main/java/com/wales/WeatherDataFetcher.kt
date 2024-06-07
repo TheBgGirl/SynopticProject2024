@@ -3,8 +3,6 @@ package com.wales
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.io.FileWriter
-import java.util.Date
 
 data class Key(
     val longitude: Double,
@@ -27,7 +25,7 @@ class WeatherDataFetcher {
             startDate,
             endDate,
             "soil_moisture_0_to_7cm",
-            "temperature_2m_mean",
+            "temperature_2m_mean,precipitation_sum",
             "era5_land"
         )
 
@@ -38,6 +36,7 @@ class WeatherDataFetcher {
             ) {
                 if (response.isSuccessful && response.body() != null) {
                     for (res in response.body()!!) {
+                        println(response.body()?.get(0)?.daily)
                         weatherData[Key(res.longitude, res.latitude)] = res.daily.temperature2mMean
                         date[Key(res.longitude, res.latitude)] = res.daily.time
                     }
