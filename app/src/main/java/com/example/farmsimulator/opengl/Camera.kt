@@ -7,8 +7,8 @@ import kotlin.math.PI
 
 class Camera {
     var position = floatArrayOf(0f, 0f, 3f)
+    var target = FloatArray(3) {0f}
 
-    private var target = FloatArray(3) {0f}
     private var up = floatArrayOf(0f,1f,0f)
 
     var pitch : Float = 0f

@@ -7,6 +7,10 @@ import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
 import android.util.Log
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import kotlin.math.floor
+import kotlin.math.roundToInt
+import kotlin.math.sqrt
 
 class MyGLRenderer : GLSurfaceView.Renderer
 {
@@ -79,7 +83,7 @@ class MyGLRenderer : GLSurfaceView.Renderer
         shader = Shader(vertexShaderCode,fragmentShaderCode)
 
         triangle = Triangle(floatArrayOf(-0.5f,0f,-0.5f), floatArrayOf(0.5f,0f,-0.5f), floatArrayOf(0f,0f,0.5f))
-        square = Square(floatArrayOf(0f,0f,0f),1f)
+        square = Square(floatArrayOf(0f,-1f,0f),1f)
         cube = Cube(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f)
 
         plane = Plane(farmWidth, farmHeight)
@@ -137,12 +141,61 @@ class MyGLRenderer : GLSurfaceView.Renderer
         Matrix.frustumM(projectionMatrix, 0, -aspectRatio, aspectRatio, -1f, 1f, nearClip, farClip)
     }
 
-    fun onSingleTap(x: Float, y: Float)
-    {
-        val worldCoords = FloatArray(3)
-        unProject(x, 0.0f, y, model, projectionMatrix, viewMatrix, worldCoords)
-        Log.d("World Coords X", worldCoords[0].toString())
-        Log.d("World Coords Z", worldCoords[2].toString())
+    fun onSingleTap(x: Float, y: Float) {
+        val gridPosition = getWorldCoordinates(x, y)
+        Log.d("GridPosition", "Grid Position: $gridPosition")
+
+    }
+
+    private fun getWorldCoordinates(x: Float, y: Float): Pair<Float, Float>? {
+        // Convert screen coordinates to normalized device coordinates
+        val ndcX = (2.0f * x) / width - 1.0f
+        val ndcY = 1.0f - (2.0f * y) / height
+
+        // Convert NDC to eye coordinates
+        val invertedProjectionMatrix = FloatArray(16)
+        Matrix.invertM(invertedProjectionMatrix, 0, projectionMatrix, 0)
+        val eyeCoordinates = floatArrayOf(ndcX, ndcY, -1.0f, 1.0f)
+        Matrix.multiplyMV(eyeCoordinates, 0, invertedProjectionMatrix, 0, eyeCoordinates, 0)
+
+        // Convert eye coordinates to world coordinates
+        val invertedViewMatrix = FloatArray(16)
+        Matrix.invertM(invertedViewMatrix, 0, viewMatrix, 0)
+        eyeCoordinates[2] = -1.0f
+        eyeCoordinates[3] = 0.0f
+        val rayWorld = FloatArray(4)
+        Matrix.multiplyMV(rayWorld, 0, invertedViewMatrix, 0, eyeCoordinates, 0)
+
+        // Normalize the ray direction
+        val rayDirection = floatArrayOf(rayWorld[0], rayWorld[1], rayWorld[2])
+        val length = sqrt(rayDirection[0] * rayDirection[0] + rayDirection[1] * rayDirection[1] + rayDirection[2] * rayDirection[2])
+        rayDirection[0] /= length
+        rayDirection[1] /= length
+        rayDirection[2] /= length
+
+        // Perform ray-plane intersection
+        val planeY = 0.0f // Assuming the plane is at y = 0
+        val t = (planeY - (camera.position[1] + camera.target[1])) / rayDirection[1]
+        if (t < 0) return null
+
+        val intersectionPoint = floatArrayOf(
+            camera.position[0] + camera.target[0] + t * rayDirection[0],
+            camera.position[1] + camera.target[1] + t * rayDirection[1],
+            camera.position[2] + camera.target[2] + t * rayDirection[2]
+        )
+
+        // Convert intersection point to grid coordinates
+        val gridX = ((intersectionPoint[0] + farmWidth / 2.0f + 1.0f) / farmWidth * (plane.width - 1)).roundToInt()
+        val gridZ = ((intersectionPoint[2] + farmHeight / 2.0f + 0.5f) / farmHeight * (plane.height - 1)).roundToInt()
+
+        // Ensure gridX and gridZ are within the valid range
+        if(gridX < plane.width && gridX > 0){
+            if(gridZ < plane.height - 1 && gridZ >= 0){
+                return Pair(plane.width - 1f - gridX.toFloat(), gridZ.toFloat()) // Flip the X coordinate to make 0,0 the bottom left
+            }
+        }
+
+        return null
     }
 
     fun moveCamera(dx : Float, dz : Float)
@@ -175,37 +228,5 @@ class MyGLRenderer : GLSurfaceView.Renderer
             moveSpeed /= scaleFactor
             sensitivity /= scaleFactor
         }
-    }
-
-    fun unProject(
-        winX: Float, winY: Float, winZ: Float,
-        modelMatrix: FloatArray, projMatrix: FloatArray,
-        view: FloatArray, objCoords: FloatArray
-    ) {
-        val invertModelMatrix = FloatArray(16)
-        Matrix.invertM(invertModelMatrix, 0, modelMatrix, 0)
-
-        val invertProjectionMatrix = FloatArray(16)
-        Matrix.invertM(invertProjectionMatrix, 0, projMatrix, 0)
-
-        val normalizedX = (winX - view[0]) / view[2] * 2.0f - 1.0f
-        val normalizedY = (winY - view[1]) / view[3] * 2.0f - 1.0f
-        val normalizedZ = winZ * 2.0f - 1.0f
-
-        val clipCoords = floatArrayOf(normalizedX, normalizedY, normalizedZ, 1.0f)
-
-        val eyeCoords = FloatArray(4)
-        Matrix.multiplyMV(eyeCoords, 0, invertProjectionMatrix, 0, clipCoords, 0)
-
-        val worldCoords = FloatArray(4)
-        Matrix.multiplyMV(worldCoords, 0, invertModelMatrix, 0, eyeCoords, 0)
-
-        if (worldCoords[3] == 0.0f) {
-            throw RuntimeException("Zero homogeneous coordinate")
-        }
-
-        objCoords[0] = worldCoords[0] / worldCoords[3]
-        objCoords[1] = worldCoords[1] / worldCoords[3]
-        objCoords[2] = worldCoords[2] / worldCoords[3]
     }
 }
