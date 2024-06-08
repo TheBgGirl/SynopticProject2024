@@ -3,9 +3,12 @@ package com.example.farmsimulator.ui.home
 import android.content.Intent
 import android.provider.Settings.Global.getString
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -25,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.farmsimulator.R
 import com.example.farmsimulator.opengl.OpenGLActivity
+import com.example.farmsimulator.opengl.OpenGLComposeView
 import com.example.farmsimulator.stores.SettingsRepository
 
 @Composable
@@ -77,6 +81,10 @@ fun HomePage(settingsRepository: SettingsRepository) {
                         .fillMaxWidth()
                         .padding(vertical = 12.dp, horizontal = 2.dp)
                 )
+
+                Box(modifier = Modifier.width(100.dp).height(100.dp)) {
+                    OpenGLComposeView()
+                }
 
                 val context = LocalContext.current
                 Button(

@@ -89,12 +89,12 @@ class MyGLRenderer : GLSurfaceView.Renderer
         plane = Plane(farmWidth, farmHeight)
 
         // Camera Zoom From Farm Size
-        if(farmHeight >= farmWidth){
-            maxZoomDistance = farmHeight.toFloat() * 1.5f
+        maxZoomDistance = if(farmHeight >= farmWidth) {
+            farmHeight.toFloat() * 1.5f
+        } else{
+            farmWidth.toFloat() * 1.5f
         }
-        else{
-            maxZoomDistance = farmWidth.toFloat() * 1.5f
-        }
+
         minZoomDistance = maxZoomDistance / 2f
 
         moveSpeed = minZoomDistance
@@ -146,6 +146,7 @@ class MyGLRenderer : GLSurfaceView.Renderer
         Log.d("GridPosition", "Grid Position: $gridPosition")
 
     }
+
 
     private fun getWorldCoordinates(x: Float, y: Float): Pair<Float, Float>? {
         // Convert screen coordinates to normalized device coordinates
