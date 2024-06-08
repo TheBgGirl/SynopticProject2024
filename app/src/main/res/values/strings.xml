@@ -44,4 +44,6 @@
     <string name="low_data_mode">Low Data Mode</string>
     <string name="on">On</string>
     <string name="locale">Locale</string>
+    <string name="farm_view_title">Your Farm</string>
+    <string name="view_farm">Simulate</string>
 </resources>
