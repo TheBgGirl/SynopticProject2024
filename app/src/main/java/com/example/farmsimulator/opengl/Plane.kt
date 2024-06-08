@@ -1,7 +1,7 @@
 package com.example.farmsimulator.opengl
 
 import android.opengl.GLES20
-import smile.hash.SimHash
+//import smile.hash.SimHash
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
