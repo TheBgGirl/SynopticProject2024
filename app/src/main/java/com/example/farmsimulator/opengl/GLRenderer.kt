@@ -13,7 +13,7 @@ import kotlin.math.floor
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
-class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>, val clickCallback: (x: Int, y: Int) -> Unit) : GLSurfaceView.Renderer
+class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>, val clickCallback: (Pair<Int, Int>) -> Unit) : GLSurfaceView.Renderer
 {
     private val vPMatrix = FloatArray(16)
     private val projectionMatrix = FloatArray(16)
@@ -146,7 +146,7 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
         val gridPosition = getWorldCoordinates(x, y)
         Log.d("GridPosition", "Grid Position: $gridPosition")
         if (gridPosition != null) {
-            clickCallback(gridPosition.first.toInt(), gridPosition.second.toInt())
+            clickCallback(Pair(gridPosition.first.toInt(), gridPosition.second.toInt()))
         }
 
     }
