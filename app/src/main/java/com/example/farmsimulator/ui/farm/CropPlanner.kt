@@ -73,7 +73,7 @@ sealed class CropTypes(@StringRes val name: Int) {
 data class CropInfo(val cropType: CropTypes, val x: Int, val y: Int)
 
 @Composable
-fun PlannerPage(latLng: LatLng, height: Int, width: Int, onBackNavigation: () -> Unit, settingsRepository: SettingsRepository) {
+fun PlannerPage(latLng: LatLng, height: Int, width: Int, toFarmView: (List<CropInfo>) -> Unit, settingsRepository: SettingsRepository) {
     var addedCrops by remember {
         mutableStateOf(listOf<CropInfo>())
     }
@@ -88,7 +88,7 @@ fun PlannerPage(latLng: LatLng, height: Int, width: Int, onBackNavigation: () ->
     ) {
         FarmGrid(height = height, width = width, crops = addedCrops, onCropAdd = {
             addedCrops = addedCrops + it
-        }, actualWidth = width, actualHeight = height)
+        })
 
         Text(
             text = stringResource(id = R.string.enter_crops),
@@ -103,6 +103,14 @@ fun PlannerPage(latLng: LatLng, height: Int, width: Int, onBackNavigation: () ->
         )
 
         Spacer(modifier = Modifier.height(16.dp))
+
+        if (addedCrops.isNotEmpty()) {
+            Button(onClick = {
+                toFarmView(addedCrops)
+            }) {
+                Text(text = stringResource(id = R.string.view_farm))
+            }
+        }
     }
 }
 
@@ -113,8 +121,6 @@ fun FarmGrid(
     width: Int,
     crops: List<CropInfo>,
     onCropAdd: (CropInfo) -> Unit,
-    actualWidth: Int,
-    actualHeight: Int
 ) {
     var selectedCells by remember {
         mutableStateOf(listOf<Pair<Int, Int>>())

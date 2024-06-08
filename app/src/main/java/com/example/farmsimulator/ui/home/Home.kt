@@ -47,8 +47,8 @@ fun HomePage(settingsRepository: SettingsRepository) {
     }
     if (show) {
         Column(modifier = Modifier.fillMaxSize()) {
-            OpenGLComposeView(width = 5, height = 5, crops = listOf(), onClick = { x, y ->
-                selected = x to y;
+            OpenGLComposeView(width = 5, height = 5, crops = listOf(), onClick = { coords ->
+                selected = coords
             })
 
         }} else {

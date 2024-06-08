@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
@@ -29,7 +30,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.farmsimulator.models.FarmDataViewModel
 import com.example.farmsimulator.stores.SettingsRepository
+import com.example.farmsimulator.ui.farm.FarmView
 import com.example.farmsimulator.ui.farm.LocatorPage
 import com.example.farmsimulator.ui.farm.PlannerPage
 import com.example.farmsimulator.ui.home.HomePage
@@ -68,6 +71,14 @@ sealed class Screen(
         parent = Locator
     )
 
+    data object FarmView : Screen(
+        route = "farmView",
+        title = R.string.farm_view_title,
+        icon = Icons.Default.AddCircle,
+        onNavBar = false,
+        parent = CropPlanner
+    )
+
     data object Settings : Screen(
         route = "settings",
         title = R.string.settings_title,
@@ -92,6 +103,8 @@ fun FarmSimNavGraph(
     startDestination: String = Screen.Home.route,
     settingsRepository: SettingsRepository
 ) {
+    val farmInfoViewModel: FarmDataViewModel = viewModel(modelClass = FarmDataViewModel::class.java)
+
     NavHost(
         modifier = modifier,
         navController = navController,
@@ -103,40 +116,35 @@ fun FarmSimNavGraph(
         composable(Screen.Locator.route) {
             LocatorPage(
                 onCropPlannerClick = { height: Int, width: Int, latLng: LatLng ->
-                    navController.navigate(
-                        "${Screen.CropPlanner.route}?height=$height&width=$width&lat=${latLng.latitude}&long=${latLng.longitude}"
-                    )
+                    farmInfoViewModel.setFarmSize(height, width)
+                    farmInfoViewModel.setLatLong(latLng)
+
+                    navController.navigate(Screen.CropPlanner.route)
                 }, settingsRepository = settingsRepository
             )
         }
 
-        composable(route = "${Screen.CropPlanner.route}?height={height}&width={width}&lat={lat}&long={long}",
-            arguments = listOf(
-                navArgument("height") {
-                    type = NavType.StringType; defaultValue = "0.0"; nullable = true
-                },
-                navArgument("width") {
-                    type = NavType.StringType; defaultValue = "0.0"; nullable = true
-                },
-                navArgument("lat") {
-                    type = NavType.StringType; defaultValue = "0.0"; nullable = true
-                },
-                navArgument("long") {
-                    type = NavType.StringType; defaultValue = "0.0"; nullable = true
-                }
-            )) {
+        composable(route = Screen.CropPlanner.route) {
+            val height = farmInfoViewModel.height.value ?: 0
+            val width = farmInfoViewModel.width.value ?: 0
+            val latLng = farmInfoViewModel.latLong.value ?: LatLng(0.0, 0.0)
 
-            val height = it.arguments?.getString("height")?.toIntOrNull() ?: 0
-            val width = it.arguments?.getString("width")?.toIntOrNull() ?: 0
-            val lat = it.arguments?.getString("lat")?.toDoubleOrNull() ?: 0.0
-            val long = it.arguments?.getString("long")?.toDoubleOrNull() ?: 0.0
-
-            val latLng = LatLng(lat, long)
-
-            PlannerPage(latLng = latLng, height = height, width = width, onBackNavigation = {
-                navController.navigate(Screen.Locator.route)
-            }, settingsRepository = settingsRepository)
+            PlannerPage(latLng = latLng, height = height, width = width,
+            settingsRepository = settingsRepository, toFarmView = { crops ->
+                farmInfoViewModel.setFarmData(width, height, crops)
+                navController.navigate(Screen.FarmView.route)
+            })
         }
+
+        composable(route = Screen.FarmView.route) {
+            val crops = farmInfoViewModel.crops.value.orEmpty()
+            val height = farmInfoViewModel.height.value ?: 0
+            val width = farmInfoViewModel.width.value ?: 0
+            val latLng = farmInfoViewModel.latLong.value ?: LatLng(0.0, 0.0)
+
+            FarmView(latLng = latLng, width = width, height = height, crops = crops)
+        }
+
 
         composable(route = Screen.Settings.route) {
             SettingsPage(settingsRepository)
