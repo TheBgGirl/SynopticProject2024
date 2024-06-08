@@ -8,7 +8,7 @@ import java.nio.ShortBuffer
 
 private const val COORDS_PER_VERTEX = 3
 
-class Square(private val position : FloatArray, private val width : Float)
+class Square(private val position : FloatArray, private val width : Float,private  val heights : FloatArray)
 {
     // Set color with red, green, blue and alpha (opacity) values
     private val color = floatArrayOf(1.0f, 0.0f, 0.0f, 1.0f)
@@ -25,24 +25,24 @@ class Square(private val position : FloatArray, private val width : Float)
 
     init {
         //Bottom right
-        squareCoords[0]  = -width/2
-        squareCoords[1]  = 0f
-        squareCoords[2]  = -width/2
+        squareCoords[0]  = position[0] - width/2
+        squareCoords[1]  = heights[0] + 0.01f
+        squareCoords[2]  = position[1] - width/2
 
         //Bottom left
-        squareCoords[3]  = width/2
-        squareCoords[4]  = 0f
-        squareCoords[5]  = -width/2
+        squareCoords[3]  = position[0] + width/2
+        squareCoords[4]  = heights[1] + 0.01f
+        squareCoords[5]  = position[1] -width/2
 
         //Top right
-        squareCoords[6]  = -width/2
-        squareCoords[7]  = 0f
-        squareCoords[8]  = width/2
+        squareCoords[6]  = position[0] -width/2
+        squareCoords[7]  = heights[2] + 0.01f
+        squareCoords[8]  = position[1] + width/2
 
         //Top left
-        squareCoords[9]  = width/2
-        squareCoords[10]  = 0f
-        squareCoords[11]  = width/2
+        squareCoords[9]  = position[0] + width/2
+        squareCoords[10]  = heights[3] + 0.01f
+        squareCoords[11]  = position[1] + width/2
 
         vertexBuffer =
                 // (number of coordinate values * 4 bytes per float)

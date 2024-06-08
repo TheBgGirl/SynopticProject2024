@@ -22,8 +22,6 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
     private var viewMatrix = FloatArray(16)
 
     private lateinit var triangle: Triangle
-    private lateinit var square : Square
-    private lateinit var cube : Cube
 
     private lateinit var plane : Plane
 
@@ -84,8 +82,6 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
         shader = Shader(vertexShaderCode,fragmentShaderCode)
 
         triangle = Triangle(floatArrayOf(-0.5f,0f,-0.5f), floatArrayOf(0.5f,0f,-0.5f), floatArrayOf(0f,0f,0.5f))
-        square = Square(floatArrayOf(0f,-1f,0f),1f)
-        cube = Cube(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f)
 
         plane = Plane(farmWidth, farmHeight)
 
@@ -145,7 +141,9 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
     fun onSingleTap(x: Float, y: Float) {
         val gridPosition = getWorldCoordinates(x, y)
         Log.d("GridPosition", "Grid Position: $gridPosition")
+
         if (gridPosition != null) {
+            plane.setSquare(gridPosition.first,gridPosition.second)
             clickCallback(gridPosition.first.toInt(), gridPosition.second.toInt())
         }
 
@@ -191,7 +189,7 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
 
         // Convert intersection point to grid coordinates
         val gridX = ((intersectionPoint[0] + farmWidth / 2.0f + 1.0f) / farmWidth * (plane.width - 1)).roundToInt()
-        val gridZ = ((intersectionPoint[2] + farmHeight / 2.0f + 0.5f) / farmHeight * (plane.height - 1)).roundToInt()
+        val gridZ = ((intersectionPoint[2] + farmHeight / 2.0f) / farmHeight * (plane.height - 1)).roundToInt()
 
         // Ensure gridX and gridZ are within the valid range
         if(gridX < plane.width && gridX > 0){
