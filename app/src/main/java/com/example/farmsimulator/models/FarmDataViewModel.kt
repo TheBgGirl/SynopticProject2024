@@ -6,6 +6,13 @@ import androidx.lifecycle.ViewModel
 import com.example.farmsimulator.ui.farm.CropInfo
 import com.google.android.gms.maps.model.LatLng
 
+data class FarmData(
+    val width: Int,
+    val height: Int,
+    val crops: List<CropInfo>,
+    val latLong: LatLng
+)
+
 class FarmDataViewModel : ViewModel() {
     private val _crops = MutableLiveData<List<CropInfo>>()
     val crops: LiveData<List<CropInfo>> get() = _crops

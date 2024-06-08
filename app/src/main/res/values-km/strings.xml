@@ -45,4 +45,18 @@
     <string name="low_data_mode">របៀបទិន្នន័យទាប</string>
     <string name="on">បើក</string>
     <string name="locale">ទីតាំង</string>
+    <string name="farm_view_title">កសិដ្ឋានរបស់អ្នក។</string>
+    <string name="view_farm">ក្លែងធ្វើ</string>
+    <string name="january">មករា</string>
+    <string name="february">ខែកុម្ភៈ</string>
+    <string name="march">ខែមីនា</string>
+    <string name="april">មេសា</string>
+    <string name="may">ឧសភា</string>
+    <string name="june">ខែមិថុនា</string>
+    <string name="july">ខែកក្កដា</string>
+    <string name="august">សីហា</string>
+    <string name="september">September</string>
+    <string name="october">តុលា</string>
+    <string name="november">ខែវិច្ឆិកា</string>
+    <string name="december">ខែធ្នូ</string>
 </resources>
