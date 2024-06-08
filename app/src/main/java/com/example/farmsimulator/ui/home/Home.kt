@@ -107,15 +107,15 @@ fun HomePage(settingsRepository: SettingsRepository) {
 
 
                     val context = LocalContext.current
-                    Button(
-                        onClick = {
-                            val intent = Intent(context, OpenGLActivity::class.java)
-                            context.startActivity(intent)
-                        },
-                        modifier = Modifier.testTag("navigateButton")
-                    ) {
-                        Text("Go to Simulation")
-                    }
+//                    Button(
+//                        onClick = {
+//                            val intent = Intent(context, OpenGLActivity::class.java)
+//                            context.startActivity(intent)
+//                        },
+//                        modifier = Modifier.testTag("navigateButton")
+//                    ) {
+//                        Text("Go to Simulation")
+//                    }
                 }
             }
         }
