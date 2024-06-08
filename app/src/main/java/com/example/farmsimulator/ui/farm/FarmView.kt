@@ -43,7 +43,8 @@ fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>) {
             .background(Color.White)
     ) {
         OpenGLComposeView(modifier = Modifier.fillMaxSize(), width = width, height = height, crops = crops, onClick = {
-            selected = it
+            // it is upside down
+            selected = Pair(it.first, height - it.second - 1)
             showPopup = true
             popupPosition = Offset(it.first.toFloat(), it.second.toFloat())
         })
