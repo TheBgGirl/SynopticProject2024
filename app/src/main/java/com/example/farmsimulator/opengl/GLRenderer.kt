@@ -8,11 +8,12 @@ import android.opengl.GLSurfaceView
 import android.opengl.Matrix
 import android.util.Log
 import androidx.compose.foundation.lazy.grid.GridItemSpan
+import com.example.farmsimulator.ui.farm.CropInfo
 import kotlin.math.floor
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
-class MyGLRenderer : GLSurfaceView.Renderer
+class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>, val clickCallback: (x: Int, y: Int) -> Unit) : GLSurfaceView.Renderer
 {
     private val vPMatrix = FloatArray(16)
     private val projectionMatrix = FloatArray(16)
@@ -45,8 +46,8 @@ class MyGLRenderer : GLSurfaceView.Renderer
     private var height: Float = 0f
 
     // ----- FARM SETTINGS ----- //
-    private var farmWidth: Int = 10
-    private var farmHeight: Int = 10
+    private var farmWidth: Int = _width
+    private var farmHeight: Int = _height
 
     private val vertexShaderCode =
     // This matrix member variable provides a hook to manipulate
@@ -144,6 +145,9 @@ class MyGLRenderer : GLSurfaceView.Renderer
     fun onSingleTap(x: Float, y: Float) {
         val gridPosition = getWorldCoordinates(x, y)
         Log.d("GridPosition", "Grid Position: $gridPosition")
+        if (gridPosition != null) {
+            clickCallback(gridPosition.first.toInt(), gridPosition.second.toInt())
+        }
 
     }
 

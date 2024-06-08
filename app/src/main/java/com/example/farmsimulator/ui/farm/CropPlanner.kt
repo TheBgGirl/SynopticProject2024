@@ -49,6 +49,7 @@ import com.example.farmsimulator.stores.SettingsRepository
 import com.example.farmsimulator.ui.utils.InputField
 import com.example.farmsimulator.ui.utils.SelectTextField
 import com.google.android.gms.maps.model.LatLng
+import kotlin.math.roundToInt
 
 const val MAX_HEIGHT = 10
 const val MAX_WIDTH = 10
@@ -156,9 +157,9 @@ fun FarmGrid(
                     },
                     onDrag = { change, _ ->
                         val x: Int =
-                            ((change.position.x - gridOffset.x) / gridCellSize.toPx()).toInt()
+                            ((change.position.x - gridOffset.x) / gridCellSize.toPx()).roundToInt()
                         val y: Int =
-                            ((change.position.y - gridOffset.y) / gridCellSize.toPx()).toInt()
+                            ((change.position.y - gridOffset.y + 275) / gridCellSize.toPx()).roundToInt()
                         if (x in 0 until width && y in 0 until height) {
                             val cell = x to y
                             if (!selectedCells.contains(cell)) {

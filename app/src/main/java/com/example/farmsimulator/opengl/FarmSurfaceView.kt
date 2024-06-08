@@ -15,8 +15,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
+import com.example.farmsimulator.ui.farm.CropInfo
 
-class MyGLSurfaceView(context: Context) : GLSurfaceView(context)
+@SuppressLint("ViewConstructor")
+class MyGLSurfaceView(context: Context, width: Int, height: Int, crops: List<CropInfo>, clickCallback: (x: Int, y: Int) -> Unit) : GLSurfaceView(context)
 {
 
     private val renderer: MyGLRenderer
@@ -26,7 +28,7 @@ class MyGLSurfaceView(context: Context) : GLSurfaceView(context)
         // Create an OpenGL ES 2.0 context
         setEGLContextClientVersion(2)
 
-        renderer = MyGLRenderer()
+        renderer = MyGLRenderer(_width = width, _height = height, crops=crops, clickCallback = clickCallback)
 
         // Set the Renderer for drawing on the GLSurfaceView
         setRenderer(renderer)
@@ -39,17 +41,17 @@ class MyGLSurfaceView(context: Context) : GLSurfaceView(context)
 }
 
 @Composable
-fun OpenGLComposeView(modifier: Modifier = Modifier) {
+fun OpenGLComposeView(modifier: Modifier = Modifier, width: Int, height: Int, crops: List<CropInfo>, onClick: (x:Int, y:Int) -> Unit) {
     var glSurfaceView by remember { mutableStateOf<MyGLSurfaceView?>(null) }
 
     AndroidView(
         factory = { ctx ->
-            MyGLSurfaceView(ctx).apply {
+            MyGLSurfaceView(ctx, width = width, height = height, crops = crops, clickCallback = onClick).apply {
                 glSurfaceView = this
                 setupGestures(this, ctx)
             }
         },
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
     )
 
     DisposableEffect(Unit) {
