@@ -1,9 +1,11 @@
 package com.example.farmsimulator.opengl
 
 import android.opengl.GLES20
+//import smile.hash.SimHash
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
+import kotlin.math.roundToInt
 import kotlin.random.Random
 
 class Plane(var width: Int = 20, var height: Int = 20)
@@ -14,6 +16,8 @@ class Plane(var width: Int = 20, var height: Int = 20)
     private var mColorHandle: Int = 0
 
     private val vertices: ArrayList<Float>
+    private var terrain  = emptyArray<Array<Float>>()
+    private lateinit var square : Square
 
     // Set color with red, green, blue and alpha (opacity) values
     val color = floatArrayOf(0.388f, 0.247f, 0.0f, 1.0f)
@@ -25,9 +29,9 @@ class Plane(var width: Int = 20, var height: Int = 20)
     init {
         width++
         height++
-
         vertices = ArrayList<Float>(width * height * 18)
-        val terrain = Array(width) { Array(height) { 0.0f } }
+        terrain = Array(width) { kotlin.Array(height) { 0.0f } }
+        square = Square(floatArrayOf(0f,0f),1f, floatArrayOf(-1f,-1f,-1f,-1f))
 
 //        // Basic Terrain
 //        for (i in terrain.indices) {
@@ -114,6 +118,21 @@ class Plane(var width: Int = 20, var height: Int = 20)
             }
     }
 
+    fun setSquare(posX : Float , posZ : Float)
+    {
+        // Using posX and posZ, find height values from terrain[][]
+        // Pass position and heights of each vertex
+        val correctedX: Float = (width - 4.5f - posX)
+        val correctedZ: Float = ((posZ) - height/2) + 0.5f
+
+        var height1: Float = terrain[posX.toInt()][posZ.toInt()]
+        var height2: Float = terrain[posX.toInt()][posZ.toInt() + 1]
+        var height3: Float = terrain[posX.toInt() + 1][posZ.toInt()]
+        var height4: Float = terrain[posX.toInt() + 1][posZ .toInt() + 1]
+
+
+        square = Square(floatArrayOf(correctedX,correctedZ),1f, floatArrayOf(height1, height3, height2, height4))
+    }
 
     fun draw(shader : Shader)
     {
@@ -133,7 +152,16 @@ class Plane(var width: Int = 20, var height: Int = 20)
                 vertexBuffer
             )
         }
+        drawTerrain(shader)
+        drawLines(shader)
+        drawSquares(shader)
 
+        // Disable vertex array
+        GLES20.glDisableVertexAttribArray(positionHandle)
+    }
+
+    fun drawTerrain(shader: Shader)
+    {
         // get handle to fragment shader's vColor member
         mColorHandle =
             GLES20.glGetUniformLocation(shader.getID(), "vColor").also { colorHandle ->
@@ -144,7 +172,10 @@ class Plane(var width: Int = 20, var height: Int = 20)
 
         // Draw the square
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES,0,vertices.size/3)
+    }
 
+    fun drawLines(shader : Shader)
+    {
         mColorHandle =
             GLES20.glGetUniformLocation(shader.getID(), "vColor").also { colorHandle ->
 
@@ -156,9 +187,11 @@ class Plane(var width: Int = 20, var height: Int = 20)
         // Draw the Outlines
         GLES20.glLineWidth(3.0f)
         GLES20.glDrawArrays(GLES20.GL_LINES,0,vertices.size/3)
+    }
 
-        // Disable vertex array
-        GLES20.glDisableVertexAttribArray(positionHandle)
+    fun drawSquares(shader : Shader)
+    {
+        square.draw(shader)
     }
 
 }
