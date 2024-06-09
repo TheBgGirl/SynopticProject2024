@@ -28,7 +28,7 @@ class MyGLSurfaceView(context: Context, width: Int, height: Int, crops: List<Cro
         // Create an OpenGL ES 2.0 context
         setEGLContextClientVersion(2)
 
-        renderer = MyGLRenderer(_width = width, _height = height, crops=crops, clickCallback = clickCallback)
+        renderer = MyGLRenderer(_width = width, _height = height, crops=crops, clickCallback = clickCallback, context = context)
 
         // Set the Renderer for drawing on the GLSurfaceView
         setRenderer(renderer)

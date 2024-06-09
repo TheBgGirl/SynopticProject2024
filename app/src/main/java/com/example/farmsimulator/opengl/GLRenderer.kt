@@ -1,5 +1,6 @@
 package com.example.farmsimulator.opengl
 
+import android.content.Context
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
@@ -8,12 +9,13 @@ import android.opengl.GLSurfaceView
 import android.opengl.Matrix
 import android.util.Log
 import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.ui.platform.LocalContext
 import com.example.farmsimulator.ui.farm.CropInfo
 import kotlin.math.floor
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
-class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>, val clickCallback: (Pair<Int, Int>) -> Unit) : GLSurfaceView.Renderer
+class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>, val clickCallback: (Pair<Int, Int>) -> Unit, val context: Context) : GLSurfaceView.Renderer
 {
     private val vPMatrix = FloatArray(16)
     private val projectionMatrix = FloatArray(16)
