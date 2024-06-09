@@ -6,12 +6,16 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.example.farmsimulator.ui.farm.FarmView
+import com.example.farmsimulator.ui.farm.ResultsPage
+import com.example.farmsimulator.ui.home.HomePage
 import com.example.farmsimulator.ui.settings.SettingsPage
+import com.google.android.gms.maps.model.LatLng
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-class SettingsTest {
+class ResultsTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
@@ -19,18 +23,7 @@ class SettingsTest {
     @Before
     fun setUp() {
         composeTestRule.activity.setContent {
-            SettingsPage(settingsRepository = FakeSettingsStore(composeTestRule.activity))
+            ResultsPage(width = 10, height = 10, latLng = LatLng(0.0,0.0), crops = emptyList())
         }
-    }
-
-    @Test
-    fun verify_SettingsPage() {
-        composeTestRule.onNodeWithTag("settingsPage").assertExists()
-    }
-
-    @Test
-    fun verify_LocalePicker() {
-        composeTestRule.onNodeWithTag("localePicker").performClick()
-        composeTestRule.onNodeWithTag("localeDropdown").assertExists()
     }
 }

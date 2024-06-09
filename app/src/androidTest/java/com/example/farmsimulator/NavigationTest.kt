@@ -29,7 +29,7 @@ class NavigationTest {
             Scaffold (bottomBar = {
                 BottomNav(navController = navController)
             }) {
-                FarmSimNavGraph(navController = navController)
+                FarmSimNavGraph(navController = navController, settingsRepository = FakeSettingsStore(LocalContext.current))
             }
         }
     }

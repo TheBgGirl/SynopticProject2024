@@ -14,15 +14,14 @@ import org.junit.Test
 
 class PlannerTest {
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val composeTestRule = createAndroidComposeRule<MainActivity>()
 
     @Before
     fun setUp() {
         composeTestRule.setContent {
-            PlannerPage(latLng = LatLng(0.0, 0.0), height = 0.0, width = 0.0) {
+            PlannerPage(latLng = LatLng(0.0, 0.0), height = 0, width = 0, settingsRepository = FakeSettingsStore(composeTestRule.activity), toFarmView = {})
             }
         }
-    }
 
     @Test
     fun verify_PlannerPage() {

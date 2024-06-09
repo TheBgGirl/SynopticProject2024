@@ -65,6 +65,8 @@ fun SettingsPage(settingsRepository: SettingsRepository) {
                 }
             }
         )
+        Spacer(modifier = Modifier.padding(16.dp))
+        SupportButton()
     }
 }
 
@@ -115,6 +117,30 @@ fun LocalePicker(
                 modifier = Modifier.fillMaxWidth()
             )
 
+        }
+    }
+}
+
+@Composable
+fun SupportButton(
+    modifier: Modifier = Modifier,
+) {
+    Card(
+        modifier = modifier
+    ) {
+        Column(modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth()) {
+            Text(
+                text = "Support",
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Text (
+                text = "General: support@farmsimulator.com\n\n" +
+                        "Bugs: bugs@farmsimulator.com\n\n" +
+                        "Feature Requests: features@farmsimulator.com",
+                style = MaterialTheme.typography.bodySmall
+            )
         }
     }
 }

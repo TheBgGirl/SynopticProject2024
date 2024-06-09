@@ -7,6 +7,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -59,7 +61,7 @@ sealed class Screen(
     data object Locator : Screen(
         route = "locator",
         title = R.string.locator_title,
-        icon = Icons.Default.AddCircle,
+        icon = Icons.Default.LocationOn,
         children = listOf(CropPlanner),
         testTag = "locatorButton"
     )
@@ -91,7 +93,7 @@ sealed class Screen(
     data object Settings : Screen(
         route = "settings",
         title = R.string.settings_title,
-        icon = Icons.Default.AddCircle,
+        icon = Icons.Default.Settings,
         testTag = "settingsButton"
     )
 
