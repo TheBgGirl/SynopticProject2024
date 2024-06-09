@@ -9,18 +9,18 @@ import kotlinx.coroutines.flow.map
 
 val Context.dataStore by preferencesDataStore(name = "settings")
 
-class SettingsRepository(context: Context) {
+open class SettingsRepository(context: Context) {
     private val dataStore = context.dataStore
 
     companion object {
         val LOW_DATA_MODE = booleanPreferencesKey("low_data_mode")
     }
 
-    val lowDataModeFlow: Flow<Boolean> = dataStore.data.map { preferences ->
+    open val lowDataModeFlow: Flow<Boolean> = dataStore.data.map { preferences ->
         preferences[LOW_DATA_MODE] ?: false
     }
 
-    suspend fun setLowDataMode(lowDataMode: Boolean) {
+    open suspend fun setLowDataMode(lowDataMode: Boolean) {
         dataStore.edit { preferences ->
             preferences[LOW_DATA_MODE] = lowDataMode
         }
