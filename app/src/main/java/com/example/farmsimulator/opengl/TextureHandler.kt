@@ -5,10 +5,13 @@ import android.graphics.BitmapFactory
 import android.opengl.GLES20
 import android.opengl.GLUtils
 
+
+
 class TextureHandler
-{
+{    companion object {
     fun loadTexture(context: Context, resourceId: Int): Int
     {
+
         val textureHandle = IntArray(1)
 
         GLES20.glGenTextures(1, textureHandle, 0)
@@ -45,5 +48,6 @@ class TextureHandler
             throw RuntimeException("Error loading texture.")
         }
         return textureHandle[0]
+    }
     }
 }

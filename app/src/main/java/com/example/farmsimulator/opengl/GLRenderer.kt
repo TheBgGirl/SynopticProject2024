@@ -8,10 +8,7 @@ import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
 import android.util.Log
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.ui.platform.LocalContext
 import com.example.farmsimulator.ui.farm.CropInfo
-import kotlin.math.floor
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
@@ -71,7 +68,7 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
                 "uniform sampler2D u_Texture;" +
                 "varying vec2 v_TexCoordinate;" +
                 "void main() {" +
-                " gl_FragColor = vColor * yPosition;// * texture2D(u_Texture, v_TexCoordinate);\n" +
+                " gl_FragColor = vColor * yPosition * texture2D(u_Texture, v_TexCoordinate);\n" +
                 "}"
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig)
@@ -85,7 +82,7 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
 
         triangle = Triangle(floatArrayOf(-0.5f,0f,-0.5f), floatArrayOf(0.5f,0f,-0.5f), floatArrayOf(0f,0f,0.5f))
 
-        plane = Plane(farmWidth, farmHeight)
+        plane = Plane(farmWidth, farmHeight,context)
 
         // Camera Zoom From Farm Size
         maxZoomDistance = if(farmHeight >= farmWidth) {

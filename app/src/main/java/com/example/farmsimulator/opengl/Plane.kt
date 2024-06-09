@@ -1,14 +1,15 @@
 package com.example.farmsimulator.opengl
 
 import android.opengl.GLES20
+import com.example.farmsimulator.R
 //import smile.hash.SimHash
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
-import kotlin.math.roundToInt
+import android.content.Context
 import kotlin.random.Random
 
-class Plane(var width: Int = 20, var height: Int = 20)
+class Plane(var width: Int = 20, var height: Int = 20,context: Context)
 {
 
     private var vertexBuffer: FloatBuffer
@@ -16,8 +17,26 @@ class Plane(var width: Int = 20, var height: Int = 20)
     private var mColorHandle: Int = 0
 
     private val vertices: ArrayList<Float>
+    private val textureCoordinates: ArrayList<Float>
+    private var TextureCoordinates : FloatBuffer
     private var terrain  = emptyArray<Array<Float>>()
-    private lateinit var square : Square
+    private var square : Square
+
+    /** This will be used to pass in the texture.  */
+    var mTextureUniformHandle: Int = 0
+
+
+    /** This will be used to pass in model texture coordinate information.  */
+    var mTextureCoordinateHandle: Int = 0
+
+
+    /** Size of the texture coordinate data in elements.  */
+    val mTextureCoordinateDataSize = 2
+
+
+    /** This is a handle to our texture data.  */
+    var mTextureDataHandle: Int = 0
+
 
     // Set color with red, green, blue and alpha (opacity) values
     val color = floatArrayOf(0.388f, 0.247f, 0.0f, 1.0f)
@@ -29,17 +48,10 @@ class Plane(var width: Int = 20, var height: Int = 20)
     init {
         width++
         height++
-        vertices = ArrayList<Float>(width * height * 18)
-        terrain = Array(width) { kotlin.Array(height) { 0.0f } }
+        vertices = ArrayList(width * height * 18)
+        textureCoordinates = ArrayList(10)
+        terrain = Array(width) { Array(height) { 0.0f } }
         square = Square(floatArrayOf(0f,0f),1f, floatArrayOf(-1f,-1f,-1f,-1f))
-
-//        // Basic Terrain
-//        for (i in terrain.indices) {
-//            for (j in terrain[i].indices) {
-//                terrain[i][j] = 0.001f * i * j // or any function of i and j
-//            }
-//        }
-
 
         val seedRez = 10 // Number of seed positions
         val seedTerrain = Array(seedRez) { Array(seedRez) { (Random.nextFloat() * heightFactor) + 0.1f } }
@@ -116,6 +128,13 @@ class Plane(var width: Int = 20, var height: Int = 20)
                     position(0)
                 }
             }
+
+        // Load the texture
+        mTextureDataHandle = TextureHandler.loadTexture(context, R.drawable.hero)
+
+        TextureCoordinates = ByteBuffer.allocateDirect(textureCoordinates.size * 4)
+            .order(ByteOrder.nativeOrder()).asFloatBuffer()
+        TextureCoordinates.put(textureCoordinates.toFloatArray()).position(0)
     }
 
     fun setSquare(posX : Float , posZ : Float)
@@ -125,10 +144,10 @@ class Plane(var width: Int = 20, var height: Int = 20)
         val correctedX: Float = (width - 4.5f - posX)
         val correctedZ: Float = ((posZ) - height/2) + 0.5f
 
-        var height1: Float = terrain[posX.toInt()][posZ.toInt()]
-        var height2: Float = terrain[posX.toInt()][posZ.toInt() + 1]
-        var height3: Float = terrain[posX.toInt() + 1][posZ.toInt()]
-        var height4: Float = terrain[posX.toInt() + 1][posZ .toInt() + 1]
+        val height1: Float = terrain[posX.toInt()][posZ.toInt()]
+        val height2: Float = terrain[posX.toInt()][posZ.toInt() + 1]
+        val height3: Float = terrain[posX.toInt() + 1][posZ.toInt()]
+        val height4: Float = terrain[posX.toInt() + 1][posZ .toInt() + 1]
 
 
         square = Square(floatArrayOf(correctedX,correctedZ),1f, floatArrayOf(height1, height3, height2, height4))
@@ -152,6 +171,21 @@ class Plane(var width: Int = 20, var height: Int = 20)
                 vertexBuffer
             )
         }
+        mTextureUniformHandle = GLES20.glGetUniformLocation(shader.getID(), "u_Texture")
+        mTextureCoordinateHandle = GLES20.glGetAttribLocation(shader.getID(), "a_TexCoordinate")
+
+        //mCubeTextureCoordinates.position(0);
+        GLES20.glVertexAttribPointer(mTextureCoordinateHandle, mTextureCoordinateDataSize, GLES20.GL_FLOAT, false,
+            0, TextureCoordinates)
+
+        // Set the active texture unit to texture unit 0.
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE0)
+
+        // Bind the texture to this unit.
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextureDataHandle)
+
+        // Tell the texture uniform sampler to use this texture in the shader by binding to texture unit 0.
+        GLES20.glUniform1i(mTextureUniformHandle, 0)
         drawTerrain(shader)
         drawLines(shader)
         drawSquares(shader)
