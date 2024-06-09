@@ -73,6 +73,10 @@ fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>) {
         mutableStateOf(Month.JANUARY)
     }
 
+    var showPopup by remember {
+        mutableStateOf(false)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -82,6 +86,7 @@ fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>) {
             // it is upside down
             selected = Pair(it.first, height - it.second - 1)
             selectedCrop = crops.find { crop -> crop.x == selected.first && crop.y == selected.second }
+            showPopup = true
         })
         Text("Selected: $selected")
     }
@@ -94,6 +99,7 @@ fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>) {
     if (selectedCrop != null) {
         InfoPopup(
             crop = selectedCrop,
+            onDismiss = { selectedCrop = null; showPopup = false }
         )
     } else {
         NoCropPopup()
