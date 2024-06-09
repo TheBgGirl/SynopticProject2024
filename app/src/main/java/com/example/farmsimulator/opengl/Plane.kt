@@ -139,18 +139,19 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
 
     fun setSquare(posX : Float , posZ : Float)
     {
-        // Using posX and posZ, find height values from terrain[][]
-        // Pass position and heights of each vertex
-        val correctedX: Float = (width - 4.5f - posX)
-        val correctedZ: Float = ((posZ) - height/2) + 0.5f
+        val correctedX: Float = ((width - 1 - posX) - width / 2f) - 0.5f
+        val correctedZ: Float = (posZ - height / 2f) + 0.5f
 
-        val height1: Float = terrain[posX.toInt()][posZ.toInt()]
-        val height2: Float = terrain[posX.toInt()][posZ.toInt() + 1]
-        val height3: Float = terrain[posX.toInt() + 1][posZ.toInt()]
-        val height4: Float = terrain[posX.toInt() + 1][posZ .toInt() + 1]
+        val correctedHeightX: Int = (width - 1 - posX).toInt()
+        val correctedHeightZ: Int = posZ.toInt()
+
+        val height1: Float = terrain[correctedHeightX][correctedHeightZ]
+        val height2: Float = if (correctedHeightZ + 1 < height) terrain[correctedHeightX][correctedHeightZ + 1] else height1
+        val height3: Float = if (correctedHeightX + 1 < width) terrain[correctedHeightX + 1][correctedHeightZ] else height1
+        val height4: Float = if (correctedHeightX + 1 < width && correctedHeightZ + 1 < height) terrain[correctedHeightX + 1][correctedHeightZ + 1] else height1
 
 
-        square = Square(floatArrayOf(correctedX,correctedZ),1f, floatArrayOf(height1, height3, height2, height4))
+        square = Square(floatArrayOf(correctedX,correctedZ),1f, floatArrayOf(height2, height1, height4, height3))
     }
 
     fun draw(shader : Shader)
