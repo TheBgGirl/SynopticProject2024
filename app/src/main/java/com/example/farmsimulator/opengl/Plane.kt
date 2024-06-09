@@ -50,6 +50,9 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
         height++
         vertices = ArrayList(width * height * 18)
         textureCoordinates = ArrayList(10)
+        textureCoordinates.add(1.0f)
+        textureCoordinates.add(1.0f)
+        textureCoordinates.add(1.0f)
         terrain = Array(width) { Array(height) { 0.0f } }
         square = Square(floatArrayOf(0f,0f),1f, floatArrayOf(-1f,-1f,-1f,-1f))
 
