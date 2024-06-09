@@ -96,14 +96,10 @@ fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>, toR
         onMonthSelected = { selectedMonth = it },
     )
 
-    if (selectedCrop != null) {
         InfoPopup(
             crop = selectedCrop,
             onDismiss = { selectedCrop = null; showPopup = false }
         )
-    } else {
-        NoCropPopup()
-    }
 }
 
 @Composable
@@ -136,6 +132,8 @@ fun InfoPopup(
     crop: CropInfo?,
     onDismiss: () -> Unit = {}
 ) {
+    val height = if (crop != null) 175 else 30
+    val titleText = if (crop != null) stringResource(id = R.string.crop_info) else stringResource(id = R.string.no_crop_selected)
     Popup(
         alignment = Alignment.BottomStart,
         onDismissRequest = onDismiss
@@ -145,20 +143,24 @@ fun InfoPopup(
                 .fillMaxWidth()
                 .background(Color.White)
                 .padding(16.dp)
-                .height(175.dp)
+                .height(height.dp)
         ) {
             Column {
 
                 Text(
-                    text = stringResource(id = R.string.crop_info),
+                    text = titleText,
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                     color = Color.Black
                 )
-                Text(
-                    text = "${stringResource(id = R.string.type)} ${crop?.cropType ?: stringResource(id = R.string.no_crop)}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Black
-                )
+                if (crop != null) {
+                    Text(
+                        text = "${stringResource(id = R.string.type)} ${
+                            crop.cropType
+                        }",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Black
+                    )
+                }
         }
         }
     }
