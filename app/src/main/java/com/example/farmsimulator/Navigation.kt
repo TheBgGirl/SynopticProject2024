@@ -35,6 +35,7 @@ import com.example.farmsimulator.stores.SettingsRepository
 import com.example.farmsimulator.ui.farm.FarmView
 import com.example.farmsimulator.ui.farm.LocatorPage
 import com.example.farmsimulator.ui.farm.PlannerPage
+import com.example.farmsimulator.ui.farm.ResultsPage
 import com.example.farmsimulator.ui.home.HomePage
 import com.example.farmsimulator.ui.settings.SettingsPage
 import com.google.android.gms.maps.model.LatLng
@@ -77,6 +78,14 @@ sealed class Screen(
         icon = Icons.Default.AddCircle,
         onNavBar = false,
         parent = CropPlanner
+    )
+
+    data object Results : Screen(
+        route = "results",
+        title = R.string.results_title,
+        icon = Icons.Default.AddCircle,
+        onNavBar = false,
+        parent = FarmView
     )
 
     data object Settings : Screen(
@@ -142,9 +151,19 @@ fun FarmSimNavGraph(
             val width = farmInfoViewModel.width.value ?: 0
             val latLng = farmInfoViewModel.latLong.value ?: LatLng(0.0, 0.0)
 
-            FarmView(latLng = latLng, width = width, height = height, crops = crops)
+            FarmView(latLng = latLng, width = width, height = height, crops = crops, toResults = {
+                navController.navigate(Screen.Results.route)
+            })
         }
 
+        composable(route = Screen.Results.route) {
+            val crops = farmInfoViewModel.crops.value.orEmpty()
+            val height = farmInfoViewModel.height.value ?: 0
+            val width = farmInfoViewModel.width.value ?: 0
+            val latLng = farmInfoViewModel.latLong.value ?: LatLng(0.0, 0.0)
+
+            ResultsPage(width = width, height = height, latLng = latLng, crops = crops)
+        }
 
         composable(route = Screen.Settings.route) {
             SettingsPage(settingsRepository)

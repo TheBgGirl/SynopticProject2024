@@ -61,7 +61,7 @@ enum class Month(@StringRes val title: Int) {
 }
 
 @Composable
-fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>) {
+fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>, toResults: () -> Unit) {
     var selected by remember {
         mutableStateOf(Pair(0,0))
     }
