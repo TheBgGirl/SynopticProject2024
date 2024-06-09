@@ -59,4 +59,10 @@
     <string name="october">តុលា</string>
     <string name="november">ខែវិច្ឆិកា</string>
     <string name="december">ខែធ្នូ</string>
+    <string name="no_crop">គ្មានដំណាំ</string>
+    <string name="type">ប្រភេទ៖</string>
+    <string name="crop_info">ព័ត៌មានដំណាំ</string>
+    <string name="next_month">ខែក្រោយ</string>
+    <string name="previous_month">ខែមុន។</string>
+    <string name="no_crop_selected">មិនបានជ្រើសរើសដំណាំទេ។</string>
 </resources>
