@@ -17,8 +17,8 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
     private var mColorHandle: Int = 0
 
     private val vertices: ArrayList<Float>
-    private val textureCoordinates: ArrayList<Float>
-    private var TextureCoordinates : FloatBuffer
+    private val dataCoordinates: ArrayList<Float>
+    private var textureCoordinates : FloatBuffer
     private var terrain  = emptyArray<Array<Float>>()
     private var square : Square
 
@@ -49,10 +49,12 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
         width++
         height++
         vertices = ArrayList(width * height * 18)
-        textureCoordinates = ArrayList(10)
-        textureCoordinates.add(1.0f)
-        textureCoordinates.add(1.0f)
-        textureCoordinates.add(1.0f)
+        dataCoordinates = arrayListOf(
+            0.0f, 1.0f,
+            0.0f, 0.0f,
+            1.0f, 0.0f,
+            1.0f, 1.0f,
+        )
         terrain = Array(width) { Array(height) { 0.0f } }
         square = Square(floatArrayOf(0f,0f),1f, floatArrayOf(-1f,-1f,-1f,-1f))
 
@@ -135,9 +137,9 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
         // Load the texture
         mTextureDataHandle = TextureHandler.loadTexture(context, R.drawable.hero)
 
-        TextureCoordinates = ByteBuffer.allocateDirect(textureCoordinates.size * 4)
+        textureCoordinates = ByteBuffer.allocateDirect(dataCoordinates.size * 4)
             .order(ByteOrder.nativeOrder()).asFloatBuffer()
-        TextureCoordinates.put(textureCoordinates.toFloatArray()).position(0)
+        textureCoordinates.put(dataCoordinates.toFloatArray()).position(0)
     }
 
     fun setSquare(posX : Float , posZ : Float)
@@ -179,7 +181,7 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
 
         //mCubeTextureCoordinates.position(0);
         GLES20.glVertexAttribPointer(mTextureCoordinateHandle, mTextureCoordinateDataSize, GLES20.GL_FLOAT, false,
-            0, TextureCoordinates)
+            0, textureCoordinates)
 
         // Set the active texture unit to texture unit 0.
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0)
@@ -191,7 +193,7 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
         GLES20.glUniform1i(mTextureUniformHandle, 0)
         drawTerrain(shader)
         drawLines(shader)
-        drawSquares(shader)
+        //drawSquares(shader)
 
         // Disable vertex array
         GLES20.glDisableVertexAttribArray(positionHandle)
