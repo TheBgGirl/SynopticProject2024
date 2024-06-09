@@ -61,4 +61,7 @@
     <string name="no_crop">No Crop</string>
     <string name="type">Type: </string>
     <string name="crop_info">Crop Info</string>
+    <string name="next_month">Next Month</string>
+    <string name="previous_month">Previous Month</string>
+    <string name="no_crop_selected">No Crop Selected</string>
 </resources>

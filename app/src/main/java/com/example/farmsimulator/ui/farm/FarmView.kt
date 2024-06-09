@@ -69,10 +69,6 @@ fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>) {
         mutableStateOf<CropInfo?>(null)
     }
 
-    var popupPosition by remember {
-        mutableStateOf(Offset(0f, 0f))
-    }
-
     var selectedMonth by remember {
         mutableStateOf(Month.JANUARY)
     }
@@ -85,8 +81,7 @@ fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>) {
         OpenGLComposeView(modifier = Modifier.fillMaxSize(), width = width, height = height, crops = crops, onClick = {
             // it is upside down
             selected = Pair(it.first, height - it.second - 1)
-            selectedCrop = crops.find { it.x == selected.first && it.y == selected.second }
-            popupPosition = Offset(it.first.toFloat(), it.second.toFloat())
+            selectedCrop = crops.find { crop -> crop.x == selected.first && crop.y == selected.second }
         })
         Text("Selected: $selected")
     }
@@ -94,25 +89,49 @@ fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>) {
     MonthPopup(
         selectedMonth = selectedMonth,
         onMonthSelected = { selectedMonth = it },
-        position = popupPosition
     )
 
+    if (selectedCrop != null) {
         InfoPopup(
-            position = popupPosition,
             crop = selectedCrop,
         )
+    } else {
+        NoCropPopup()
+    }
+}
+
+@Composable
+fun NoCropPopup() {
+    Popup(
+        alignment = Alignment.BottomStart,
+        onDismissRequest = {}
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.White)
+                .padding(16.dp)
+                .height(30.dp)
+        ) {
+            Column {
+                Text(
+                    text = stringResource(id = R.string.no_crop_selected),
+                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                    color = Color.Black
+                )
+            }
+        }
+    }
 }
 
 @Composable
 fun InfoPopup(
     modifier: Modifier = Modifier,
-    position: Offset,
     crop: CropInfo?,
     onDismiss: () -> Unit = {}
 ) {
     Popup(
         alignment = Alignment.BottomStart,
-        offset = IntOffset(position.x.toInt(), position.y.toInt()),
         onDismissRequest = onDismiss
     ) {
         Box(
@@ -144,17 +163,15 @@ fun MonthPopup(
     modifier: Modifier = Modifier,
     selectedMonth: Month,
     onMonthSelected: (Month) -> Unit,
-    position: Offset,
 ) {
     Popup(
         alignment = Alignment.TopStart,
-        offset = IntOffset(position.x.toInt(), position.y.toInt()),
         onDismissRequest = {}
     ) {
         Box(
             modifier = modifier
                 .fillMaxWidth()
-                .height(100.dp)
+                .height(60.dp)
                 .background(Color.White)
                 .padding(16.dp)
         ) {
@@ -170,7 +187,7 @@ fun MonthPopup(
                         onMonthSelected(currentMonth)
                     }
                 ) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Previous Month")
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(id = R.string.previous_month))
                 }
 
                 Text(
@@ -186,7 +203,7 @@ fun MonthPopup(
                         onMonthSelected(currentMonth)
                     }
                 ) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Next Month")
+                    Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = stringResource(id = R.string.next_month))
                 }
             }
         }
