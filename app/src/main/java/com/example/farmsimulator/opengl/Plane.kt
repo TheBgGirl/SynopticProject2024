@@ -6,6 +6,7 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
 import android.content.Context
+import android.util.Log
 import kotlin.random.Random
 
 class Plane(var width: Int = 20, var height: Int = 20,context: Context)
@@ -18,6 +19,9 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
     private val vertices: ArrayList<Float>
     private var terrain  = emptyArray<Array<Float>>()
     private var square : Square
+    private var square2 : Square
+
+    private var theContext: Context
 
 
     // Set color with red, green, blue and alpha (opacity) values
@@ -111,6 +115,28 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
             }
     }
 
+    fun displayFarmData(){
+        for(i in 0 until width - 1){
+            for(j in 0 until height - 1){
+                Log.d("Farm Data: ", i.toString() + j.toString())
+
+                //Thread.sleep(1_000)
+
+                // Iterate through Farm Data[i][j]
+                    // Initialize texture for crop type at this position
+                        // Different texture for yield %
+                    // Might do: change terrain colour depending on precipitation and temperature
+            }
+        }
+        val testPosX: Int = 0
+        val testPosZ: Int = 0
+
+        val correctedX: Float = (testPosX - width / 2f) + 0.5f
+        val correctedZ: Float = (testPosZ - height / 2f) + 0.5f
+
+        square2 = Square(floatArrayOf(correctedX, correctedZ), 1f, floatArrayOf(1f, 1f, 1f, 1f), theContext)
+    }
+
     fun setSquare(posX : Float , posZ : Float)
     {
         val correctedX: Float = ((width - 1 - posX) - width / 2f) - 0.5f
@@ -153,6 +179,7 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
 
         drawTerrain(shader)
         drawLines(shader)
+
         drawSquares(shader) // Square for selected tile
 
         // Disable vertex array
@@ -191,6 +218,7 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
     fun drawSquares(shader : Shader)
     {
         square.draw(shader)
+        square2.draw(shader)
     }
 
 }
