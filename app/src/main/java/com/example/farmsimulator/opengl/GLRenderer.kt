@@ -98,7 +98,7 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
 
         plane = Plane(farmWidth, farmHeight,context)
 
-        cropSquare = CropSquare(floatArrayOf(0.0f, 0.0f), 2.0f, floatArrayOf(1.0f, 1.0f, 1.0f, 1.0f), context)
+        cropSquare = CropSquare(floatArrayOf(0.0f, 0.0f), 2.0f, floatArrayOf(1.0f, 1.0f, 1.0f, 1.0f), context, CropType.PUMPKIN)
 
         // Camera Zoom From Farm Size
         maxZoomDistance = if(farmHeight >= farmWidth) {

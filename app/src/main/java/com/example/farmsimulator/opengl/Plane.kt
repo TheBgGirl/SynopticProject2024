@@ -19,7 +19,7 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
     private val vertices: ArrayList<Float>
     private var terrain  = emptyArray<Array<Float>>()
     private var square : Square
-    private lateinit var testCropSquare : CropSquare
+    private lateinit var cropSquares : ArrayList<CropSquare>
 
     private lateinit var theContext: Context
 
@@ -118,6 +118,13 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
     }
 
     fun displayFarmData(){
+        cropSquares = ArrayList()
+
+        val testPosX: Int = 0
+        val testPosZ: Int = 0
+        val correctedX: Float = (testPosX - width / 2f) + 0.5f
+        val correctedZ: Float = (testPosZ - height / 2f) + 0.5f
+
         for(i in 0 until width - 1){
             for(j in 0 until height - 1){
                 Log.d("Farm Data: ", i.toString() + j.toString())
@@ -128,15 +135,22 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
                     // Initialize texture for crop type at this position
                         // Different texture for yield %
                     // Might do: change terrain colour depending on precipitation and temperature
+
+
+
+                //Testing: initialising all as corn
+                cropSquares.add(
+                    CropSquare(
+                        floatArrayOf(correctedX + i, correctedZ + j),
+                        0.75f,
+                        floatArrayOf(1f, 1f, 1f, 1f),
+                        theContext,
+                        CropType.PUMPKIN
+                    )
+                )
             }
         }
-        val testPosX: Int = 0
-        val testPosZ: Int = 0
 
-        val correctedX: Float = (testPosX - width / 2f) + 0.5f
-        val correctedZ: Float = (testPosZ - height / 2f) + 0.5f
-
-        testCropSquare = CropSquare(floatArrayOf(correctedX, correctedZ), 1f, floatArrayOf(1f, 1f, 1f, 1f), theContext)
     }
 
     fun setSquare(posX : Float , posZ : Float)
@@ -224,7 +238,9 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
 
     fun drawCropSquares(cropShader : Shader)
     {
-        testCropSquare.draw(cropShader)
+        for (cropSquare in cropSquares) {
+            cropSquare.draw(cropShader)
+        }
     }
 
 }

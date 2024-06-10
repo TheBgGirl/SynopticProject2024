@@ -10,7 +10,13 @@ import java.nio.ShortBuffer
 
 private const val COORDS_PER_VERTEX = 3
 
-class CropSquare(private val position : FloatArray, private val width : Float, private  val heights : FloatArray, context: Context)
+class CropSquare(
+    private val position : FloatArray,
+    private val width : Float,
+    private  val heights : FloatArray,
+    context: Context,
+    cropType: CropType
+)
 {
     // Set color with red, green, blue and alpha (opacity) values
     private val color = floatArrayOf(1.0f, 1.0f, 1.0f, 1.0f)
@@ -87,14 +93,24 @@ class CropSquare(private val position : FloatArray, private val width : Float, p
             }
 
         dataCoordinates = arrayListOf(
-            -1.0f, 1.0f,
-            -1.0f, -1.0f,
-            1.0f, -1.0f,
-            1.0f, 1.0f
+
+            1.0f, 1.0f,
+            0.0f, 1.0f,
+            1.0f, 0.0f,
+            0.0f, 0.0f,
+            0.0f, 1.0f,
+            1.0f, 0.0f
         )
 
         // Load the texture
-        mTextureDataHandle = TextureHandler.loadTexture(context, R.drawable.corn)
+        mTextureDataHandle = when (cropType) {
+            CropType.PUMPKIN -> TextureHandler.loadTexture(context, R.drawable.pumpkin)
+
+            //TODO: CHANGE 2 BELOW TO RESPECTIVE TEXTURES
+            CropType.LEAFYGREEN -> TextureHandler.loadTexture(context, R.drawable.corn)
+            CropType.RICE -> TextureHandler.loadTexture(context, R.drawable.corn)
+        }
+        //mTextureDataHandle = TextureHandler.loadTexture(context, R.drawable.corn)
 
         textureCoordinates = ByteBuffer.allocateDirect(dataCoordinates.size * 4)
             .order(ByteOrder.nativeOrder()).asFloatBuffer()
