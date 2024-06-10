@@ -26,6 +26,8 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
 
     private lateinit var shader : Shader
 
+    private lateinit var square : Square
+
     // ----- CAMERA SETTINGS ----- //
     private var camera: Camera = Camera()
 
@@ -84,6 +86,8 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
 
         plane = Plane(farmWidth, farmHeight,context)
 
+        square = Square(floatArrayOf(0.0f, 0.0f), 2.0f, floatArrayOf(1.0f, 1.0f, 1.0f, 1.0f), context)
+
         // Camera Zoom From Farm Size
         maxZoomDistance = if(farmHeight >= farmWidth) {
             farmHeight.toFloat() * 1.5f
@@ -123,9 +127,8 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
         shader.setMat4("uMVPMatrix",mvpMatrix)
         //triangle.draw(shader)
 
-        plane.draw(shader)
-
-        //cube.draw(shader)
+        //plane.draw(shader)
+        square.draw(shader)
 
     }
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {

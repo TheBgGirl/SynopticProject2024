@@ -2,6 +2,7 @@ package com.example.farmsimulator.opengl
 
 import android.content.Context
 import android.opengl.GLES20
+import com.example.farmsimulator.R
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
@@ -12,7 +13,7 @@ private const val COORDS_PER_VERTEX = 3
 class Square(private val position : FloatArray, private val width : Float,private  val heights : FloatArray, context: Context)
 {
     // Set color with red, green, blue and alpha (opacity) values
-    private val color = floatArrayOf(1.0f, 0.0f, 0.0f, 1.0f)
+    private val color = floatArrayOf(1.0f, 1.0f, 1.0f, 1.0f)
     private var squareCoords = FloatArray(12)
 
     private val vertexCount: Int = squareCoords.size / COORDS_PER_VERTEX
@@ -23,6 +24,20 @@ class Square(private val position : FloatArray, private val width : Float,privat
     private var positionHandle: Int = 0
     private var mColorHandle: Int = 0
     private val drawOrder = shortArrayOf(1, 2, 3, 1, 2, 0) // order to draw vertices
+
+    private val dataCoordinates: ArrayList<Float>
+    private var textureCoordinates : FloatBuffer
+    /** This will be used to pass in the texture.  */
+    var mTextureUniformHandle: Int = 0
+
+    /** This will be used to pass in model texture coordinate information.  */
+    var mTextureCoordinateHandle: Int = 0
+
+    /** Size of the texture coordinate data in elements.  */
+    val mTextureCoordinateDataSize = 2
+
+    /** This is a handle to our texture data.  */
+    var mTextureDataHandle: Int = 0
 
     init {
         //Bottom right
@@ -70,6 +85,20 @@ class Square(private val position : FloatArray, private val width : Float,privat
                     position(0)
                 }
             }
+
+        dataCoordinates = arrayListOf(
+            -1.0f, 1.0f,
+            -1.0f, -1.0f,
+            1.0f, -1.0f,
+            1.0f, 1.0f,
+        )
+
+        // Load the texture
+        mTextureDataHandle = TextureHandler.loadTexture(context, R.drawable.corn)
+
+        textureCoordinates = ByteBuffer.allocateDirect(dataCoordinates.size * 4)
+            .order(ByteOrder.nativeOrder()).asFloatBuffer()
+        textureCoordinates.put(dataCoordinates.toFloatArray()).position(0)
     }
     fun draw(shader: Shader)
     {
@@ -96,6 +125,25 @@ class Square(private val position : FloatArray, private val width : Float,privat
                 // Set color for drawing the triangle
                 GLES20.glUniform4fv(colorHandle, 1, color, 0)
             }
+
+        mTextureUniformHandle = GLES20.glGetUniformLocation(shader.getID(), "u_Texture")
+        mTextureCoordinateHandle = GLES20.glGetAttribLocation(shader.getID(), "a_TexCoordinate")
+
+        //mCubeTextureCoordinates.position(0);
+        GLES20.glVertexAttribPointer(mTextureCoordinateHandle, mTextureCoordinateDataSize, GLES20.GL_FLOAT, false,
+            0, textureCoordinates)
+
+        //Enable
+        GLES20.glEnableVertexAttribArray(mTextureCoordinateHandle)
+
+        // Set the active texture unit to texture unit 0.
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE0)
+
+        // Bind the texture to this unit.
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextureDataHandle)
+
+        // Tell the texture uniform sampler to use this texture in the shader by binding to texture unit 0.
+        GLES20.glUniform1i(mTextureUniformHandle, 0)
 
         // Draw the square
         GLES20.glDrawElements(

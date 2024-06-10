@@ -12,6 +12,7 @@ import kotlin.random.Random
 
 class Plane(var width: Int = 20, var height: Int = 20,context: Context)
 {
+    private var theContext : Context
 
     private var vertexBuffer: FloatBuffer
     private var positionHandle: Int = 0
