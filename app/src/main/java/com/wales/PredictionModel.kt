@@ -38,17 +38,17 @@ class WeatherPredictor(private val dataPath: String) {
         File(modelPath).mkdirs()
         val fullData: DataFrame = readCsv()
         sunshineModel = loadOrCreateModel(
-            "$modelPath/sunshineModel.ser",
+            "$modelPath\\sunshineModel.ser",
             "SunshineDuration ~ Latitude + Longitude + DayOfYear",
             fullData
         )
         tempModel = loadOrCreateModel(
-            "$modelPath/tempModel.ser",
+            "$modelPath\\tempModel.ser",
             "MeanTemp ~ Latitude + Longitude + DayOfYear",
             fullData
         )
         rainfallModel = loadOrCreateModel(
-            "$modelPath/rainfallModel.ser",
+            "$modelPath\\rainfallModel.ser",
             "PrecipitationSum ~ Latitude + Longitude + DayOfYear",
             fullData
         )
@@ -60,6 +60,7 @@ class WeatherPredictor(private val dataPath: String) {
         fullData: DataFrame
     ): RandomForest {
         return if (File(fileName).exists()) {
+            println("deserializing")
             deserializeModel(fileName)
         } else {
             val model = RandomForest.fit(Formula.of(formulaString), fullData)

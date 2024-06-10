@@ -7,6 +7,7 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
 import android.content.Context
+import android.util.Log
 import kotlin.random.Random
 
 class Plane(var width: Int = 20, var height: Int = 20,context: Context)
@@ -21,6 +22,9 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
     private var textureCoordinates : FloatBuffer
     private var terrain  = emptyArray<Array<Float>>()
     private var square : Square
+    private var square2 : Square
+
+    private var theContext: Context
 
     /** This will be used to pass in the texture.  */
     var mTextureUniformHandle: Int = 0
@@ -56,7 +60,8 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
             1.0f, 1.0f,
         )
         terrain = Array(width) { Array(height) { 0.0f } }
-        square = Square(floatArrayOf(0f,0f),1f, floatArrayOf(-1f,-1f,-1f,-1f))
+        square = Square(floatArrayOf(0f,0f),1f, floatArrayOf(-1f,-1f,-1f,-1f), context)
+        square2 = Square(floatArrayOf(0f,0f),1f, floatArrayOf(-1f,-1f,-1f,-1f), context)
 
         val seedRez = 10 // Number of seed positions
         val seedTerrain = Array(seedRez) { Array(seedRez) { (Random.nextFloat() * heightFactor) + 0.1f } }
@@ -140,6 +145,30 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
         textureCoordinates = ByteBuffer.allocateDirect(dataCoordinates.size * 4)
             .order(ByteOrder.nativeOrder()).asFloatBuffer()
         textureCoordinates.put(dataCoordinates.toFloatArray()).position(0)
+
+        theContext = context
+    }
+
+    fun displayFarmData(){
+        for(i in 0 until width - 1){
+            for(j in 0 until height - 1){
+                Log.d("Farm Data: ", i.toString() + j.toString())
+
+                //Thread.sleep(1_000)
+
+                // Iterate through Farm Data[i][j]
+                    // Initialize texture for crop type at this position
+                        // Different texture for yield %
+                    // Might do: change terrain colour depending on precipitation and temperature
+            }
+        }
+        val testPosX: Int = 0
+        val testPosZ: Int = 0
+
+        val correctedX: Float = (testPosX - width / 2f) + 0.5f
+        val correctedZ: Float = (testPosZ - height / 2f) + 0.5f
+
+        square2 = Square(floatArrayOf(correctedX, correctedZ), 1f, floatArrayOf(1f, 1f, 1f, 1f), theContext)
     }
 
     fun setSquare(posX : Float , posZ : Float)
@@ -156,7 +185,7 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
         val height3 = if (terrainX + 1 < width) terrain[terrainX + 1][posZ.toInt()] else height1
         val height4 = if (terrainX + 1 < width && posZ.toInt() + 1 < height) terrain[terrainX + 1][posZ.toInt() + 1] else height1
 
-        square = Square(floatArrayOf(correctedX, correctedZ), 1f, floatArrayOf(height1, height3, height2, height4))
+        square = Square(floatArrayOf(correctedX, correctedZ), 1f, floatArrayOf(height1, height3, height2, height4), theContext)
     }
 
     fun draw(shader : Shader)
@@ -194,6 +223,7 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
         GLES20.glUniform1i(mTextureUniformHandle, 0)
         drawTerrain(shader)
         drawLines(shader)
+
         drawSquares(shader) // Square for selected tile
 
         // Disable vertex array
@@ -232,6 +262,7 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
     fun drawSquares(shader : Shader)
     {
         square.draw(shader)
+        square2.draw(shader)
     }
 
 }

@@ -100,6 +100,8 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
         camera.radius = minZoomDistance + 1f
         camera.pitch = 90f
 
+        plane.displayFarmData()
+
     }
 
     override fun onDrawFrame(unused: GL10)

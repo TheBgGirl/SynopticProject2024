@@ -1,5 +1,6 @@
 package com.example.farmsimulator.opengl
 
+import android.content.Context
 import android.opengl.GLES20
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -8,7 +9,7 @@ import java.nio.ShortBuffer
 
 private const val COORDS_PER_VERTEX = 3
 
-class Square(private val position : FloatArray, private val width : Float,private  val heights : FloatArray)
+class Square(private val position : FloatArray, private val width : Float,private  val heights : FloatArray, context: Context)
 {
     // Set color with red, green, blue and alpha (opacity) values
     private val color = floatArrayOf(1.0f, 0.0f, 0.0f, 1.0f)

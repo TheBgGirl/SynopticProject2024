@@ -5,7 +5,7 @@ import androidx.annotation.RequiresApi
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun main() {
-    val dataPath = "/Users/jamie/Dev/synop/app/src/main/java/com/wales/wd.csv"
+    val dataPath = "C:\\Users\\Bobal\\Desktop\\SynopticProject2024\\app\\src\\main\\java\\com\\wales\\wd.csv"
     val predictor = WeatherPredictor(dataPath)
 
     val latitude = 12.532608854954955
