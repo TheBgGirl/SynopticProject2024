@@ -56,13 +56,12 @@ const val MAX_WIDTH = 10
 
 sealed class CropTypes(@StringRes val name: Int) {
     data object None : CropTypes(R.string.none)
-    data object Corn : CropTypes(R.string.corn)
-    data object Soy : CropTypes(R.string.soy)
-    data object Wheat : CropTypes(R.string.wheat)
+    data object Pumpkins : CropTypes(R.string.pumpkin)
+    data object LeafyGreens : CropTypes(R.string.leafy_greens)
     data object Rice : CropTypes(R.string.rice)
 
     private object Initializer {
-        val items = listOf(None, Corn, Soy, Wheat, Rice)
+        val items = listOf(None, Pumpkins, LeafyGreens, Rice)
     }
 
     companion object {
@@ -256,11 +255,10 @@ fun CropSquare(
     val cropType = crop?.cropType
     val color = when {
         isSelected -> Color.Red
-        cropType == CropTypes.Corn -> Color.Yellow
-        cropType == CropTypes.Soy -> Color.Black
-        cropType == CropTypes.Wheat -> Color.Blue
+        cropType == CropTypes.Pumpkins -> Color(0xFF800000)
+        cropType == CropTypes.LeafyGreens -> Color.Green
         cropType == CropTypes.Rice -> Color.Gray
-        else -> Color.Green
+        else -> Color.Black
     }
 
     Box(modifier = modifier
@@ -270,7 +268,7 @@ fun CropSquare(
         .border(1.dp, Color.Black)
         .testTag("cropSquare")
         .clickable(enabled = crop == null) {
-            onCropAdd(CropInfo(CropTypes.Corn, x, y))
+            onCropAdd(CropInfo(CropTypes.None, x, y))
         })
 }
 

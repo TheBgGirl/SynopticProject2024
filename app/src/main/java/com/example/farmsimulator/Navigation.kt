@@ -34,6 +34,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.farmsimulator.models.FarmDataViewModel
 import com.example.farmsimulator.stores.SettingsRepository
+import com.example.farmsimulator.ui.farm.CropInfo
+import com.example.farmsimulator.ui.farm.CropTypes
 import com.example.farmsimulator.ui.farm.FarmView
 import com.example.farmsimulator.ui.farm.LocatorPage
 import com.example.farmsimulator.ui.farm.PlannerPage
@@ -41,6 +43,7 @@ import com.example.farmsimulator.ui.farm.ResultsPage
 import com.example.farmsimulator.ui.home.HomePage
 import com.example.farmsimulator.ui.settings.SettingsPage
 import com.google.android.gms.maps.model.LatLng
+import com.wales.Crop
 
 sealed class Screen(
     val route: String,
@@ -142,6 +145,7 @@ fun FarmSimNavGraph(
 
             PlannerPage(latLng = latLng, height = height, width = width,
             settingsRepository = settingsRepository, toFarmView = { crops ->
+                val cropLayout = parseCrops(crops, width, height)
                 farmInfoViewModel.setFarmData(width, height, crops)
                 navController.navigate(Screen.FarmView.route)
             })
@@ -227,4 +231,49 @@ fun BottomNav(navController: NavController) {
             }
         }
     }
+}
+
+/*
+enum class Crop {
+    RICE,
+    PUMPKIN,
+    LEAFY,
+    NA
+}
+2d list of above for each cell in farm
+ */
+
+fun parseCrops(crops: List<CropInfo>, width: Int, height: Int): List<List<Crop>> {
+    val cropLayout = MutableList(height) { MutableList(width) { Crop.NA } }
+
+
+        for (i in 0 until height) {
+            for (j in 0 until width) {
+                val crop = crops.firstOrNull() { it.x == j && it.y == i }
+                val cropEnumType = when (crop?.cropType) {
+                    CropTypes.Rice -> Crop.RICE
+                    CropTypes.Pumpkins -> Crop.PUMPKIN
+                    CropTypes.LeafyGreens -> Crop.LEAFY
+                    else -> Crop.NA
+                }
+                cropLayout[i][j] = cropEnumType
+            }
+        }
+
+    return cropLayout
+
+        /*
+    for (crop in crops) {
+        val x = crop.x
+        val y = crop.y
+        val cropType = crop.cropType
+        val cropEnum = when (cropType) {
+            CropTypes.Rice -> Crop.RICE
+            CropTypes.Pumpkins -> Crop.PUMPKIN
+            CropTypes.LeafyGreens -> Crop.LEAFY
+            else -> Crop.NA
+        }
+        cropLayout[y][x] = cropEnum
+    }
+         */
 }

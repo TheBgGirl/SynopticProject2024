@@ -1,6 +1,8 @@
 package com.wales
 
+import android.content.Context
 import android.os.Build
+import androidx.annotation.RawRes
 import androidx.annotation.RequiresApi
 import smile.regression.RandomForest
 import smile.data.DataFrame
@@ -28,28 +30,29 @@ enum class Crop {
     NA
 }
 
+
 @RequiresApi(Build.VERSION_CODES.O)
-class WeatherPredictor(private val dataPath: String) {
+class WeatherPredictor(private val dataset: String, private val modelPath: String) {
     private var sunshineModel: RandomForest? = null
     private var tempModel: RandomForest? = null
     private var rainfallModel: RandomForest? = null
 
+
     init {
-        val modelPath = "models"
         File(modelPath).mkdirs()
         val fullData: DataFrame = readCsv()
         sunshineModel = loadOrCreateModel(
-            "$modelPath\\sunshineModel.ser",
+            "$modelPath/sunshine_model.ser",
             "SunshineDuration ~ Latitude + Longitude + DayOfYear",
             fullData
         )
         tempModel = loadOrCreateModel(
-            "$modelPath\\tempModel.ser",
+            "$modelPath/temp_model.ser",
             "MeanTemp ~ Latitude + Longitude + DayOfYear",
             fullData
         )
         rainfallModel = loadOrCreateModel(
-            "$modelPath\\rainfallModel.ser",
+            "$modelPath/rainfall_model.ser",
             "PrecipitationSum ~ Latitude + Longitude + DayOfYear",
             fullData
         )
@@ -70,18 +73,13 @@ class WeatherPredictor(private val dataPath: String) {
         }
     }
 
-    fun serializeModels() {
-        sunshineModel?.let { serializeModel(it, "models/sunshineModel.ser") }
-        tempModel?.let { serializeModel(it, "models/tempModel.ser") }
-        rainfallModel?.let { serializeModel(it, "models/rainfallModel.ser") }
-    }
-
     private fun serializeModel(model: RandomForest, fileName: String) {
         ObjectOutputStream(FileOutputStream(fileName)).use { it.writeObject(model) }
     }
 
-    fun deserializeModel(fileName: String): RandomForest =
-        ObjectInputStream(FileInputStream(fileName)).use { it.readObject() as RandomForest }
+    private fun deserializeModel(fileName: String): RandomForest {
+        return ObjectInputStream(FileInputStream(fileName)).use { it.readObject() as RandomForest }
+    }
 
     fun getWeatherData(latitude: Double, longitude: Double, dayOfYear: Int): Weather? {
         val temp = predictTemperature(latitude, longitude, dayOfYear) ?: return null
@@ -127,8 +125,9 @@ class WeatherPredictor(private val dataPath: String) {
         )
 
     private fun readCsv(): DataFrame {
-        val path = Paths.get(dataPath)
-        val lines = Files.readAllLines(path)
+        val file = File(dataset)
+        val lines = file.readLines()
+
         val headers = lines.first().split(",").map(String::trim)
 
         val dates = IntArray(lines.size - 1)
