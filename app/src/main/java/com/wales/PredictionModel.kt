@@ -16,8 +16,9 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import kotlin.random.Random
 
-data class FarmElement(val weather: Weather, val yield: Double)
+data class FarmElement(val weather: Weather, val yield: Double, val cropType: Crop)
 data class Weather(var temp: Double, val sunshine: Double, val precipitation: Double)
 
 enum class Crop {
@@ -155,104 +156,208 @@ class WeatherPredictor(private val dataPath: String) {
             DoubleVector.of("MeanTemp", meanTemps)
         )
     }
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun evaluateYieldForFarm(
+        latitude: Double,
+        longitude: Double,
+        numRows: Int,
+        numCols: Int,
+        plantTypes: List<List<Crop>>
+    ): List<List<List<FarmElement>>> {
+        val farmYieldData = MutableList(numRows) { MutableList(numCols) { MutableList(12) { FarmElement(Weather(0.0, 0.0, 0.0), 0.0, Crop.RICE) } } }
+
+        for (row in 0 until numRows) {
+            for (col in 0 until numCols) {
+                val cropType = plantTypes[row][col]
+                val cellLatitude = latitude + row * 0.00001
+                val cellLongitude = longitude + col * 0.00001
+
+                val cellYieldMap = evaluateYield(cellLatitude, cellLongitude, cropType)
+                for (month in 0 until 12) {
+                    val weatherData = calculateMonthlyWeatherData(cellLatitude, cellLongitude, month + 1)
+                    farmYieldData[row][col][month] = FarmElement(weatherData, cellYieldMap["2024-${(month + 1).toString().padStart(2, '0')}"] ?: 0.0, cropType)
+                }
+            }
+        }
+        return farmYieldData
+    }
+
+    private fun calculateMonthlyWeatherData(latitude: Double, longitude: Double, month: Int): Weather {
+        val daysInMonth = LocalDate.of(2024, month, 1).lengthOfMonth()
+        var totalTemp = 0.0
+        var totalSunshine = 0.0
+        var totalPrecipitation = 0.0
+
+        for (day in 1..daysInMonth) {
+            val dayOfYear = LocalDate.of(2024, month, day).dayOfYear
+            val weather = getWeatherData(latitude, longitude, dayOfYear)
+            if (weather != null) {
+                totalTemp += weather.temp
+                totalSunshine += weather.sunshine
+                totalPrecipitation += weather.precipitation
+            }
+        }
+
+        val avgTemp = totalTemp / daysInMonth
+        return Weather(avgTemp, totalSunshine, totalPrecipitation)
+    }
 
     fun evaluateYield(latitude: Double, longitude: Double, cropType: Crop): Map<String, Double> {
         val cropCondition = getCropCondition(cropType)
         val yieldMap = mutableMapOf<String, Double>()
+        val maxPoints = 21.0
 
         for (month in 1..12) {
             val weatherList = mutableListOf<Weather>()
             val daysInMonth = LocalDate.of(2024, month, 1).lengthOfMonth()
-            var totalRainfall = 0.0
+            var totalPoints = 0.0
+
             for (day in 1..daysInMonth) {
                 val dayOfYear = LocalDate.of(2024, month, day).dayOfYear
-                val weather = getWeatherData(latitude, longitude, dayOfYear)
-                if (weather != null) {
-                    weatherList.add(weather)
-                    totalRainfall += weather.precipitation
+                getWeatherData(latitude, longitude, dayOfYear)?.let {
+                    weatherList.add(it)
+                    totalPoints += calculateDailyPoints(it, cropCondition)
                 }
             }
+
             if (weatherList.isNotEmpty()) {
-                val avgTemp = weatherList.map { it.temp }.average()
-                val avgSunshine = weatherList.map { it.sunshine }.average()
-                val avgWeather = Weather(avgTemp, avgSunshine, totalRainfall)
-                val yield = when {
-                    cropCondition.isGood(avgWeather) -> 75.0
-                    cropCondition.isMedium(avgWeather) -> 50.0
-                    cropCondition.isBad(avgWeather) -> 25.0
-                    else -> 0.0
-                }
-                yieldMap["2024-${month.toString().padStart(2, '0')}"] = yield
-                println("Month: $month, Average Weather: $avgWeather, Yield: $yield")
+                // random +-5% added here due to inherent randomness of crop growth
+                val yieldPercentage = ((totalPoints / (weatherList.size * maxPoints)) * 100) + Random.nextDouble(-5.0, 5.0)
+                yieldMap["2024-${month.toString().padStart(2, '0')}"] = yieldPercentage
+                println("Cell ($latitude, $longitude), Month: $month, Yield: $yieldPercentage%")
             } else {
-                println("No weather data available for Month: $month")
+                println("No weather data available for Cell ($latitude, $longitude), Month: $month")
             }
         }
         return yieldMap
     }
-
+    fun calculateDailyPoints(weather: Weather, cropCondition: CropCondition): Double {
+        var points = 0.0
+        points += when {
+            weather.temp in cropCondition.tempVeryHigh -> 7.0
+            weather.temp in cropCondition.tempHigh -> 6.0
+            weather.temp in cropCondition.tempModerateHigh -> 5.0
+            weather.temp in cropCondition.tempModerate -> 4.0
+            weather.temp in cropCondition.tempModerateLow -> 3.0
+            weather.temp in cropCondition.tempLow -> 2.0
+            else -> 1.0
+        }
+        points += when {
+            weather.sunshine in cropCondition.sunshineVeryHigh -> 7.0
+            weather.sunshine in cropCondition.sunshineHigh -> 6.0
+            weather.sunshine in cropCondition.sunshineModerateHigh -> 5.0
+            weather.sunshine in cropCondition.sunshineModerate -> 4.0
+            weather.sunshine in cropCondition.sunshineModerateLow -> 3.0
+            weather.sunshine in cropCondition.sunshineLow -> 2.0
+            else -> 1.0
+        }
+        points += when {
+            weather.precipitation in cropCondition.precipitationVeryHigh -> 7.0
+            weather.precipitation in cropCondition.precipitationHigh -> 6.0
+            weather.precipitation in cropCondition.precipitationModerateHigh -> 5.0
+            weather.precipitation in cropCondition.precipitationModerate -> 4.0
+            weather.precipitation in cropCondition.precipitationModerateLow -> 3.0
+            weather.precipitation in cropCondition.precipitationLow -> 2.0
+            else -> 1.0
+        }
+        return points
+    }
 }
+
 data class CropCondition(
-    val tempGood: ClosedRange<Double>,
-    val tempMedium: ClosedRange<Double>,
-    val tempBad: ClosedRange<Double>,
-    val sunshineGood: ClosedRange<Double>,
-    val sunshineMedium: ClosedRange<Double>,
-    val sunshineBad: ClosedRange<Double>,
-    val precipitationGood: ClosedRange<Double>,
-    val precipitationMedium: ClosedRange<Double>,
-    val precipitationBad: ClosedRange<Double>
-) {
-    fun isGood(weather: Weather) =
-        weather.temp in tempGood &&
-                weather.sunshine in sunshineGood &&
-                weather.precipitation in precipitationGood
-
-    fun isMedium(weather: Weather) =
-        weather.temp in tempMedium &&
-                weather.sunshine in sunshineMedium &&
-                weather.precipitation in precipitationMedium
-
-    fun isBad(weather: Weather) =
-        weather.temp in tempBad &&
-                weather.sunshine in sunshineBad &&
-                weather.precipitation in precipitationBad
-}
+    val tempVeryHigh: ClosedRange<Double>,
+    val tempHigh: ClosedRange<Double>,
+    val tempModerateHigh: ClosedRange<Double>,
+    val tempModerate: ClosedRange<Double>,
+    val tempModerateLow: ClosedRange<Double>,
+    val tempLow: ClosedRange<Double>,
+    val tempVeryLow: ClosedRange<Double>,
+    val sunshineVeryHigh: ClosedRange<Double>,
+    val sunshineHigh: ClosedRange<Double>,
+    val sunshineModerateHigh: ClosedRange<Double>,
+    val sunshineModerate: ClosedRange<Double>,
+    val sunshineModerateLow: ClosedRange<Double>,
+    val sunshineLow: ClosedRange<Double>,
+    val sunshineVeryLow: ClosedRange<Double>,
+    val precipitationVeryHigh: ClosedRange<Double>,
+    val precipitationHigh: ClosedRange<Double>,
+    val precipitationModerateHigh: ClosedRange<Double>,
+    val precipitationModerate: ClosedRange<Double>,
+    val precipitationModerateLow: ClosedRange<Double>,
+    val precipitationLow: ClosedRange<Double>,
+    val precipitationVeryLow: ClosedRange<Double>
+)
 
 private fun getCropCondition(cropType: Crop): CropCondition {
     return when (cropType) {
         Crop.RICE -> CropCondition(
-            tempGood = 25.0..30.0,
-            tempMedium = 20.0..25.0,
-            tempBad = -Double.MAX_VALUE..20.0,
-            sunshineGood = 150.0..250.0,
-            sunshineMedium = 100.0..150.0,
-            sunshineBad = -Double.MAX_VALUE..100.0,
-            precipitationGood = 200.0..300.0,
-            precipitationMedium = 100.0..200.0,
-            precipitationBad = -Double.MAX_VALUE..100.0
+            tempVeryHigh = 28.0..30.0,
+            tempHigh = 26.0..28.0,
+            tempModerateHigh = 24.0..26.0,
+            tempModerate = 22.0..24.0,
+            tempModerateLow = 20.0..22.0,
+            tempLow = 18.0..20.0,
+            tempVeryLow = -Double.MAX_VALUE..18.0,
+            sunshineVeryHigh = 240.0..260.0,
+            sunshineHigh = 220.0..240.0,
+            sunshineModerateHigh = 200.0..220.0,
+            sunshineModerate = 180.0..200.0,
+            sunshineModerateLow = 160.0..180.0,
+            sunshineLow = 140.0..160.0,
+            sunshineVeryLow = -Double.MAX_VALUE..140.0,
+            precipitationVeryHigh = 280.0..300.0,
+            precipitationHigh = 260.0..280.0,
+            precipitationModerateHigh = 240.0..260.0,
+            precipitationModerate = 220.0..240.0,
+            precipitationModerateLow = 200.0..220.0,
+            precipitationLow = 180.0..200.0,
+            precipitationVeryLow = -Double.MAX_VALUE..180.0
         )
         Crop.PUMPKIN -> CropCondition(
-            tempGood = 20.0..30.0,
-            tempMedium = 15.0..20.0,
-            tempBad = -Double.MAX_VALUE..15.0,
-            sunshineGood = 200.0..300.0,
-            sunshineMedium = 150.0..200.0,
-            sunshineBad = -Double.MAX_VALUE..150.0,
-            precipitationGood = 60.0..100.0,
-            precipitationMedium = 40.0..60.0,
-            precipitationBad = -Double.MAX_VALUE..40.0
+            tempVeryHigh = 30.0..32.0,
+            tempHigh = 28.0..30.0,
+            tempModerateHigh = 26.0..28.0,
+            tempModerate = 24.0..26.0,
+            tempModerateLow = 22.0..24.0,
+            tempLow = 20.0..22.0,
+            tempVeryLow = -Double.MAX_VALUE..20.0,
+            sunshineVeryHigh = 280.0..300.0,
+            sunshineHigh = 260.0..280.0,
+            sunshineModerateHigh = 240.0..260.0,
+            sunshineModerate = 220.0..240.0,
+            sunshineModerateLow = 200.0..220.0,
+            sunshineLow = 180.0..200.0,
+            sunshineVeryLow = -Double.MAX_VALUE..180.0,
+            precipitationVeryHigh = 80.0..100.0,
+            precipitationHigh = 70.0..80.0,
+            precipitationModerateHigh = 60.0..70.0,
+            precipitationModerate = 50.0..60.0,
+            precipitationModerateLow = 40.0..50.0,
+            precipitationLow = 30.0..40.0,
+            precipitationVeryLow = -Double.MAX_VALUE..30.0
         )
         Crop.LEAFY -> CropCondition(
-            tempGood = 18.0..24.0,
-            tempMedium = 15.0..18.0,
-            tempBad = -Double.MAX_VALUE..15.0,
-            sunshineGood = 120.0..200.0,
-            sunshineMedium = 80.0..120.0,
-            sunshineBad = -Double.MAX_VALUE..80.0,
-            precipitationGood = 40.0..80.0,
-            precipitationMedium = 20.0..40.0,
-            precipitationBad = -Double.MAX_VALUE..20.0
+            tempVeryHigh = 22.0..24.0,
+            tempHigh = 20.0..22.0,
+            tempModerateHigh = 18.0..20.0,
+            tempModerate = 16.0..18.0,
+            tempModerateLow = 14.0..16.0,
+            tempLow = 12.0..14.0,
+            tempVeryLow = -Double.MAX_VALUE..12.0,
+            sunshineVeryHigh = 200.0..220.0,
+            sunshineHigh = 180.0..200.0,
+            sunshineModerateHigh = 160.0..180.0,
+            sunshineModerate = 140.0..160.0,
+            sunshineModerateLow = 120.0..140.0,
+            sunshineLow = 100.0..120.0,
+            sunshineVeryLow = -Double.MAX_VALUE..100.0,
+            precipitationVeryHigh = 70.0..80.0,
+            precipitationHigh = 60.0..70.0,
+            precipitationModerateHigh = 50.0..60.0,
+            precipitationModerate = 40.0..50.0,
+            precipitationModerateLow = 30.0..40.0,
+            precipitationLow = 20.0..30.0,
+            precipitationVeryLow = -Double.MAX_VALUE..20.0
         )
     }
 }
