@@ -19,7 +19,7 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
     private val vertices: ArrayList<Float>
     private var terrain  = emptyArray<Array<Float>>()
     private var square : Square
-    private lateinit var square2 : Square
+    private lateinit var testCropSquare : CropSquare
 
     private lateinit var theContext: Context
 
@@ -32,6 +32,8 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
     private var heightFactor: Float = 1.0f
 
     init {
+        theContext = context
+
         width++
         height++
         vertices = ArrayList(width * height * 18)
@@ -134,7 +136,7 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
         val correctedX: Float = (testPosX - width / 2f) + 0.5f
         val correctedZ: Float = (testPosZ - height / 2f) + 0.5f
 
-        square2 = Square(floatArrayOf(correctedX, correctedZ), 1f, floatArrayOf(1f, 1f, 1f, 1f))
+        testCropSquare = CropSquare(floatArrayOf(correctedX, correctedZ), 1f, floatArrayOf(1f, 1f, 1f, 1f), theContext)
     }
 
     fun setSquare(posX : Float , posZ : Float)
@@ -158,7 +160,7 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
         )
     }
 
-    fun draw(shader : Shader)
+    fun draw(shader : Shader, cropShader: Shader, mvpMatrix : FloatArray)
     {
         // get handle to vertex shader's vPosition member
         positionHandle = GLES20.glGetAttribLocation(shader.getID(), "vPosition").also {
@@ -180,7 +182,12 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
         drawTerrain(shader)
         drawLines(shader)
 
-        drawSquares(shader) // Square for selected tile
+        square.draw(shader) // Square for selected tile
+
+        //Draw crop squares
+        cropShader.use()
+        cropShader.setMat4("uMVPMatrix", mvpMatrix)
+        drawCropSquares(cropShader)
 
         // Disable vertex array
         GLES20.glDisableVertexAttribArray(positionHandle)
@@ -215,10 +222,9 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
         GLES20.glDrawArrays(GLES20.GL_LINES,0,vertices.size/3)
     }
 
-    fun drawSquares(shader : Shader)
+    fun drawCropSquares(cropShader : Shader)
     {
-        square.draw(shader)
-        square2.draw(shader)
+        testCropSquare.draw(cropShader)
     }
 
 }
