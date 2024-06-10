@@ -147,16 +147,16 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
         val correctedX: Float = ((width - 1 - posX) - width / 2f) - 0.5f
         val correctedZ: Float = (posZ - height / 2f) + 0.5f
 
-        val correctedHeightX: Int = (width - 1 - posX).toInt()
-        val correctedHeightZ: Int = posZ.toInt()
+        // Flip X because terrain[][] has 0,0 as bottom right
+        val terrainX = width - 2 - posX.toInt()
 
-        val height1: Float = terrain[correctedHeightX][correctedHeightZ]
-        val height2: Float = if (correctedHeightZ + 1 < height) terrain[correctedHeightX][correctedHeightZ + 1] else height1
-        val height3: Float = if (correctedHeightX + 1 < width) terrain[correctedHeightX + 1][correctedHeightZ] else height1
-        val height4: Float = if (correctedHeightX + 1 < width && correctedHeightZ + 1 < height) terrain[correctedHeightX + 1][correctedHeightZ + 1] else height1
+        // Get the heights of the corners
+        val height1 = terrain[terrainX][posZ.toInt()]
+        val height2 = if (posZ.toInt() + 1 < height) terrain[terrainX][posZ.toInt() + 1] else height1
+        val height3 = if (terrainX + 1 < width) terrain[terrainX + 1][posZ.toInt()] else height1
+        val height4 = if (terrainX + 1 < width && posZ.toInt() + 1 < height) terrain[terrainX + 1][posZ.toInt() + 1] else height1
 
-
-        square = Square(floatArrayOf(correctedX,correctedZ),1f, floatArrayOf(height2, height1, height4, height3))
+        square = Square(floatArrayOf(correctedX, correctedZ), 1f, floatArrayOf(height1, height3, height2, height4))
     }
 
     fun draw(shader : Shader)
@@ -194,7 +194,7 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
         GLES20.glUniform1i(mTextureUniformHandle, 0)
         drawTerrain(shader)
         drawLines(shader)
-        //drawSquares(shader)
+        drawSquares(shader) // Square for selected tile
 
         // Disable vertex array
         GLES20.glDisableVertexAttribArray(positionHandle)
