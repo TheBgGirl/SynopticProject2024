@@ -67,5 +67,7 @@
     <string name="no_crop_selected">No Crop Selected</string>
     <string name="results_title">Results</string>
     <string name="support_title">Support</string>
-    <string name="pumpkin">Pumpkins</string>
+    <string name="pumpkin">Pumpkin</string>
+    <string name="leafy_greens">Leafy Greens</string>
+    <string name="see_results">Results</string>
 </resources>

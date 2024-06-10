@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -89,7 +90,8 @@ fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>, toR
 
         InfoPopup(
             crop = selectedCrop,
-            onDismiss = { selectedCrop = null; showPopup = false }
+            onDismiss = { selectedCrop = null; showPopup = false },
+            toResults = toResults
         )
 }
 
@@ -97,9 +99,10 @@ fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>, toR
 fun InfoPopup(
     modifier: Modifier = Modifier,
     crop: CropInfo?,
-    onDismiss: () -> Unit = {}
+    onDismiss: () -> Unit = {},
+    toResults: () -> Unit = {}
 ) {
-    val targetHeight = if (crop != null) 175.dp else 30.dp
+    val targetHeight = if (crop != null) 175.dp else 100.dp
     val height by animateDpAsState(targetValue = targetHeight, label = "popup height")
 
     val titleText = if (crop != null) stringResource(id = R.string.crop_info) else stringResource(id = R.string.no_crop_selected)
@@ -128,6 +131,10 @@ fun InfoPopup(
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.Black
                     )
+                } else {
+                    Button(onClick = toResults) {
+                        Text(stringResource(id = R.string.see_results))
+                    }
                 }
             }
         }

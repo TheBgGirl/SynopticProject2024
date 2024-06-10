@@ -72,9 +72,9 @@ sealed class CropTypes(@StringRes val name: Int) {
 data class CropInfo(val cropType: CropTypes, val x: Int, val y: Int)
 
 @Composable
-fun PlannerPage(latLng: LatLng, height: Int, width: Int, toFarmView: (List<CropInfo>) -> Unit, settingsRepository: SettingsRepository) {
+fun PlannerPage(latLng: LatLng, height: Int, width: Int, cropInfo: List<CropInfo>, toFarmView: (List<CropInfo>) -> Unit, settingsRepository: SettingsRepository) {
     var addedCrops by remember {
-        mutableStateOf(listOf<CropInfo>())
+        mutableStateOf(cropInfo)
     }
 
     Column(
@@ -255,10 +255,11 @@ fun CropSquare(
     val cropType = crop?.cropType
     val color = when {
         isSelected -> Color.Red
-        cropType == CropTypes.Pumpkins -> Color(0xFF800000)
-        cropType == CropTypes.LeafyGreens -> Color.Green
+        cropType == CropTypes.Pumpkins -> Color(0xFFFFA500)
+        cropType == CropTypes.LeafyGreens -> Color(0xFF32CD32)
         cropType == CropTypes.Rice -> Color.Gray
-        else -> Color.Black
+        cropType == CropTypes.None -> Color.White
+        else -> Color.Green
     }
 
     Box(modifier = modifier

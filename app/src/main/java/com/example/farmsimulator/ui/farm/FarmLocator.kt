@@ -6,9 +6,11 @@ import android.net.NetworkCapabilities
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -16,9 +18,15 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
@@ -43,6 +52,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.farmsimulator.R
+import com.example.farmsimulator.models.FarmData
 import com.example.farmsimulator.stores.SettingsRepository
 import com.example.farmsimulator.utils.DEFAULT_LAT_LONG
 import com.example.farmsimulator.utils.NotificationHandler
@@ -65,7 +75,7 @@ import com.example.farmsimulator.ui.utils.createDialog
 @OptIn(ExperimentalPermissionsApi::class)
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
-fun LocatorPage(onCropPlannerClick: (height: Int, width: Int, latLng: LatLng) -> Unit, settingsRepository: SettingsRepository) {
+fun LocatorPage(onCropPlannerClick: (height: Int, width: Int, latLng: LatLng, List<CropInfo>) -> Unit, previousFarms: List<FarmData>, settingsRepository: SettingsRepository) {
     val context = LocalContext.current
     val locationClient = LocationServices.getFusedLocationProviderClient(context)
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -176,9 +186,14 @@ fun LocatorPage(onCropPlannerClick: (height: Int, width: Int, latLng: LatLng) ->
 
         if (isPositioned) {
             NextPageButton {
-                onCropPlannerClick(height, width, latLng)
+                onCropPlannerClick(height, width, latLng, emptyList())
             }
         }
+        Spacer(modifier = Modifier.size(16.dp))
+
+        PreviousFarms(previousFarms = previousFarms, onFarmSelected = {
+            onCropPlannerClick(it.height, it.width, it.latLong, it.crops)
+        })
     }
 }
 
@@ -441,4 +456,66 @@ fun isOnline(context: Context): Boolean {
         }
     }
     return false
+}
+
+
+@Composable
+fun PreviousFarms(previousFarms: List<FarmData>, onFarmSelected: (FarmData) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+    val selectedIndex = remember { mutableIntStateOf(-1) }
+
+    Column {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .clickable(onClick = { expanded = true })
+                .padding(vertical = 12.dp, horizontal = 2.dp)
+        ) {
+            Text(
+                text = "Previous Farms",
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.weight(1f)
+            )
+            Icon(
+                imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                contentDescription = "Dropdown Indicator",
+                tint = Color.Black
+            )
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            previousFarms.forEachIndexed { index, farm ->
+                DropdownMenuItem(onClick = {
+                    selectedIndex.intValue = index
+                    expanded = false
+                    onFarmSelected(farm)
+                }, text = {
+                    Text(
+                        text = "Farm ${farm.width}x${farm.height}",
+                        style = TextStyle(fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                    )
+                })
+            }
+            if (previousFarms.isEmpty()) {
+                DropdownMenuItem(onClick = {}, text = {
+                    Text(
+                        text = "No previous farms",
+                        style = TextStyle(fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                    )
+                })
+            }
+        }
+
+        if (selectedIndex.intValue != -1) {
+            Text(
+                text = "Selected: Farm ${previousFarms[selectedIndex.intValue].width}x${previousFarms[selectedIndex.intValue].height}",
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            )
+        }
+    }
 }

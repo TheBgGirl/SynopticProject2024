@@ -26,12 +26,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
+import com.example.farmsimulator.models.FarmData
 import com.example.farmsimulator.models.FarmDataViewModel
 import com.example.farmsimulator.stores.SettingsRepository
 import com.example.farmsimulator.ui.farm.CropInfo
@@ -128,45 +127,49 @@ fun FarmSimNavGraph(
             HomePage(settingsRepository)
         }
         composable(Screen.Locator.route) {
-            LocatorPage(
-                onCropPlannerClick = { height: Int, width: Int, latLng: LatLng ->
-                    farmInfoViewModel.setFarmSize(height, width)
-                    farmInfoViewModel.setLatLong(latLng)
-
+            LocatorPage(previousFarms = farmInfoViewModel.savedFarms.value.orEmpty(),
+                onCropPlannerClick = { height: Int, width: Int, latLng: LatLng, cropInfo: List<CropInfo> ->
+                    farmInfoViewModel.updateFarmData(FarmData(width, height, cropInfo, latLng))
                     navController.navigate(Screen.CropPlanner.route)
                 }, settingsRepository = settingsRepository
             )
         }
 
         composable(route = Screen.CropPlanner.route) {
-            val height = farmInfoViewModel.height.value ?: 0
-            val width = farmInfoViewModel.width.value ?: 0
-            val latLng = farmInfoViewModel.latLong.value ?: LatLng(0.0, 0.0)
+            val farmData = farmInfoViewModel.currentFarmData.value
+            val height = farmData?.height ?: 0
+            val width = farmData?.width ?: 0
+            val latLng = farmData?.latLong ?: LatLng(0.0, 0.0)
+            val cropInfo = farmData?.crops.orEmpty()
 
-            PlannerPage(latLng = latLng, height = height, width = width,
+            PlannerPage(
+                latLng = latLng, height = height, width = width, cropInfo = cropInfo,
             settingsRepository = settingsRepository, toFarmView = { crops ->
                 val cropLayout = parseCrops(crops, width, height)
-                farmInfoViewModel.setFarmData(width, height, crops)
+                farmInfoViewModel.updateFarmData(FarmData(width, height, crops, latLng))
                 navController.navigate(Screen.FarmView.route)
             })
         }
 
         composable(route = Screen.FarmView.route) {
-            val crops = farmInfoViewModel.crops.value.orEmpty()
-            val height = farmInfoViewModel.height.value ?: 0
-            val width = farmInfoViewModel.width.value ?: 0
-            val latLng = farmInfoViewModel.latLong.value ?: LatLng(0.0, 0.0)
+            val farmData = farmInfoViewModel.currentFarmData.value
+            val height = farmData?.height ?: 0
+            val width = farmData?.width ?: 0
+            val latLng = farmData?.latLong ?: LatLng(0.0, 0.0)
+            val crops = farmData?.crops.orEmpty()
 
             FarmView(latLng = latLng, width = width, height = height, crops = crops, toResults = {
+                farmInfoViewModel.saveFarmData(FarmData(width, height, crops, latLng))
                 navController.navigate(Screen.Results.route)
             })
         }
 
         composable(route = Screen.Results.route) {
-            val crops = farmInfoViewModel.crops.value.orEmpty()
-            val height = farmInfoViewModel.height.value ?: 0
-            val width = farmInfoViewModel.width.value ?: 0
-            val latLng = farmInfoViewModel.latLong.value ?: LatLng(0.0, 0.0)
+            val farmData = farmInfoViewModel.currentFarmData.value
+            val height = farmData?.height ?: 0
+            val width = farmData?.width ?: 0
+            val latLng = farmData?.latLong ?: LatLng(0.0, 0.0)
+            val crops = farmData?.crops.orEmpty()
 
             ResultsPage(width = width, height = height, latLng = latLng, crops = crops)
         }

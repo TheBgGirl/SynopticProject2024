@@ -14,46 +14,31 @@ data class FarmData(
 )
 
 class FarmDataViewModel : ViewModel() {
-    private val _crops = MutableLiveData<List<CropInfo>>()
-    val crops: LiveData<List<CropInfo>> get() = _crops
+    private val _currentFarmData = MutableLiveData<FarmData>()
+    val currentFarmData: LiveData<FarmData> = _currentFarmData
 
-    private val _height = MutableLiveData<Int>()
-    val height: LiveData<Int> get() = _height
+    private val _savedFarms = MutableLiveData<List<FarmData>>()
+    val savedFarms: LiveData<List<FarmData>> = _savedFarms
 
-    private val _width = MutableLiveData<Int>()
-    val width: LiveData<Int> get() = _width
-
-    private val _latLong = MutableLiveData<LatLng>()
-    val latLong: LiveData<LatLng> get() = _latLong
-
-    fun setFarmData(width: Int, height: Int, crops: List<CropInfo>) {
-        _width.value = width
-        _height.value = height
-        _crops.value = crops
+    fun updateFarmData(farmData: FarmData) {
+        _currentFarmData.value = farmData
     }
 
-    fun setFarmSize(height: Int, width: Int) {
-           _height.value = height
-              _width.value = width
+    fun saveFarmData(farmData: FarmData) {
+        val farms = _savedFarms.value.orEmpty().toMutableList()
+        if (!farms.contains(farmData)) {
+            farms.add(farmData)
+        }
+        _savedFarms.value = farms
     }
 
-    fun setLatLong(latLong: LatLng) {
-        _latLong.value = latLong
+    fun removeFarmData(farmData: FarmData) {
+        val farms = _savedFarms.value.orEmpty().toMutableList()
+        farms.remove(farmData)
+        _savedFarms.value = farms
     }
 
-    fun addCrop(crop: CropInfo) {
-        val currentCrops = _crops.value?.toMutableList() ?: mutableListOf()
-        currentCrops.add(crop)
-        _crops.value = currentCrops
-    }
-
-    fun removeCrop(crop: CropInfo) {
-        val currentCrops = _crops.value?.toMutableList() ?: mutableListOf()
-        currentCrops.remove(crop)
-        _crops.value = currentCrops
-    }
-
-    fun clearCrops() {
-        _crops.value = emptyList()
+    fun clearSavedFarms() {
+        _savedFarms.value = emptyList()
     }
 }

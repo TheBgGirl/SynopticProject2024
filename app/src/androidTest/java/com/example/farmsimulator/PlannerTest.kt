@@ -1,12 +1,9 @@
 package com.example.farmsimulator
 
-import androidx.activity.compose.setContent
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import com.example.farmsimulator.ui.farm.PlannerPage
-import com.example.farmsimulator.ui.settings.SettingsPage
 import com.google.android.gms.maps.model.LatLng
 import org.junit.Before
 import org.junit.Rule
