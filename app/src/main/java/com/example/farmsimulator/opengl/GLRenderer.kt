@@ -24,7 +24,10 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
 
     private lateinit var plane : Plane
 
-    private lateinit var shader : Shader
+    private lateinit var planeShader : Shader
+    private lateinit var cropShader : Shader
+
+    private lateinit var cropSquare : CropSquare
 
     // ----- CAMERA SETTINGS ----- //
     private var camera: Camera = Camera()
@@ -48,7 +51,7 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
 
     private val vertexShaderCode =
     // This matrix member variable provides a hook to manipulate
-        // the coordinates of the objects that use this vertex shader
+        // the coordinates of the objects that use this vertex planeShader
         "uniform mat4 uMVPMatrix;" +
                 "attribute vec4 vPosition;" +
                 "varying float yPosition;"+
@@ -61,14 +64,24 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
                 "v_TexCoordinate = a_TexCoordinate;"+
                 "}"
 
-    private val fragmentShaderCode =
+    private val planeFragmentShaderCode =
         "precision mediump float;" +
                 "uniform vec4 vColor;" +
                 "varying float yPosition;"+
                 "uniform sampler2D u_Texture;" +
                 "varying vec2 v_TexCoordinate;" +
                 "void main() {" +
-                " gl_FragColor = vColor * yPosition * texture2D(u_Texture, v_TexCoordinate);\n" +
+                " gl_FragColor = vColor * yPosition;// * texture2D(u_Texture, v_TexCoordinate);\n" +
+                "}"
+
+    private val cropFragmentShaderCode =
+        "precision mediump float;" +
+                "uniform vec4 vColor;" +
+                "varying float yPosition;"+
+                "uniform sampler2D u_Texture;" +
+                "varying vec2 v_TexCoordinate;" +
+                "void main() {" +
+                " gl_FragColor = texture2D(u_Texture, v_TexCoordinate);\n" +
                 "}"
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig)
@@ -78,11 +91,14 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
         // Set the background frame color
         GLES20.glClearColor(0.1f, 0.1f, 0.1f, 1.0f)
 
-        shader = Shader(vertexShaderCode,fragmentShaderCode)
+        planeShader = Shader(vertexShaderCode,planeFragmentShaderCode)
+        cropShader = Shader(vertexShaderCode, cropFragmentShaderCode)
 
         triangle = Triangle(floatArrayOf(-0.5f,0f,-0.5f), floatArrayOf(0.5f,0f,-0.5f), floatArrayOf(0f,0f,0.5f))
 
         plane = Plane(farmWidth, farmHeight,context)
+
+        cropSquare = CropSquare(floatArrayOf(0.0f, 0.0f), 2.0f, floatArrayOf(1.0f, 1.0f, 1.0f, 1.0f), context)
 
         // Camera Zoom From Farm Size
         maxZoomDistance = if(farmHeight >= farmWidth) {
@@ -100,30 +116,33 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
         camera.radius = minZoomDistance + 1f
         camera.pitch = 90f
 
+        plane.displayFarmData()
+
     }
 
     override fun onDrawFrame(unused: GL10)
     {
         // Redraw background color
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
-        shader.use()
-        shader.setFloat("isLines",0.0f)
+        planeShader.use()
+        planeShader.setFloat("isLines",0.0f)
 
         // Camera
         viewMatrix = camera.getViewMatrix()
         Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
 
         Matrix.setIdentityM(model,0)
-        Matrix.translateM(model, 0, triangle.position[0], triangle.position[1],triangle.position[2])
+        //Matrix.translateM(model, 0, triangle.position[0], triangle.position[1],triangle.position[2])
 
         Matrix.multiplyMM(mvpMatrix, 0, vPMatrix, 0, model, 0)
 
-        shader.setMat4("uMVPMatrix",mvpMatrix)
-        //triangle.draw(shader)
+        planeShader.setMat4("uMVPMatrix",mvpMatrix)
+        //triangle.draw(planeShader)
+        plane.draw(planeShader)
 
-        plane.draw(shader)
-
-        //cube.draw(shader)
+        cropShader.use()
+        cropShader.setMat4("uMVPMatrix", mvpMatrix)
+        cropSquare.draw(cropShader)
 
     }
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {

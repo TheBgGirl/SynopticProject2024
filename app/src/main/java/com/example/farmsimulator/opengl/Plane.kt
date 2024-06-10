@@ -1,12 +1,12 @@
 package com.example.farmsimulator.opengl
 
 import android.opengl.GLES20
-import com.example.farmsimulator.R
 //import smile.hash.SimHash
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
 import android.content.Context
+import android.util.Log
 import kotlin.random.Random
 
 class Plane(var width: Int = 20, var height: Int = 20,context: Context)
@@ -17,25 +17,11 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
     private var mColorHandle: Int = 0
 
     private val vertices: ArrayList<Float>
-    private val dataCoordinates: ArrayList<Float>
-    private var textureCoordinates : FloatBuffer
     private var terrain  = emptyArray<Array<Float>>()
     private var square : Square
+    private var square2 : Square
 
-    /** This will be used to pass in the texture.  */
-    var mTextureUniformHandle: Int = 0
-
-
-    /** This will be used to pass in model texture coordinate information.  */
-    var mTextureCoordinateHandle: Int = 0
-
-
-    /** Size of the texture coordinate data in elements.  */
-    val mTextureCoordinateDataSize = 2
-
-
-    /** This is a handle to our texture data.  */
-    var mTextureDataHandle: Int = 0
+    private var theContext: Context
 
 
     // Set color with red, green, blue and alpha (opacity) values
@@ -49,14 +35,8 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
         width++
         height++
         vertices = ArrayList(width * height * 18)
-        dataCoordinates = arrayListOf(
-            0.0f, 1.0f,
-            0.0f, 0.0f,
-            1.0f, 0.0f,
-            1.0f, 1.0f,
-        )
         terrain = Array(width) { Array(height) { 0.0f } }
-        square = Square(floatArrayOf(0f,0f),1f, floatArrayOf(-1f,-1f,-1f,-1f))
+        square = Square(floatArrayOf(0f,0f), 1f, floatArrayOf(-1f,-1f,-1f,-1f))
 
         val seedRez = 10 // Number of seed positions
         val seedTerrain = Array(seedRez) { Array(seedRez) { (Random.nextFloat() * heightFactor) + 0.1f } }
@@ -133,13 +113,28 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
                     position(0)
                 }
             }
+    }
 
-        // Load the texture
-        mTextureDataHandle = TextureHandler.loadTexture(context, R.drawable.hero)
+    fun displayFarmData(){
+        for(i in 0 until width - 1){
+            for(j in 0 until height - 1){
+                Log.d("Farm Data: ", i.toString() + j.toString())
 
-        textureCoordinates = ByteBuffer.allocateDirect(dataCoordinates.size * 4)
-            .order(ByteOrder.nativeOrder()).asFloatBuffer()
-        textureCoordinates.put(dataCoordinates.toFloatArray()).position(0)
+                //Thread.sleep(1_000)
+
+                // Iterate through Farm Data[i][j]
+                    // Initialize texture for crop type at this position
+                        // Different texture for yield %
+                    // Might do: change terrain colour depending on precipitation and temperature
+            }
+        }
+        val testPosX: Int = 0
+        val testPosZ: Int = 0
+
+        val correctedX: Float = (testPosX - width / 2f) + 0.5f
+        val correctedZ: Float = (testPosZ - height / 2f) + 0.5f
+
+        square2 = Square(floatArrayOf(correctedX, correctedZ), 1f, floatArrayOf(1f, 1f, 1f, 1f), theContext)
     }
 
     fun setSquare(posX : Float , posZ : Float)
@@ -156,7 +151,11 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
         val height3 = if (terrainX + 1 < width) terrain[terrainX + 1][posZ.toInt()] else height1
         val height4 = if (terrainX + 1 < width && posZ.toInt() + 1 < height) terrain[terrainX + 1][posZ.toInt() + 1] else height1
 
-        square = Square(floatArrayOf(correctedX, correctedZ), 1f, floatArrayOf(height1, height3, height2, height4))
+        square = Square(
+            floatArrayOf(correctedX, correctedZ),
+            1f,
+            floatArrayOf(height1, height3, height2, height4)
+        )
     }
 
     fun draw(shader : Shader)
@@ -177,23 +176,10 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
                 vertexBuffer
             )
         }
-        mTextureUniformHandle = GLES20.glGetUniformLocation(shader.getID(), "u_Texture")
-        mTextureCoordinateHandle = GLES20.glGetAttribLocation(shader.getID(), "a_TexCoordinate")
 
-        //mCubeTextureCoordinates.position(0);
-        GLES20.glVertexAttribPointer(mTextureCoordinateHandle, mTextureCoordinateDataSize, GLES20.GL_FLOAT, false,
-            0, textureCoordinates)
-
-        // Set the active texture unit to texture unit 0.
-        GLES20.glActiveTexture(GLES20.GL_TEXTURE0)
-
-        // Bind the texture to this unit.
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextureDataHandle)
-
-        // Tell the texture uniform sampler to use this texture in the shader by binding to texture unit 0.
-        GLES20.glUniform1i(mTextureUniformHandle, 0)
         drawTerrain(shader)
         drawLines(shader)
+
         drawSquares(shader) // Square for selected tile
 
         // Disable vertex array
@@ -232,6 +218,7 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
     fun drawSquares(shader : Shader)
     {
         square.draw(shader)
+        square2.draw(shader)
     }
 
 }
