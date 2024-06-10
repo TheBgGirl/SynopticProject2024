@@ -11,7 +11,7 @@ private const val COORDS_PER_VERTEX = 3
 class Square(private val position : FloatArray, private val width : Float,private  val heights : FloatArray)
 {
     // Set color with red, green, blue and alpha (opacity) values
-    private val color = floatArrayOf(1.0f, 1.0f, 1.0f, 1.0f)
+    private val color = floatArrayOf(0.0f, 1.0f, 0.0f, 1.0f)
     private var squareCoords = FloatArray(12)
 
     private val vertexCount: Int = squareCoords.size / COORDS_PER_VERTEX

@@ -89,7 +89,7 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
         GLES20.glEnable(GLES20.GL_DEPTH_TEST) // Enable depth testing
 
         // Set the background frame color
-        GLES20.glClearColor(0.1f, 0.1f, 0.1f, 1.0f)
+        GLES20.glClearColor(0.1f, 0.5f, 0.8f, 1.0f)
 
         planeShader = Shader(vertexShaderCode,planeFragmentShaderCode)
         cropShader = Shader(vertexShaderCode, cropFragmentShaderCode)

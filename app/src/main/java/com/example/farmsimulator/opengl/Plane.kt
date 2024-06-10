@@ -36,7 +36,7 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
         height++
         vertices = ArrayList(width * height * 18)
         terrain = Array(width) { Array(height) { 0.0f } }
-        square = Square(floatArrayOf(0f,0f), 1f, floatArrayOf(-1f,-1f,-1f,-1f))
+        square = Square(floatArrayOf(-100f,-100f), 1f, floatArrayOf(-1f,-1f,-1f,-1f))
 
         val seedRez = 10 // Number of seed positions
         val seedTerrain = Array(seedRez) { Array(seedRez) { (Random.nextFloat() * heightFactor) + 0.1f } }
