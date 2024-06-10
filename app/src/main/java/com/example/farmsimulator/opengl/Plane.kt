@@ -19,13 +19,13 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
     private val vertices: ArrayList<Float>
     private var terrain  = emptyArray<Array<Float>>()
     private var square : Square
-    private var square2 : Square
+    private lateinit var square2 : Square
 
-    private var theContext: Context
+    private lateinit var theContext: Context
 
 
     // Set color with red, green, blue and alpha (opacity) values
-    val color = floatArrayOf(0.388f, 0.247f, 0.0f, 1.0f)
+    val color = floatArrayOf(0.188f, 0.247f, 0.0f, 1.0f)
     val color2 = floatArrayOf(0.0f, 0.0f, 0.0f, 1.0f)
 
     // ----- Terrain Settings ----- //
@@ -134,7 +134,7 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
         val correctedX: Float = (testPosX - width / 2f) + 0.5f
         val correctedZ: Float = (testPosZ - height / 2f) + 0.5f
 
-        square2 = Square(floatArrayOf(correctedX, correctedZ), 1f, floatArrayOf(1f, 1f, 1f, 1f), theContext)
+        square2 = Square(floatArrayOf(correctedX, correctedZ), 1f, floatArrayOf(1f, 1f, 1f, 1f))
     }
 
     fun setSquare(posX : Float , posZ : Float)
