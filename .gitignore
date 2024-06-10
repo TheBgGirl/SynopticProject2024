@@ -1,3 +1,13 @@
 /local.properties
 /.gradle
 /.idea
+/app/.classpath
+/app/.project
+/.project
+/:w
+/.settings/org.eclipse.buildship.core.prefs
+/app/.settings/org.eclipse.buildship.core.prefs
+/app/.settings/org.eclipse.jdt.core.prefs
+/models/rainfallModel.ser
+/models/sunshineModel.ser
+/models/tempModel.ser
