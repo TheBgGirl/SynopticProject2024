@@ -13,7 +13,7 @@ fun main() {
     val numRows = 3
     val numCols = 3
     val plantTypes = listOf(
-        listOf(Crop.RICE, Crop.PUMPKIN, Crop.LEAFY),
+        listOf(Crop.NA, Crop.PUMPKIN, Crop.LEAFY),
         listOf(Crop.LEAFY, Crop.RICE, Crop.PUMPKIN),
         listOf(Crop.PUMPKIN, Crop.LEAFY, Crop.RICE)
     )

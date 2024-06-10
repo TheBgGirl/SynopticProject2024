@@ -24,7 +24,8 @@ data class Weather(var temp: Double, val sunshine: Double, val precipitation: Do
 enum class Crop {
     RICE,
     PUMPKIN,
-    LEAFY
+    LEAFY,
+    NA
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -212,12 +213,13 @@ class WeatherPredictor(private val dataPath: String) {
             val weatherList = mutableListOf<Weather>()
             val daysInMonth = LocalDate.of(2024, month, 1).lengthOfMonth()
             var totalPoints = 0.0
-
-            for (day in 1..daysInMonth) {
-                val dayOfYear = LocalDate.of(2024, month, day).dayOfYear
-                getWeatherData(latitude, longitude, dayOfYear)?.let {
-                    weatherList.add(it)
-                    totalPoints += calculateDailyPoints(it, cropCondition)
+            if (cropType != Crop.NA) {
+                for (day in 1..daysInMonth) {
+                    val dayOfYear = LocalDate.of(2024, month, day).dayOfYear
+                    getWeatherData(latitude, longitude, dayOfYear)?.let {
+                        weatherList.add(it)
+                        totalPoints += calculateDailyPoints(it, cropCondition)
+                    }
                 }
             }
 
@@ -261,6 +263,7 @@ class WeatherPredictor(private val dataPath: String) {
             weather.precipitation in cropCondition.precipitationLow -> 2.0
             else -> 1.0
         }
+
         return points
     }
 }
@@ -359,6 +362,30 @@ private fun getCropCondition(cropType: Crop): CropCondition {
             precipitationModerateLow = 30.0..40.0,
             precipitationLow = 20.0..30.0,
             precipitationVeryLow = -Double.MAX_VALUE..20.0
+        )
+
+        Crop.NA -> CropCondition(
+            tempVeryHigh = 0.0..0.0,
+            tempHigh = 0.0..0.0,
+            tempModerateHigh = 0.0..0.0,
+            tempModerate = 0.0..0.0,
+            tempModerateLow = 0.0..0.0,
+            tempLow = 0.0..0.0,
+            tempVeryLow = 0.0..0.0,
+            sunshineVeryHigh = 0.0..0.0,
+            sunshineHigh = 0.0..0.0,
+            sunshineModerateHigh = 0.0..0.0,
+            sunshineModerate = 0.0..0.0,
+            sunshineModerateLow = 0.0..0.0,
+            sunshineLow = 0.0..0.0,
+            sunshineVeryLow = 0.0..0.0,
+            precipitationVeryHigh = 0.0..0.0,
+            precipitationHigh = 0.0..0.0,
+            precipitationModerateHigh = 0.0..0.0,
+            precipitationModerate = 0.0..0.0,
+            precipitationModerateLow = 0.0..0.0,
+            precipitationLow = 0.0..0.0,
+            precipitationVeryLow = 0.0..0.0
         )
     }
 }
