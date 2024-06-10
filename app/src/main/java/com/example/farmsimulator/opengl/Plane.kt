@@ -11,6 +11,7 @@ import kotlin.random.Random
 
 class Plane(var width: Int = 20, var height: Int = 20,context: Context)
 {
+    private var theContext : Context
 
     private var vertexBuffer: FloatBuffer
     private var positionHandle: Int = 0
@@ -56,7 +57,7 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
             1.0f, 1.0f,
         )
         terrain = Array(width) { Array(height) { 0.0f } }
-        square = Square(floatArrayOf(0f,0f),1f, floatArrayOf(-1f,-1f,-1f,-1f))
+        square = Square(floatArrayOf(0f,0f),1f, floatArrayOf(-1f,-1f,-1f,-1f), context)
 
         val seedRez = 10 // Number of seed positions
         val seedTerrain = Array(seedRez) { Array(seedRez) { (Random.nextFloat() * heightFactor) + 0.1f } }
@@ -140,6 +141,8 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
         textureCoordinates = ByteBuffer.allocateDirect(dataCoordinates.size * 4)
             .order(ByteOrder.nativeOrder()).asFloatBuffer()
         textureCoordinates.put(dataCoordinates.toFloatArray()).position(0)
+
+        theContext = context
     }
 
     fun setSquare(posX : Float , posZ : Float)
@@ -156,7 +159,7 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
         val height3 = if (terrainX + 1 < width) terrain[terrainX + 1][posZ.toInt()] else height1
         val height4 = if (terrainX + 1 < width && posZ.toInt() + 1 < height) terrain[terrainX + 1][posZ.toInt() + 1] else height1
 
-        square = Square(floatArrayOf(correctedX, correctedZ), 1f, floatArrayOf(height1, height3, height2, height4))
+        square = Square(floatArrayOf(correctedX, correctedZ), 1f, floatArrayOf(height1, height3, height2, height4), theContext)
     }
 
     fun draw(shader : Shader)
