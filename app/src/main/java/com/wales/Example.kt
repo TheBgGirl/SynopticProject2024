@@ -1,40 +1,28 @@
 package com.wales
 
-import java.util.concurrent.CountDownLatch
-import java.io.FileWriter
+import android.os.Build
+import androidx.annotation.RequiresApi
+import java.time.LocalDate
+import java.time.Month
 
+@RequiresApi(Build.VERSION_CODES.O)
 fun main() {
-    val weatherDataFetcher = WeatherDataFetcher()
-    val boundingBox = "12.3276539,106.684917,12.8276539,107.184917"
-    val startDate = "2024-05-19"
-    val endDate = "2024-06-02"
+    val dataPath = "/Users/jamie/Dev/synop/app/src/main/java/com/wales/wd.csv"
+    val predictor = WeatherPredictor(dataPath)
 
-    val latch = CountDownLatch(1)
+    // Test data - you should replace these with relevant test values
+    val latitude = 12.532608854954955
+    val longitude = 106.88876457344239
+    val localDate = LocalDate.of(2022, Month.MAY, 20)
+    val dayOfYear = localDate.dayOfYear
 
-    weatherDataFetcher.fetchWeatherData(boundingBox, startDate, endDate) { success ->
-        if (success) {
-            println("Data fetched successfully.")
-        } else {
-            println("Failed to fetch data.")
-        }
-        latch.countDown()
-    }
+    // Predictions
+    val sunshine = predictor.predictSunshine(latitude, longitude, dayOfYear)
+    val temperature = predictor.predictTemperature(latitude, longitude, dayOfYear)
+    val rainfall = predictor.predictRainfall(latitude, longitude, dayOfYear)
 
-    latch.await()
-}
-
-
-fun saveDataToCSV(weatherData: HashMap<Key, List<Double?>>, dateData: HashMap<Key, List<String?>>) {
-    val csvFile = "app/src/main/res/weather.csv"
-    FileWriter(csvFile).use { writer ->
-        writer.append("Latitude,Longitude,Date,Temperature\n")
-        weatherData.forEach { (key, temperatures) ->
-            dateData[key]?.forEachIndexed { index, date ->
-                if (date != null && temperatures[index] != null) {
-                    writer.append("${key.latitude},${key.longitude},$date,${temperatures[index]}\n")
-                }
-            }
-        }
-    }
-    println("Data saved to CSV: $csvFile")
+    // Output results
+    println("Predicted Sunshine Duration: $sunshine hours")
+    println("Predicted Temperature: $temperature °C")
+    println("Predicted Rainfall: $rainfall mm")
 }
