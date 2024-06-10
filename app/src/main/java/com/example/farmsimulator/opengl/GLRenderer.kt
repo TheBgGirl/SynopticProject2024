@@ -130,19 +130,18 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
         // Camera
         viewMatrix = camera.getViewMatrix()
         Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
-
         Matrix.setIdentityM(model,0)
         //Matrix.translateM(model, 0, triangle.position[0], triangle.position[1],triangle.position[2])
-
         Matrix.multiplyMM(mvpMatrix, 0, vPMatrix, 0, model, 0)
-
         planeShader.setMat4("uMVPMatrix",mvpMatrix)
-        //triangle.draw(planeShader)
-        plane.draw(planeShader)
 
-        cropShader.use()
-        cropShader.setMat4("uMVPMatrix", mvpMatrix)
-        cropSquare.draw(cropShader)
+        plane.draw(planeShader, cropShader, mvpMatrix)
+
+        //triangle.draw(planeShader)
+
+        //cropShader.use()
+        //cropShader.setMat4("uMVPMatrix", mvpMatrix)
+        //cropSquare.draw(cropShader)
 
     }
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
