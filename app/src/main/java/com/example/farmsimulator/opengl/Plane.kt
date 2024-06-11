@@ -206,6 +206,8 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
         cropShader.use()
         Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
         Matrix.setIdentityM(model,0)
+
+        // ----- Uncomment here to see rotation ----- //
         //Matrix.rotateM(model, 0, pitch + 90f, 1f, 0f, 0f)
 
         Matrix.multiplyMM(mvpMatrix, 0, vPMatrix, 0, model, 0)
@@ -245,7 +247,7 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
         GLES20.glDrawArrays(GLES20.GL_LINES,0,vertices.size/3)
     }
 
-    fun drawCropSquares(cropShader : Shader)
+    fun drawCropSquares(cropShader: Shader)
     {
         for (cropSquare in cropSquares) {
             cropSquare.draw(cropShader)
