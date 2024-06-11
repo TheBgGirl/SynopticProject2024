@@ -84,7 +84,7 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
                 "uniform sampler2D u_Texture;" +
                 "varying vec2 v_TexCoordinate;" +
                 "void main() {" +
-                " gl_FragColor = texture2D(u_Texture, v_TexCoordinate);\n" +
+                "gl_FragColor  =  texture2D(u_Texture, v_TexCoordinate);"+
                 "}"
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig)

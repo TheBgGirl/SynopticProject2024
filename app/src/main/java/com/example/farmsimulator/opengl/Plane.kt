@@ -131,7 +131,7 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
 
         for(i in 0 until width - 1){
             for(j in 0 until height - 1){
-                //Log.d("Farm Data: ", i.toString() + j.toString())
+                Log.d("Farm Data: ", i.toString() + j.toString())
 
                 //Thread.sleep(1_000)
 
@@ -143,11 +143,21 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
 
 
                 //Testing: initialising all as corn
+
+                // Flip X because terrain[][] has 0,0 as bottom right
+                val terrainX = i.toInt()
+
+                // Get the heights of the corners
+                val height1 = terrain[terrainX][j.toInt()]
+                val height2 = if (j.toInt() + 1 < height) terrain[terrainX][j.toInt() + 1] else height1
+                val height3 = if (terrainX + 1 < width) terrain[terrainX + 1][j.toInt()] else height1
+                val height4 = if (terrainX + 1 < width && j.toInt() + 1 < height) terrain[terrainX + 1][j.toInt() + 1] else height1
+
                 cropSquares.add(
                     CropSquare(
                         floatArrayOf(correctedX + i, correctedZ + j),
-                        0.75f,
-                        floatArrayOf(terrain[i][j] + 0.5f, terrain[i][j] + 0.5f, terrain[i][j] + 0.5f, terrain[i][j] + 0.5f),
+                        1.0f,
+                        floatArrayOf(height1 + 0.02f, height3 + 0.02f, height2 + 0.02f, height4 + 0.02f),
                         theContext,
                         CropType.PUMPKIN
                     )
@@ -205,10 +215,16 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
         //Draw crop squares
         cropShader.use()
         Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
+        Matrix.setIdentityM(model,0)
 
+        // ----- Uncomment here to see rotation ----- //
+        //Matrix.rotateM(model, 0, pitch + 90f, 1f, 0f, 0f)
+
+        Matrix.multiplyMM(mvpMatrix, 0, vPMatrix, 0, model, 0)
+        cropShader.setMat4("uMVPMatrix",mvpMatrix)
         GLES20.glEnable(GLES20.GL_BLEND)
         GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA)
-        drawCropSquares(cropShader, pitch)
+        drawCropSquares(cropShader)
         GLES20.glDisable(GLES20.GL_BLEND)
 
         // Disable vertex array
@@ -244,16 +260,9 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
         GLES20.glDrawArrays(GLES20.GL_LINES,0,vertices.size/3)
     }
 
-    fun drawCropSquares(cropShader: Shader, pitch : Float)
+    fun drawCropSquares(cropShader: Shader)
     {
-        var originalModel : FloatArray = model
         for (cropSquare in cropSquares) {
-            Matrix.setIdentityM(model,0)
-            Matrix.translateM(model, 0, originalModel, 0, cropSquare.position[0], cropSquare.heights[0], cropSquare.position[1])
-            Matrix.rotateM(model, 0, pitch + 90f, 1f, 0f, 0f)
-            Matrix.multiplyMM(mvpMatrix, 0, vPMatrix, 0, model, 0)
-            cropShader.setMat4("uMVPMatrix",mvpMatrix)
-
             cropSquare.draw(cropShader)
         }
     }
