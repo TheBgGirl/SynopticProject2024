@@ -6,11 +6,15 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
 import android.content.Context
+import android.opengl.Matrix
 import android.util.Log
 import kotlin.random.Random
 
 class Plane(var width: Int = 20, var height: Int = 20,context: Context)
 {
+    private val vPMatrix = FloatArray(16)
+    private val model = FloatArray(16)
+    private val mvpMatrix = FloatArray(16)
 
     private var vertexBuffer: FloatBuffer
     private var positionHandle: Int = 0
@@ -145,7 +149,7 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
                         0.75f,
                         floatArrayOf(1f, 1f, 1f, 1f),
                         theContext,
-                        CropType.PUMPKIN
+                        CropType.RICE
                     )
                 )
             }
@@ -174,7 +178,7 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
         )
     }
 
-    fun draw(shader : Shader, cropShader: Shader, mvpMatrix : FloatArray)
+    fun draw(shader : Shader, cropShader: Shader, viewMatrix : FloatArray, projectionMatrix: FloatArray, pitch: Float)
     {
         // get handle to vertex shader's vPosition member
         positionHandle = GLES20.glGetAttribLocation(shader.getID(), "vPosition").also {
@@ -200,8 +204,13 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
 
         //Draw crop squares
         cropShader.use()
-        cropShader.setMat4("uMVPMatrix", mvpMatrix)
-        drawCropSquares(cropShader)
+        Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
+        Matrix.setIdentityM(model,0)
+        //Matrix.rotateM(model, 0, pitch + 90f, 1f, 0f, 0f)
+
+        Matrix.multiplyMM(mvpMatrix, 0, vPMatrix, 0, model, 0)
+        cropShader.setMat4("uMVPMatrix",mvpMatrix)
+        drawCropSquares(cropShader, viewMatrix, projectionMatrix)
 
         // Disable vertex array
         GLES20.glDisableVertexAttribArray(positionHandle)
@@ -242,5 +251,4 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
             cropSquare.draw(cropShader)
         }
     }
-
 }

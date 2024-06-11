@@ -135,7 +135,7 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
         Matrix.multiplyMM(mvpMatrix, 0, vPMatrix, 0, model, 0)
         planeShader.setMat4("uMVPMatrix",mvpMatrix)
 
-        plane.draw(planeShader, cropShader, mvpMatrix)
+        plane.draw(planeShader, cropShader, viewMatrix, projectionMatrix, camera.pitch)
 
         //triangle.draw(planeShader)
 
