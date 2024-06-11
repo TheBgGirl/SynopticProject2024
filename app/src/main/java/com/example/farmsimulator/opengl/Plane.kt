@@ -8,9 +8,10 @@ import java.nio.FloatBuffer
 import android.content.Context
 import android.opengl.Matrix
 import android.util.Log
+import com.example.farmsimulator.ui.farm.CropInfo
 import kotlin.random.Random
 
-class Plane(var width: Int = 20, var height: Int = 20,context: Context)
+class Plane(var width: Int = 20, var height: Int = 20, val crops: List<CropInfo>, context: Context)
 {
     private val vPMatrix = FloatArray(16)
     private val model = FloatArray(16)
@@ -126,12 +127,12 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
 
         val testPosX: Int = 0
         val testPosZ: Int = 0
-        val correctedX: Float = (testPosX - width / 2f) + 0.5f
-        val correctedZ: Float = (testPosZ - height / 2f) + 0.5f
+//        val correctedX: Float = (testPosX - width / 2f) + 0.5f
+//        val correctedZ: Float = (testPosZ - height / 2f) + 0.5f
 
-        for(i in 0 until width - 1){
-            for(j in 0 until height - 1){
-                Log.d("Farm Data: ", i.toString() + j.toString())
+//        for(i in 0 until width - 1){
+//            for(j in 0 until height - 1){
+//                Log.d("Farm Data: ", i.toString() + j.toString())
 
                 //Thread.sleep(1_000)
 
@@ -140,21 +141,33 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
                         // Different texture for yield %
                     // Might do: change terrain colour depending on precipitation and temperature
 
-
-
                 //Testing: initialising all as corn
-                cropSquares.add(
-                    CropSquare(
-                        floatArrayOf(correctedX + i, correctedZ + j),
-                        0.75f,
-                        floatArrayOf(1f, 1f, 1f, 1f),
-                        theContext,
-                        CropType.RICE
-                    )
-                )
-            }
-        }
 
+                for(i in 0 until crops.size)
+                {
+                    // Flip X because terrain[][] has 0,0 as bottom right
+                    val terrainX = width - 2 - crops[i].x
+                    val terrainY = height - 2 - crops[i].y
+
+                    val correctedX: Float = (terrainX - width / 2f) + 0.5f
+                    val correctedZ: Float = (terrainY - height / 2f) + 0.5f
+
+                    // Get the heights of the corners
+                    val height1 = terrain[terrainX][terrainY]
+                    val height2 = if (terrainY + 1 < height) terrain[terrainX][terrainY + 1] else height1
+                    val height3 = if (terrainX + 1 < width) terrain[terrainX + 1][terrainY] else height1
+                    val height4 = if (terrainX + 1 < width && terrainY + 1 < height) terrain[terrainX + 1][terrainY + 1] else height1
+
+                    cropSquares.add(
+                        CropSquare(
+                            floatArrayOf(correctedX, correctedZ),
+                            1.0f,
+                            floatArrayOf(height1 + 0.02f, height3 + 0.02f, height2 + 0.02f, height4 + 0.02f),
+                            theContext,
+                            crops[i].cropType
+                        )
+                    )
+                }
     }
 
     fun setSquare(posX : Float , posZ : Float)
@@ -212,7 +225,10 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
 
         Matrix.multiplyMM(mvpMatrix, 0, vPMatrix, 0, model, 0)
         cropShader.setMat4("uMVPMatrix",mvpMatrix)
+        GLES20.glEnable(GLES20.GL_BLEND)
+        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA)
         drawCropSquares(cropShader)
+        GLES20.glDisable(GLES20.GL_BLEND)
 
         // Disable vertex array
         GLES20.glDisableVertexAttribArray(positionHandle)

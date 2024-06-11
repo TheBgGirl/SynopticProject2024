@@ -39,7 +39,6 @@ import com.example.farmsimulator.stores.SettingsRepository
 
 @Composable
 fun HomePage(settingsRepository: SettingsRepository) {
-    val ecoMode = settingsRepository.ecoModeFlow.collectAsState(initial = false)
 
     val scrollState = rememberScrollState()
     var show by remember {
@@ -85,7 +84,7 @@ fun HomePage(settingsRepository: SettingsRepository) {
                             .padding(vertical = 12.dp, horizontal = 2.dp)
                             .testTag("welcomeText")
                     )
-                    Text(text = "Clicked ${selected.first} ${selected.second}")
+                    //Text(text = "Clicked ${selected.first} ${selected.second}")
                     Image(
                         painter = painterResource(id = R.drawable.hero),
                         contentDescription = "Landing Image",
@@ -125,11 +124,10 @@ fun HomePage(settingsRepository: SettingsRepository) {
         }
 
     }
-    Button(onClick = {
-        show = !show
-    }) {
-        Text(text = "show")
-    }
-
+//    Button(onClick = {
+//        show = !show
+//    }) {
+//        Text(text = "show")
+//    }
 }
 

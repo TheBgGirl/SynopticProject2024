@@ -27,7 +27,7 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
     private lateinit var planeShader : Shader
     private lateinit var cropShader : Shader
 
-    private lateinit var cropSquare : CropSquare
+    //private lateinit var cropSquare : CropSquare
 
     // ----- CAMERA SETTINGS ----- //
     private var camera: Camera = Camera()
@@ -84,7 +84,7 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
                 "uniform sampler2D u_Texture;" +
                 "varying vec2 v_TexCoordinate;" +
                 "void main() {" +
-                " gl_FragColor = texture2D(u_Texture, v_TexCoordinate);\n" +
+                "gl_FragColor  =  texture2D(u_Texture, v_TexCoordinate);"+
                 "}"
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig)
@@ -99,9 +99,9 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
 
         triangle = Triangle(floatArrayOf(-0.5f,0f,-0.5f), floatArrayOf(0.5f,0f,-0.5f), floatArrayOf(0f,0f,0.5f))
 
-        plane = Plane(farmWidth, farmHeight,context)
+        plane = Plane(farmWidth, farmHeight,crops,context)
 
-        cropSquare = CropSquare(floatArrayOf(0.0f, 0.0f), 2.0f, floatArrayOf(1.0f, 1.0f, 1.0f, 1.0f), context, CropType.PUMPKIN)
+        //cropSquare = CropSquare(floatArrayOf(0.0f, 0.0f), 2.0f, floatArrayOf(1.0f, 1.0f, 1.0f, 1.0f), context, CropType.PUMPKIN)
 
         // Camera Zoom From Farm Size
         maxZoomDistance = if(farmHeight >= farmWidth) {
@@ -128,23 +128,14 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
         val currentTime = System.nanoTime()
         val deltaTime = currentTime - lastFrameTime
 
-        var targetDelay: Long = 0
-
-        if(!ecoMode){
-            targetDelay = (1_000_000_000L / 60)
+        // Set Frame Rate
+        val targetDelay: Long = if (ecoMode) {
+            // Eco mode on = 15 FPS
+            (1_000_000_000L / 15)
+        } else {
+            // Eco mode off = 60 FPS
+            (1_000_000_000L / 60)
         }
-        else{
-            (1_000_000_000L / 5)
-        }
-
-//        // Set Frame Rate
-//        val targetDelay: Long = if (ecoMode) {
-//            // Eco mode on = 5 FPS
-//            (1_000_000_000L / 5)
-//        } else {
-//            // Eco mode off = 60 FPS
-//            (1_000_000_000L / 60)
-//        }
 
         if (deltaTime < targetDelay) {
             try {
