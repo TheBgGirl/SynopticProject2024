@@ -130,8 +130,8 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
 
         // Set Frame Rate
         val targetDelay: Long = if (ecoMode) {
-            // Eco mode on = 5 FPS
-            (1_000_000_000L / 5)
+            // Eco mode on = 15 FPS
+            (1_000_000_000L / 15)
         } else {
             // Eco mode off = 60 FPS
             (1_000_000_000L / 60)
