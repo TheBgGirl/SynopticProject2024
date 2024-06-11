@@ -55,7 +55,7 @@
     <string name="june">ខែមិថុនា</string>
     <string name="july">ខែកក្កដា</string>
     <string name="august">សីហា</string>
-    <string name="september">September</string>
+    <string name="september">ខែកញ្ញា</string>
     <string name="october">តុលា</string>
     <string name="november">ខែវិច្ឆិកា</string>
     <string name="december">ខែធ្នូ</string>
@@ -70,4 +70,9 @@
     <string name="pumpkin">ល្ពៅ</string>
     <string name="leafy_greens">ស្លឹកបៃតង</string>
     <string name="eco_mode">របៀបអេកូ</string>
+    <string name="see_results">លទ្ធផល</string>
+    <string name="general_support">ទូទៅ៖ support@farmsimulator.com</string>
+    <string name="bugs_support">កំហុស៖ bugs@farmsimulator.com</string>
+    <string name="feature_support">សំណើមុខងារ៖ features@farmsimulator.com</string>
+    <string name="support">គាំទ្រ</string>
 </resources>

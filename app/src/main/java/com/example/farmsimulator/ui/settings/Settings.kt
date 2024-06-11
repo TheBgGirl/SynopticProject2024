@@ -159,13 +159,13 @@ fun SupportButton(
             .padding(16.dp)
             .fillMaxWidth()) {
             Text(
-                text = "Support",
+                text = stringResource(id = R.string.support),
                 style = MaterialTheme.typography.bodyMedium
             )
             Text (
-                text = "General: support@farmsimulator.com\n\n" +
-                        "Bugs: bugs@farmsimulator.com\n\n" +
-                        "Feature Requests: features@farmsimulator.com",
+                text = stringResource(id = R.string.general_support) + "\n\n" +
+                        stringResource(id = R.string.bugs_support) + "\n\n" +
+                        stringResource(id = R.string.feature_support),
                 style = MaterialTheme.typography.bodySmall
             )
         }
