@@ -187,9 +187,14 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
         longitude: Double,
         numRows: Int,
         numCols: Int,
-        plantTypes: List<List<Crop>>
-    ): List<List<List<FarmElement>>> {
-        val farmYieldData = MutableList(numRows) { MutableList(numCols) { MutableList(12) { FarmElement(Weather(0.0, 0.0, 0.0), 0.0, Crop.RICE) } } }
+        plantTypes: List<List<Crop>>,
+        month: Int
+    ): List<List<FarmElement>> {
+        val farmYieldData = MutableList(numRows) { MutableList(numCols)  { FarmElement(Weather(0.0, 0.0, 0.0), 0.0, Crop.NA) } }
+
+        if (month !in 1..12) {
+            return farmYieldData
+        }
 
         for (row in 0 until numRows) {
             for (col in 0 until numCols) {
@@ -198,10 +203,8 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
                 val cellLongitude = longitude + col * 0.00001
 
                 val cellYieldMap = evaluateYield(cellLatitude, cellLongitude, cropType)
-                for (month in 0 until 12) {
-                    val weatherData = calculateMonthlyWeatherData(cellLatitude, cellLongitude, month + 1)
-                    farmYieldData[row][col][month] = FarmElement(weatherData, cellYieldMap["2024-${(month + 1).toString().padStart(2, '0')}"] ?: 0.0, cropType)
-                }
+                val weatherData = calculateMonthlyWeatherData(cellLatitude, cellLongitude, month + 1)
+                farmYieldData[row][col] = FarmElement(weatherData, cellYieldMap["2024-${(month + 1).toString().padStart(2, '0')}"] ?: 0.0, cropType)
             }
         }
         return farmYieldData
@@ -259,31 +262,31 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
     }
     fun calculateDailyPoints(weather: Weather, cropCondition: CropCondition): Double {
         var points = 0.0
-        points += when {
-            weather.temp in cropCondition.tempVeryHigh -> 7.0
-            weather.temp in cropCondition.tempHigh -> 6.0
-            weather.temp in cropCondition.tempModerateHigh -> 5.0
-            weather.temp in cropCondition.tempModerate -> 4.0
-            weather.temp in cropCondition.tempModerateLow -> 3.0
-            weather.temp in cropCondition.tempLow -> 2.0
+        points += when (weather.temp) {
+            in cropCondition.tempVeryHigh -> 7.0
+            in cropCondition.tempHigh -> 6.0
+            in cropCondition.tempModerateHigh -> 5.0
+            in cropCondition.tempModerate -> 4.0
+            in cropCondition.tempModerateLow -> 3.0
+            in cropCondition.tempLow -> 2.0
             else -> 1.0
         }
-        points += when {
-            weather.sunshine in cropCondition.sunshineVeryHigh -> 7.0
-            weather.sunshine in cropCondition.sunshineHigh -> 6.0
-            weather.sunshine in cropCondition.sunshineModerateHigh -> 5.0
-            weather.sunshine in cropCondition.sunshineModerate -> 4.0
-            weather.sunshine in cropCondition.sunshineModerateLow -> 3.0
-            weather.sunshine in cropCondition.sunshineLow -> 2.0
+        points += when (weather.sunshine) {
+            in cropCondition.sunshineVeryHigh -> 7.0
+            in cropCondition.sunshineHigh -> 6.0
+            in cropCondition.sunshineModerateHigh -> 5.0
+            in cropCondition.sunshineModerate -> 4.0
+            in cropCondition.sunshineModerateLow -> 3.0
+            in cropCondition.sunshineLow -> 2.0
             else -> 1.0
         }
-        points += when {
-            weather.precipitation in cropCondition.precipitationVeryHigh -> 7.0
-            weather.precipitation in cropCondition.precipitationHigh -> 6.0
-            weather.precipitation in cropCondition.precipitationModerateHigh -> 5.0
-            weather.precipitation in cropCondition.precipitationModerate -> 4.0
-            weather.precipitation in cropCondition.precipitationModerateLow -> 3.0
-            weather.precipitation in cropCondition.precipitationLow -> 2.0
+        points += when (weather.precipitation) {
+            in cropCondition.precipitationVeryHigh -> 7.0
+            in cropCondition.precipitationHigh -> 6.0
+            in cropCondition.precipitationModerateHigh -> 5.0
+            in cropCondition.precipitationModerate -> 4.0
+            in cropCondition.precipitationModerateLow -> 3.0
+            in cropCondition.precipitationLow -> 2.0
             else -> 1.0
         }
 

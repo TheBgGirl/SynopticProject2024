@@ -19,7 +19,7 @@ import com.example.farmsimulator.ui.farm.CropInfo
 import com.wales.FarmElement
 
 @SuppressLint("ViewConstructor")
-class MyGLSurfaceView(context: Context, width: Int, height: Int, crops: List<CropInfo>, ecoMode: Boolean, clickCallback: (Pair<Int, Int>) -> Unit, yield: List<List<List<FarmElement>>>) : GLSurfaceView(context)
+class MyGLSurfaceView(context: Context, width: Int, height: Int, crops: List<CropInfo>, ecoMode: Boolean, clickCallback: (Pair<Int, Int>) -> Unit, yield: List<List<FarmElement>>) : GLSurfaceView(context)
 {
 
     private val renderer: MyGLRenderer
@@ -42,7 +42,7 @@ class MyGLSurfaceView(context: Context, width: Int, height: Int, crops: List<Cro
 }
 
 @Composable
-fun OpenGLComposeView(modifier: Modifier = Modifier, width: Int, height: Int, crops: List<CropInfo>, ecoMode: Boolean, onClick: (Pair<Int, Int>) -> Unit, yield: List<List<List<FarmElement>>>) {
+fun OpenGLComposeView(modifier: Modifier = Modifier, width: Int, height: Int, crops: List<CropInfo>, ecoMode: Boolean, onClick: (Pair<Int, Int>) -> Unit, yield: List<List<FarmElement>>) {
     var glSurfaceView by remember { mutableStateOf<MyGLSurfaceView?>(null) }
 
     AndroidView(

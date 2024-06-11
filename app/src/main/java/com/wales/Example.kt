@@ -20,13 +20,13 @@ fun main() {
         listOf(Crop.PUMPKIN, Crop.LEAFY, Crop.RICE)
     )
 
-    val yieldMap = predictor.evaluateYieldForFarm(latitude, longitude, numRows, numCols, plantTypes)
+    val yieldMap = predictor.evaluateYieldForFarm(latitude, longitude, numRows, numCols, plantTypes, 1)
 
     for (row in 0 until numRows) {
         for (col in 0 until numCols) {
             println("Cell ($row, $col):")
             for (month in 0 until 12) {
-                println("Month ${month + 1}: ${yieldMap[row][col][month]}%")
+                println("Month ${month + 1}: ${yieldMap[row][col]}%")
             }
         }
     }

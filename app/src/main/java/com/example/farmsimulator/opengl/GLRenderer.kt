@@ -13,7 +13,7 @@ import com.wales.FarmElement
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
-class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>, val ecoMode: Boolean, val clickCallback: (Pair<Int, Int>) -> Unit, val context: Context, val yield: List<List<List<FarmElement>>>) : GLSurfaceView.Renderer
+class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>, val ecoMode: Boolean, val clickCallback: (Pair<Int, Int>) -> Unit, val context: Context, val yield: List<List<FarmElement>>) : GLSurfaceView.Renderer
 {
     private val vPMatrix = FloatArray(16)
     private val projectionMatrix = FloatArray(16)

@@ -117,7 +117,7 @@ fun FarmSimNavGraph(
     navController: NavHostController = rememberNavController(),
     startDestination: String = Screen.Home.route,
     settingsRepository: SettingsRepository,
-    getYield: (Double, Double, Int, Int, List<List<Crop>>) -> List<List<List<FarmElement>>> = { _, _, _, _, _ -> emptyList() }
+    getYield: (Double, Double, Int, Int, List<List<Crop>>, Int) -> List<List<FarmElement>> = { _, _, _, _, _, _ -> emptyList() }
 ) {
     val farmInfoViewModel: FarmDataViewModel = viewModel(modelClass = FarmDataViewModel::class.java)
     val ecoMode by settingsRepository.ecoModeFlow.collectAsState(initial = false)
@@ -149,8 +149,7 @@ fun FarmSimNavGraph(
             PlannerPage(
                 latLng = latLng, height = height, width = width, cropInfo = cropInfo,
             settingsRepository = settingsRepository, toFarmView = { crops ->
-                val cropLayout = parseCrops(crops, width, height)
-                farmInfoViewModel.updateYield(getYield(latLng.latitude, latLng.longitude, width, height, cropLayout))
+                // val cropLayout = parseCrops(crops, width, height)
                 farmInfoViewModel.updateFarmData(FarmData(width, height, crops, latLng))
                 navController.navigate(Screen.FarmView.route)
             })
@@ -162,12 +161,11 @@ fun FarmSimNavGraph(
             val width = farmData?.width ?: 0
             val latLng = farmData?.latLong ?: LatLng(0.0, 0.0)
             val crops = farmData?.crops.orEmpty()
-            val yield = farmInfoViewModel.yield.value.orEmpty()
 
             FarmView(latLng = latLng, width = width, height = height, crops = crops, toResults = {
                 farmInfoViewModel.saveFarmData(FarmData(width, height, crops, latLng))
                 navController.navigate(Screen.Results.route)
-            }, settingsRepository, ecoMode = ecoMode, yield = yield)
+            }, settingsRepository, ecoMode = ecoMode, getYield = getYield, saveYield = farmInfoViewModel::updateYield)
         }
 
         composable(route = Screen.Results.route) {

@@ -22,6 +22,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,6 +40,7 @@ import com.example.farmsimulator.R
 import com.example.farmsimulator.opengl.OpenGLComposeView
 import com.example.farmsimulator.stores.SettingsRepository
 import com.google.android.gms.maps.model.LatLng
+import com.wales.Crop
 import com.wales.FarmElement
 
 enum class Month(@StringRes val title: Int) {
@@ -56,8 +58,28 @@ enum class Month(@StringRes val title: Int) {
     DECEMBER(R.string.december)
 }
 
+fun convertToPredictorForm(width: Int, height: Int, crops: List<CropInfo>): List<List<Crop>> {
+    val cropLayout = MutableList(height) { MutableList(width) { Crop.NA } }
+
+
+    for (i in 0 until height) {
+        for (j in 0 until width) {
+            val crop = crops.firstOrNull() { it.x == j && it.y == i }
+            val cropEnumType = when (crop?.cropType) {
+                CropTypes.Rice -> Crop.RICE
+                CropTypes.Pumpkins -> Crop.PUMPKIN
+                CropTypes.LeafyGreens -> Crop.LEAFY
+                else -> Crop.NA
+            }
+            cropLayout[i][j] = cropEnumType
+        }
+    }
+
+    return cropLayout
+}
+
 @Composable
-fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>, toResults: () -> Unit, settingsRepository: SettingsRepository, ecoMode: Boolean, yield: List<List<List<FarmElement>>>) {
+fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>, toResults: () -> Unit, settingsRepository: SettingsRepository, ecoMode: Boolean, getYield: (Double, Double, Int, Int, List<List<Crop>>, Int) -> List<List<FarmElement>>, saveYield: (List<List<FarmElement>>) -> Unit) {
     var selected by remember {
         mutableStateOf(Pair(0,0))
     }
@@ -73,6 +95,37 @@ fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>, toR
         mutableStateOf(false)
     }
 
+    var yield by remember {
+        mutableStateOf<List<List<FarmElement>>>(emptyList())
+    }
+
+    var selectedCropYield by remember {
+        mutableStateOf<FarmElement?>(null)
+    }
+
+    val fieldInPredictorForm = convertToPredictorForm(width, height, crops)
+
+    // on month change, get new yield
+    fun getYieldForMonth() {
+        val month = selectedMonth.ordinal + 1
+        val lat = latLng.latitude
+        val lon = latLng.longitude
+        val width = width
+        val height = height
+        Log.w("FarmView", "Getting yield for month $month")
+
+        yield = getYield(lat, lon, width, height, fieldInPredictorForm, month)
+        Log.w("FarmView", "yield: $yield")
+        saveYield(yield)
+    }
+
+    // get yield for the first time
+    LaunchedEffect (selectedMonth) {
+        getYieldForMonth()
+    }
+
+
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -82,6 +135,7 @@ fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>, toR
             // it is upside down
             selected = Pair(it.first, height - it.second - 1)
             selectedCrop = crops.find { crop -> crop.x == selected.first && crop.y == selected.second }
+            selectedCropYield = yield[selected.second][selected.first]
             showPopup = true
         }, yield = yield)
         Text("Selected: $selected")
@@ -95,6 +149,7 @@ fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>, toR
         InfoPopup(
             crop = selectedCrop,
             onDismiss = { selectedCrop = null; showPopup = false },
+            yield = selectedCropYield,
             toResults = toResults
         )
 }
@@ -103,6 +158,7 @@ fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>, toR
 fun InfoPopup(
     modifier: Modifier = Modifier,
     crop: CropInfo?,
+    yield: FarmElement?,
     onDismiss: () -> Unit = {},
     toResults: () -> Unit = {}
 ) {
@@ -132,6 +188,12 @@ fun InfoPopup(
                 if (crop != null) {
                     Text(
                         text = "${stringResource(id = R.string.type)} ${crop.cropType}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Black
+                    )
+                    Text(
+                        // truncate yield to 2 decimal places
+                        text = "${stringResource(id = R.string.yield)} ${yield?.yield?.let { String.format("%.2f", it) }}%",
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.Black
                     )

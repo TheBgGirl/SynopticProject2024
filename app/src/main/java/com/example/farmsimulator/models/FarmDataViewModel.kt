@@ -21,14 +21,14 @@ class FarmDataViewModel : ViewModel() {
     private val _savedFarms = MutableLiveData<List<FarmData>>()
     val savedFarms: LiveData<List<FarmData>> = _savedFarms
 
-    private val _yield = MutableLiveData<List<List<List<FarmElement>>>>()
-    val yield: LiveData<List<List<List<FarmElement>>>> = _yield
+    private val _yield = MutableLiveData<List<List<FarmElement>>>()
+    val yield: LiveData<List<List<FarmElement>>> = _yield
 
     fun updateFarmData(farmData: FarmData) {
         _currentFarmData.value = farmData
     }
 
-    fun updateYield(yield: List<List<List<FarmElement>>>) {
+    fun updateYield(yield: List<List<FarmElement>>) {
         _yield.value = yield
     }
 
