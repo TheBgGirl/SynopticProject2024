@@ -147,9 +147,9 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
                     CropSquare(
                         floatArrayOf(correctedX + i, correctedZ + j),
                         0.75f,
-                        floatArrayOf(1f, 1f, 1f, 1f),
+                        floatArrayOf(terrain[i][j] + 0.5f, terrain[i][j] + 0.5f, terrain[i][j] + 0.5f, terrain[i][j] + 0.5f),
                         theContext,
-                        CropType.RICE
+                        CropType.PUMPKIN
                     )
                 )
             }
@@ -205,14 +205,11 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
         //Draw crop squares
         cropShader.use()
         Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
-        Matrix.setIdentityM(model,0)
 
-        // ----- Uncomment here to see rotation ----- //
-        //Matrix.rotateM(model, 0, pitch + 90f, 1f, 0f, 0f)
-
-        Matrix.multiplyMM(mvpMatrix, 0, vPMatrix, 0, model, 0)
-        cropShader.setMat4("uMVPMatrix",mvpMatrix)
-        drawCropSquares(cropShader)
+        GLES20.glEnable(GLES20.GL_BLEND)
+        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA)
+        drawCropSquares(cropShader, pitch)
+        GLES20.glDisable(GLES20.GL_BLEND)
 
         // Disable vertex array
         GLES20.glDisableVertexAttribArray(positionHandle)
@@ -247,9 +244,16 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
         GLES20.glDrawArrays(GLES20.GL_LINES,0,vertices.size/3)
     }
 
-    fun drawCropSquares(cropShader: Shader)
+    fun drawCropSquares(cropShader: Shader, pitch : Float)
     {
+        var originalModel : FloatArray = model
         for (cropSquare in cropSquares) {
+            Matrix.setIdentityM(model,0)
+            Matrix.translateM(model, 0, originalModel, 0, cropSquare.position[0], cropSquare.heights[0], cropSquare.position[1])
+            Matrix.rotateM(model, 0, pitch + 90f, 1f, 0f, 0f)
+            Matrix.multiplyMM(mvpMatrix, 0, vPMatrix, 0, model, 0)
+            cropShader.setMat4("uMVPMatrix",mvpMatrix)
+
             cropSquare.draw(cropShader)
         }
     }
