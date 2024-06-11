@@ -166,7 +166,7 @@ fun InfoPopup(
     onDismiss: () -> Unit = {},
     toResults: () -> Unit = {}
 ) {
-    val targetHeight = if (crop != null) 175.dp else 100.dp
+    val targetHeight = if (crop != null) 125.dp else 100.dp
     val height by animateDpAsState(targetValue = targetHeight, label = "popup height")
 
     val titleText = if (crop != null) stringResource(id = R.string.crop_info) else stringResource(id = R.string.no_crop_selected)

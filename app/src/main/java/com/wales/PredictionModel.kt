@@ -40,18 +40,14 @@ enum class Crop {
 
 
 @RequiresApi(Build.VERSION_CODES.O)
-@Serializable
 class WeatherPredictor(private val dataset: String, private val modelPath: String) {
 
     companion object {
 
     }
 
-    @Contextual
     private var sunshineModel: RandomForest? = null
-    @Contextual
     private var tempModel: RandomForest? = null
-    @Contextual
     private var rainfallModel: RandomForest? = null
 
     init {

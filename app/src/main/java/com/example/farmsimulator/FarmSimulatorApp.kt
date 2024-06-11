@@ -11,9 +11,12 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.farmsimulator.models.FarmData
 import com.example.farmsimulator.stores.SettingsRepository
 import com.example.farmsimulator.ui.theme.FarmSimulator
 import com.example.farmsimulator.utils.fileExists
+import com.wales.Crop
+import com.wales.FarmElement
 import com.wales.WeatherPredictor
 
 // ill fix this
@@ -41,6 +44,14 @@ fun FarmSimulatorApp(navController: NavHostController = rememberNavController(),
         ) { paddingValues ->
             Box(modifier = Modifier.padding(paddingValues)) {
                 val startDestination = if (fileExists("./res/user.csv")) Screen.Home.route else Screen.Locator.route
+
+                /*
+                val getYield: (Double, Double, Int, Int, List<List<Crop>>, Int) -> List<List<FarmElement>> = if (predictor != null) {
+                    predictor::evaluateYieldForFarm
+                } else {
+                    { _, _, _, _, _, _ -> emptyList() }
+                }
+                 */
 
                 FarmSimNavGraph(navController = navController, startDestination = startDestination, settingsRepository = settingsRepository, getYield = predictor::evaluateYieldForFarm)
             }
