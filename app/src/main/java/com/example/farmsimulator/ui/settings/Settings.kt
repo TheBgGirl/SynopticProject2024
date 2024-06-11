@@ -3,25 +3,22 @@ package com.example.farmsimulator.ui.settings
 import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -41,15 +38,19 @@ val availableLocales = listOf(
 @Composable
 fun SettingsPage(settingsRepository: SettingsRepository) {
     val lowDataMode = settingsRepository.lowDataModeFlow.collectAsState(initial = false)
+    val ecoMode = settingsRepository.ecoModeFlow.collectAsState(initial = false)
     val scope = rememberCoroutineScope()
 
     val context = LocalContext.current
     val locale = remember { mutableStateOf(context.resources.configuration.locales[0]) }
 
+    val scrollState = rememberScrollState()
+
     Column(modifier = Modifier
         .padding(16.dp)
         .testTag("settingsPage")
-        .fillMaxWidth()) {
+        .fillMaxWidth()
+        .verticalScroll(scrollState)) {
         Text(
             text = stringResource(id = R.string.settings_title),
             style = MaterialTheme.typography.headlineMedium
@@ -66,7 +67,33 @@ fun SettingsPage(settingsRepository: SettingsRepository) {
             }
         )
         Spacer(modifier = Modifier.padding(16.dp))
+        EcoModeSwitch(
+            ecoMode = ecoMode.value,
+            onEcoModeChange = { ecoMode ->
+                scope.launch {
+                    settingsRepository.setEcoMode(ecoMode)
+                }
+            }
+        )
+        Spacer(modifier = Modifier.padding(16.dp))
         SupportButton()
+    }
+}
+
+@Composable
+fun EcoModeSwitch(modifier: Modifier = Modifier, ecoMode: Boolean, onEcoModeChange: (Boolean) -> Unit) {
+    Card(
+        modifier = modifier
+    ) {
+        Column(modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth()) {
+            Text(
+                text = stringResource(id = R.string.eco_mode), // You need to define this in your strings.xml
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Switch(checked = ecoMode, onCheckedChange = onEcoModeChange)
+        }
     }
 }
 
