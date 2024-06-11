@@ -131,7 +131,7 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
 
         for(i in 0 until width - 1){
             for(j in 0 until height - 1){
-                Log.d("Farm Data: ", i.toString() + j.toString())
+                //Log.d("Farm Data: ", i.toString() + j.toString())
 
                 //Thread.sleep(1_000)
 
@@ -208,7 +208,7 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
         Matrix.setIdentityM(model,0)
 
         // ----- Uncomment here to see rotation ----- //
-        //Matrix.rotateM(model, 0, pitch + 90f, 1f, 0f, 0f)
+        Matrix.rotateM(model, 0, pitch + 90f, 1f, 0f, 0f)
 
         Matrix.multiplyMM(mvpMatrix, 0, vPMatrix, 0, model, 0)
         cropShader.setMat4("uMVPMatrix",mvpMatrix)

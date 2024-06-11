@@ -1,5 +1,6 @@
 package com.example.farmsimulator.ui.farm
 
+import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
@@ -55,9 +56,7 @@ enum class Month(@StringRes val title: Int) {
 }
 
 @Composable
-fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>, toResults: () -> Unit, settingsRepository: SettingsRepository) {
-    val ecoMode = settingsRepository.ecoModeFlow.collectAsState(initial = false).value
-
+fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>, toResults: () -> Unit, settingsRepository: SettingsRepository, ecoMode: Boolean) {
     var selected by remember {
         mutableStateOf(Pair(0,0))
     }
