@@ -21,7 +21,7 @@ class Camera {
         }
 
 
-    private val yaw : Float = 0f
+    private val yaw : Float = -15f
 
     var radius : Float = 1f
 
