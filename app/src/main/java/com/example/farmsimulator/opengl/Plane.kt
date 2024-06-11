@@ -247,7 +247,7 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
         GLES20.glDrawArrays(GLES20.GL_LINES,0,vertices.size/3)
     }
 
-    fun drawCropSquares(cropShader: Shader, viewMatrix: FloatArray, projectionMatrix: FloatArray)
+    fun drawCropSquares(cropShader: Shader)
     {
         for (cropSquare in cropSquares) {
             cropSquare.draw(cropShader)
