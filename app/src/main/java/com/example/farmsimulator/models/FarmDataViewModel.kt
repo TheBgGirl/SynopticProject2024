@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.farmsimulator.ui.farm.CropInfo
 import com.google.android.gms.maps.model.LatLng
+import com.wales.FarmElement
 
 data class FarmData(
     val width: Int,
@@ -20,8 +21,15 @@ class FarmDataViewModel : ViewModel() {
     private val _savedFarms = MutableLiveData<List<FarmData>>()
     val savedFarms: LiveData<List<FarmData>> = _savedFarms
 
+    private val _yield = MutableLiveData<List<List<List<FarmElement>>>>()
+    val yield: LiveData<List<List<List<FarmElement>>>> = _yield
+
     fun updateFarmData(farmData: FarmData) {
         _currentFarmData.value = farmData
+    }
+
+    fun updateYield(yield: List<List<List<FarmElement>>>) {
+        _yield.value = yield
     }
 
     fun saveFarmData(farmData: FarmData) {

@@ -2,8 +2,14 @@ package com.wales
 
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RawRes
 import androidx.annotation.RequiresApi
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import smile.regression.RandomForest
 import smile.data.DataFrame
 import smile.data.formula.Formula
@@ -34,36 +40,45 @@ enum class Crop {
 
 
 @RequiresApi(Build.VERSION_CODES.O)
-class WeatherPredictor(private val dataset: String, private val modelPath: String) : java.io.Serializable {
-
-    val serialUUID = 1L
+@Serializable
+class WeatherPredictor(private val dataset: String, private val modelPath: String) {
 
     companion object {
 
     }
 
+    @Contextual
     private var sunshineModel: RandomForest? = null
+    @Contextual
     private var tempModel: RandomForest? = null
+    @Contextual
     private var rainfallModel: RandomForest? = null
 
     init {
+
         File(modelPath).mkdirs()
         val fullData: DataFrame = readCsv()
+        Log.w("WeatherPredictor", "Data read")
         sunshineModel = loadOrCreateModel(
              "$modelPath/sunshine_model.ser",
             "SunshineDuration ~ Latitude + Longitude + DayOfYear",
             fullData
         )
+        Log.w("WeatherPredictor", "Sunshine model loaded")
         tempModel = loadOrCreateModel(
             "$modelPath/temp_model.ser",
             "MeanTemp ~ Latitude + Longitude + DayOfYear",
             fullData
         )
+
+        Log.w("WeatherPredictor", "Temp model loaded")
         rainfallModel = loadOrCreateModel(
             "$modelPath/rainfall_model.ser",
             "PrecipitationSum ~ Latitude + Longitude + DayOfYear",
             fullData
         )
+
+        Log.w("WeatherPredictor", "Rainfall model loaded")
     }
 
     private fun loadOrCreateModel(
@@ -72,9 +87,10 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
         fullData: DataFrame
     ): RandomForest {
         return if (File(fileName).exists()) {
-            println("deserializing")
+            Log.w("WeatherPredictor", "Model exists")
             deserializeModel(fileName)
         } else {
+            Log.w("WeatherPredictor", "Model does not exist")
             val model = RandomForest.fit(Formula.of(formulaString), fullData)
             serializeModel(model, fileName)
             model
@@ -415,4 +431,12 @@ fun WeatherPredictor.Companion.deserialize(): WeatherPredictor {
 @RequiresApi(Build.VERSION_CODES.O)
 fun WeatherPredictor.Companion.deserialize(@RawRes file: Int, context: Context): WeatherPredictor {
     return ObjectInputStream(context.resources.openRawResource(file)).use { (it.readObject() as? WeatherPredictor)!! }
+}
+
+fun WeatherPredictor.serialiseToJson() {
+    return File("/Users/jacobedwards/University/Year2/synoptic/fuck/SynopticProject2024/app/src/main/res/raw/weather_predictor").writeText(Json.encodeToString(this))
+}
+
+fun WeatherPredictor.Companion.deserialiseFromJson() {
+    return Json.decodeFromString(File("/Users/jacobedwards/University/Year2/synoptic/fuck/SynopticProject2024/app/src/main/res/raw/weather_predictor").readText())
 }

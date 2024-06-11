@@ -39,6 +39,7 @@ import com.example.farmsimulator.R
 import com.example.farmsimulator.opengl.OpenGLComposeView
 import com.example.farmsimulator.stores.SettingsRepository
 import com.google.android.gms.maps.model.LatLng
+import com.wales.FarmElement
 
 enum class Month(@StringRes val title: Int) {
     JANUARY(R.string.january),
@@ -56,7 +57,7 @@ enum class Month(@StringRes val title: Int) {
 }
 
 @Composable
-fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>, toResults: () -> Unit, settingsRepository: SettingsRepository, ecoMode: Boolean) {
+fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>, toResults: () -> Unit, settingsRepository: SettingsRepository, ecoMode: Boolean, yield: List<List<List<FarmElement>>>) {
     var selected by remember {
         mutableStateOf(Pair(0,0))
     }
@@ -82,7 +83,7 @@ fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>, toR
             selected = Pair(it.first, height - it.second - 1)
             selectedCrop = crops.find { crop -> crop.x == selected.first && crop.y == selected.second }
             showPopup = true
-        })
+        }, yield = yield)
         Text("Selected: $selected")
     }
 

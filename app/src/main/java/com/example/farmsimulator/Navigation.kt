@@ -44,6 +44,7 @@ import com.example.farmsimulator.ui.home.HomePage
 import com.example.farmsimulator.ui.settings.SettingsPage
 import com.google.android.gms.maps.model.LatLng
 import com.wales.Crop
+import com.wales.FarmElement
 
 sealed class Screen(
     val route: String,
@@ -115,7 +116,8 @@ fun FarmSimNavGraph(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     startDestination: String = Screen.Home.route,
-    settingsRepository: SettingsRepository
+    settingsRepository: SettingsRepository,
+    getYield: (Double, Double, Int, Int, List<List<Crop>>) -> List<List<List<FarmElement>>> = { _, _, _, _, _ -> emptyList() }
 ) {
     val farmInfoViewModel: FarmDataViewModel = viewModel(modelClass = FarmDataViewModel::class.java)
     val ecoMode by settingsRepository.ecoModeFlow.collectAsState(initial = false)
@@ -148,6 +150,7 @@ fun FarmSimNavGraph(
                 latLng = latLng, height = height, width = width, cropInfo = cropInfo,
             settingsRepository = settingsRepository, toFarmView = { crops ->
                 val cropLayout = parseCrops(crops, width, height)
+                farmInfoViewModel.updateYield(getYield(latLng.latitude, latLng.longitude, width, height, cropLayout))
                 farmInfoViewModel.updateFarmData(FarmData(width, height, crops, latLng))
                 navController.navigate(Screen.FarmView.route)
             })
@@ -159,11 +162,12 @@ fun FarmSimNavGraph(
             val width = farmData?.width ?: 0
             val latLng = farmData?.latLong ?: LatLng(0.0, 0.0)
             val crops = farmData?.crops.orEmpty()
+            val yield = farmInfoViewModel.yield.value.orEmpty()
 
             FarmView(latLng = latLng, width = width, height = height, crops = crops, toResults = {
                 farmInfoViewModel.saveFarmData(FarmData(width, height, crops, latLng))
                 navController.navigate(Screen.Results.route)
-            }, settingsRepository, ecoMode = ecoMode)
+            }, settingsRepository, ecoMode = ecoMode, yield = yield)
         }
 
         composable(route = Screen.Results.route) {

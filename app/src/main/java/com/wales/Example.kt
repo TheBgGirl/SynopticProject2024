@@ -5,10 +5,10 @@ import androidx.annotation.RequiresApi
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun main() {
-    val predictor = WeatherPredictor.deserialize()
+    // val predictor = WeatherPredictor.deserialize()
     val dataPath = "/Users/jacobedwards/University/Year2/synoptic/fuck/SynopticProject2024/app/src/main/java/com/wales/wd.csv"
     val modelPath = "/Users/jacobedwards/University/Year2/synoptic/fuck/SynopticProject2024/app/src/main/java/com/wales/models"
-    //val predictor = WeatherPredictor(dataPath, modelPath)
+    val predictor = WeatherPredictor(dataPath, modelPath)
 
     val latitude = 12.532608854954955
     val longitude = 106.28876457344239
@@ -30,5 +30,6 @@ fun main() {
             }
         }
     }
-    predictor.serialize()
+    // predictor.serialize()
+    // predictor.serialiseToJson()
 }

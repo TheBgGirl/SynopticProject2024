@@ -4,6 +4,7 @@ plugins {
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
+    kotlin("plugin.serialization") version "1.8.0"
 }
 
 android {
@@ -80,6 +81,8 @@ dependencies {
     implementation(libs.androidx.navigation.testing)
     implementation(libs.smile.kotlin)
     testImplementation(libs.junit)
+
+    implementation(libs.kotlinx.serialization.json)
 
     implementation(libs.androidx.datastore.preferences)
 

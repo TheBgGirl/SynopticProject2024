@@ -21,7 +21,7 @@ class FarmViewTest {
     @Before
     fun setUp() {
         composeTestRule.activity.setContent {
-            FarmView(latLng = LatLng(0.0, 0.0), width = 100, height = 100, crops = emptyList(), toResults = {}, settingsRepository = FakeSettingsStore(composeTestRule.activity))
+            FarmView(latLng = LatLng(0.0, 0.0), width = 100, height = 100, crops = emptyList(), toResults = {}, settingsRepository = FakeSettingsStore(composeTestRule.activity), ecoMode = false)
         }
     }
 }
