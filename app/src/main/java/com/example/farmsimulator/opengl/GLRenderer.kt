@@ -27,7 +27,7 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
     private lateinit var planeShader : Shader
     private lateinit var cropShader : Shader
 
-    private lateinit var cropSquare : CropSquare
+    //private lateinit var cropSquare : CropSquare
 
     // ----- CAMERA SETTINGS ----- //
     private var camera: Camera = Camera()
@@ -99,9 +99,9 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
 
         triangle = Triangle(floatArrayOf(-0.5f,0f,-0.5f), floatArrayOf(0.5f,0f,-0.5f), floatArrayOf(0f,0f,0.5f))
 
-        plane = Plane(farmWidth, farmHeight,context)
+        plane = Plane(farmWidth, farmHeight,crops,context)
 
-        cropSquare = CropSquare(floatArrayOf(0.0f, 0.0f), 2.0f, floatArrayOf(1.0f, 1.0f, 1.0f, 1.0f), context, CropType.PUMPKIN)
+        //cropSquare = CropSquare(floatArrayOf(0.0f, 0.0f), 2.0f, floatArrayOf(1.0f, 1.0f, 1.0f, 1.0f), context, CropType.PUMPKIN)
 
         // Camera Zoom From Farm Size
         maxZoomDistance = if(farmHeight >= farmWidth) {

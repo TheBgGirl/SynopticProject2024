@@ -4,6 +4,7 @@ import android.content.Context
 import android.opengl.GLES20
 import android.opengl.Matrix
 import com.example.farmsimulator.R
+import com.example.farmsimulator.ui.farm.CropTypes
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
@@ -16,7 +17,7 @@ class CropSquare(
     private val width : Float,
     private  val heights : FloatArray,
     context: Context,
-    cropType: CropType
+    cropType: CropTypes
 )
 {
     // Set color with red, green, blue and alpha (opacity) values
@@ -104,11 +105,12 @@ class CropSquare(
 
         // Load the texture
         mTextureDataHandle = when (cropType) {
-            CropType.PUMPKIN -> TextureHandler.loadTexture(context, R.drawable.pumpkin)
+            CropTypes.Pumpkins -> TextureHandler.loadTexture(context, R.drawable.pumpkin)
 
             //TODO: CHANGE 2 BELOW TO RESPECTIVE TEXTURES
-            CropType.LEAFYGREEN -> TextureHandler.loadTexture(context, R.drawable.corn)
-            CropType.RICE -> TextureHandler.loadTexture(context, R.drawable.corn)
+            CropTypes.LeafyGreens -> TextureHandler.loadTexture(context, R.drawable.corn)
+            CropTypes.Rice -> TextureHandler.loadTexture(context, R.drawable.corn)
+            CropTypes.None -> TODO()
         }
         //mTextureDataHandle = TextureHandler.loadTexture(context, R.drawable.corn)
 
