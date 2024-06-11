@@ -70,4 +70,8 @@
     <string name="pumpkin">Pumpkin</string>
     <string name="leafy_greens">Leafy Greens</string>
     <string name="see_results">Results</string>
+    <string name="general_support">General: support@farmsimulator.com</string>
+    <string name="bugs_support">Bugs: bugs@farmsimulator.com</string>
+    <string name="feature_support">Feature Requests: features@farmsimulator.com</string>
+    <string name="support">Support</string>
 </resources>

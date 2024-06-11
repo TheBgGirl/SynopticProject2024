@@ -3,25 +3,20 @@ package com.example.farmsimulator.ui.settings
 import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -132,13 +127,13 @@ fun SupportButton(
             .padding(16.dp)
             .fillMaxWidth()) {
             Text(
-                text = "Support",
+                text = stringResource(id = R.string.support),
                 style = MaterialTheme.typography.bodyMedium
             )
             Text (
-                text = "General: support@farmsimulator.com\n\n" +
-                        "Bugs: bugs@farmsimulator.com\n\n" +
-                        "Feature Requests: features@farmsimulator.com",
+                text = stringResource(id = R.string.general_support) + "\n\n" +
+                        stringResource(id = R.string.bugs_support) + "\n\n" +
+                        stringResource(id = R.string.feature_support),
                 style = MaterialTheme.typography.bodySmall
             )
         }
