@@ -154,6 +154,10 @@ fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>, toR
         )
 }
 
+/*
+data class FarmElement(val weather: Weather, val yield: Double, val cropType: Crop)
+data class Weather(var temp: Double, val sunshine: Double, val precipitation: Double)
+ */
 @Composable
 fun InfoPopup(
     modifier: Modifier = Modifier,
@@ -194,6 +198,21 @@ fun InfoPopup(
                     Text(
                         // truncate yield to 2 decimal places
                         text = "${stringResource(id = R.string.yield)} ${yield?.yield?.let { String.format("%.2f", it) }}%",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Black
+                    )
+                    Text(
+                        text = "${stringResource(id = R.string.sunshine)} ${yield?.weather?.sunshine?.let { String.format("%.2f", it) }} hours",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Black
+                    )
+                    Text(
+                        text = "${stringResource(id = R.string.rainfall)} ${yield?.weather?.precipitation?.let { String.format("%.2f", it) }} mm",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Black
+                    )
+                    Text(
+                        text = "${stringResource(id = R.string.temperature)} ${yield?.weather?.temp?.let { String.format("%.2f", it) }}°C",
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.Black
                     )
