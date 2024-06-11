@@ -12,7 +12,7 @@ import com.example.farmsimulator.ui.farm.CropInfo
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
-class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>, val clickCallback: (Pair<Int, Int>) -> Unit, val context: Context) : GLSurfaceView.Renderer
+class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>, val ecoMode: Boolean, val clickCallback: (Pair<Int, Int>) -> Unit, val context: Context) : GLSurfaceView.Renderer
 {
     private val vPMatrix = FloatArray(16)
     private val projectionMatrix = FloatArray(16)
@@ -48,6 +48,9 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
     // ----- FARM SETTINGS ----- //
     private var farmWidth: Int = _width
     private var farmHeight: Int = _height
+
+    // ----- APP SETTINGS ----- //
+    private var lastFrameTime: Long = System.nanoTime()
 
     private val vertexShaderCode =
     // This matrix member variable provides a hook to manipulate
@@ -122,6 +125,36 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
 
     override fun onDrawFrame(unused: GL10)
     {
+        val currentTime = System.nanoTime()
+        val deltaTime = currentTime - lastFrameTime
+
+        var targetDelay: Long = 0
+
+        if(!ecoMode){
+            targetDelay = (1_000_000_000L / 60)
+        }
+        else{
+            (1_000_000_000L / 5)
+        }
+
+//        // Set Frame Rate
+//        val targetDelay: Long = if (ecoMode) {
+//            // Eco mode on = 5 FPS
+//            (1_000_000_000L / 5)
+//        } else {
+//            // Eco mode off = 60 FPS
+//            (1_000_000_000L / 60)
+//        }
+
+        if (deltaTime < targetDelay) {
+            try {
+                // Convert nanoseconds to milliseconds
+                Thread.sleep((targetDelay - deltaTime) / 1_000_000)
+            } catch (e: InterruptedException) {
+                // Handle exception
+            }
+        }
+
         // Redraw background color
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
         planeShader.use()
@@ -143,6 +176,7 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
         //cropShader.setMat4("uMVPMatrix", mvpMatrix)
         //cropSquare.draw(cropShader)
 
+        lastFrameTime = System.nanoTime()
     }
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
         GLES20.glViewport(0, 0, width, height)

@@ -21,7 +21,7 @@ open class SettingsRepository(context: Context) {
         preferences[LOW_DATA_MODE] ?: false
     }
 
-    open val ecoModeFlow: Flow<Boolean> = dataStore.data.map { preferences -> // Add this block
+    open val ecoModeFlow: Flow<Boolean> = dataStore.data.map { preferences ->
         preferences[ECO_MODE] ?: false
     }
 
@@ -31,7 +31,7 @@ open class SettingsRepository(context: Context) {
         }
     }
 
-    open suspend fun setEcoMode(ecoMode: Boolean) { // Add this function
+    open suspend fun setEcoMode(ecoMode: Boolean) {
         dataStore.edit { preferences ->
             preferences[ECO_MODE] = ecoMode
         }

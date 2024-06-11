@@ -21,6 +21,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import com.example.farmsimulator.R
 import com.example.farmsimulator.opengl.OpenGLComposeView
+import com.example.farmsimulator.stores.SettingsRepository
 import com.google.android.gms.maps.model.LatLng
 
 enum class Month(@StringRes val title: Int) {
@@ -53,7 +55,9 @@ enum class Month(@StringRes val title: Int) {
 }
 
 @Composable
-fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>, toResults: () -> Unit) {
+fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>, toResults: () -> Unit, settingsRepository: SettingsRepository) {
+    val ecoMode = settingsRepository.ecoModeFlow.collectAsState(initial = false).value
+
     var selected by remember {
         mutableStateOf(Pair(0,0))
     }
@@ -74,7 +78,7 @@ fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>, toR
             .fillMaxSize()
             .background(Color.White)
     ) {
-        OpenGLComposeView(modifier = Modifier.fillMaxSize(), width = width, height = height, crops = crops, onClick = {
+        OpenGLComposeView(modifier = Modifier.fillMaxSize(), width = width, height = height, crops = crops, ecoMode = ecoMode, onClick = {
             // it is upside down
             selected = Pair(it.first, height - it.second - 1)
             selectedCrop = crops.find { crop -> crop.x == selected.first && crop.y == selected.second }

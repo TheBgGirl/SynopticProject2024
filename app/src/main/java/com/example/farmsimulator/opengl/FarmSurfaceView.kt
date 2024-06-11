@@ -18,7 +18,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.example.farmsimulator.ui.farm.CropInfo
 
 @SuppressLint("ViewConstructor")
-class MyGLSurfaceView(context: Context, width: Int, height: Int, crops: List<CropInfo>, clickCallback: (Pair<Int, Int>) -> Unit) : GLSurfaceView(context)
+class MyGLSurfaceView(context: Context, width: Int, height: Int, crops: List<CropInfo>, ecoMode: Boolean, clickCallback: (Pair<Int, Int>) -> Unit) : GLSurfaceView(context)
 {
 
     private val renderer: MyGLRenderer
@@ -28,7 +28,7 @@ class MyGLSurfaceView(context: Context, width: Int, height: Int, crops: List<Cro
         // Create an OpenGL ES 2.0 context
         setEGLContextClientVersion(2)
 
-        renderer = MyGLRenderer(_width = width, _height = height, crops=crops, clickCallback = clickCallback, context = context)
+        renderer = MyGLRenderer(_width = width, _height = height, crops=crops, ecoMode = ecoMode, clickCallback = clickCallback, context = context)
 
         // Set the Renderer for drawing on the GLSurfaceView
         setRenderer(renderer)
@@ -41,12 +41,12 @@ class MyGLSurfaceView(context: Context, width: Int, height: Int, crops: List<Cro
 }
 
 @Composable
-fun OpenGLComposeView(modifier: Modifier = Modifier, width: Int, height: Int, crops: List<CropInfo>, onClick: (Pair<Int, Int>) -> Unit) {
+fun OpenGLComposeView(modifier: Modifier = Modifier, width: Int, height: Int, crops: List<CropInfo>, ecoMode: Boolean, onClick: (Pair<Int, Int>) -> Unit) {
     var glSurfaceView by remember { mutableStateOf<MyGLSurfaceView?>(null) }
 
     AndroidView(
         factory = { ctx ->
-            MyGLSurfaceView(ctx, width = width, height = height, crops = crops, clickCallback = onClick).apply {
+            MyGLSurfaceView(ctx, width = width, height = height, crops = crops, ecoMode = ecoMode, clickCallback = onClick).apply {
                 glSurfaceView = this
                 setupGestures(this, ctx)
             }

@@ -23,8 +23,8 @@ class OpenGLActivity : ComponentActivity()
         super.onCreate(savedInstanceState)
         // Create a GLSurfaceView instance and set it
         // as the ContentView for this Activity.
-        gLView = MyGLSurfaceView(this, 1, 1, listOf()) { _ -> {} }
-        setContentView(gLView)
+//        gLView = MyGLSurfaceView(this, 1, 1, listOf()) { _ -> {} }
+//        setContentView(gLView)
 
         gestureDetector = GestureDetector(this,object : GestureDetector.SimpleOnGestureListener(){
             override fun onDown(e: MotionEvent): Boolean {
