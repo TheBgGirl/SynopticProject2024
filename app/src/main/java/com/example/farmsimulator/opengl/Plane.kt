@@ -146,11 +146,11 @@ class Plane(var width: Int = 20, var height: Int = 20, val crops: List<CropInfo>
                 for(i in 0 until crops.size)
                 {
                     // Flip X because terrain[][] has 0,0 as bottom right
-                    val terrainX = width - 1 -crops[i].x
-                    val terrainY = height - 1 - crops[i].y
+                    val terrainX = width - 2 - crops[i].x
+                    val terrainY = height - 2 - crops[i].y
 
-                    val correctedX: Float = ((width - 2 - crops[i].x) - width / 2f) + 0.5f
-                    val correctedZ: Float = ((height - 2 - crops[i].y) - height / 2f) + 0.5f
+                    val correctedX: Float = (terrainX - width / 2f) + 0.5f
+                    val correctedZ: Float = (terrainY - height / 2f) + 0.5f
 
                     // Get the heights of the corners
                     val height1 = terrain[terrainX][terrainY]
