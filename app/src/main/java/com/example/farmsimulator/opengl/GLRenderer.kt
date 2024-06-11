@@ -128,23 +128,14 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
         val currentTime = System.nanoTime()
         val deltaTime = currentTime - lastFrameTime
 
-        var targetDelay: Long = 0
-
-        if(!ecoMode){
-            targetDelay = (1_000_000_000L / 60)
-        }
-        else{
+        // Set Frame Rate
+        val targetDelay: Long = if (ecoMode) {
+            // Eco mode on = 5 FPS
             (1_000_000_000L / 5)
+        } else {
+            // Eco mode off = 60 FPS
+            (1_000_000_000L / 60)
         }
-
-//        // Set Frame Rate
-//        val targetDelay: Long = if (ecoMode) {
-//            // Eco mode on = 5 FPS
-//            (1_000_000_000L / 5)
-//        } else {
-//            // Eco mode off = 60 FPS
-//            (1_000_000_000L / 60)
-//        }
 
         if (deltaTime < targetDelay) {
             try {

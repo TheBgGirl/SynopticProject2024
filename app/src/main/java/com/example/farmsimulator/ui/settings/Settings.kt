@@ -89,7 +89,7 @@ fun EcoModeSwitch(modifier: Modifier = Modifier, ecoMode: Boolean, onEcoModeChan
             .padding(16.dp)
             .fillMaxWidth()) {
             Text(
-                text = stringResource(id = R.string.eco_mode), // You need to define this in your strings.xml
+                text = stringResource(id = R.string.eco_mode),
                 style = MaterialTheme.typography.bodyMedium
             )
             Switch(checked = ecoMode, onCheckedChange = onEcoModeChange)

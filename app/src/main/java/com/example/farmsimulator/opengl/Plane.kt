@@ -131,7 +131,7 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
 
         for(i in 0 until width - 1){
             for(j in 0 until height - 1){
-                Log.d("Farm Data: ", i.toString() + j.toString())
+                //Log.d("Farm Data: ", i.toString() + j.toString())
 
                 //Thread.sleep(1_000)
 

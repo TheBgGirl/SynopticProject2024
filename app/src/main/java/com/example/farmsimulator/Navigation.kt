@@ -17,6 +17,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -117,6 +118,7 @@ fun FarmSimNavGraph(
     settingsRepository: SettingsRepository
 ) {
     val farmInfoViewModel: FarmDataViewModel = viewModel(modelClass = FarmDataViewModel::class.java)
+    val ecoMode by settingsRepository.ecoModeFlow.collectAsState(initial = false)
 
     NavHost(
         modifier = modifier,
@@ -161,7 +163,7 @@ fun FarmSimNavGraph(
             FarmView(latLng = latLng, width = width, height = height, crops = crops, toResults = {
                 farmInfoViewModel.saveFarmData(FarmData(width, height, crops, latLng))
                 navController.navigate(Screen.Results.route)
-            }, settingsRepository)
+            }, settingsRepository, ecoMode = ecoMode)
         }
 
         composable(route = Screen.Results.route) {
