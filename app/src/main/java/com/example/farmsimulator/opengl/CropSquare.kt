@@ -105,12 +105,12 @@ class CropSquare(
 
         // Load the texture
         mTextureDataHandle = when (cropType) {
-            CropTypes.Pumpkins -> TextureHandler.loadTexture(context, R.drawable.pumpkin)
+            CropTypes.Pumpkins -> TextureHandler.loadTexture(context, R.drawable.pumpkin_medium)
 
             //TODO: CHANGE 2 BELOW TO RESPECTIVE TEXTURES
             CropTypes.LeafyGreens -> TextureHandler.loadTexture(context, R.drawable.corn)
             CropTypes.Rice -> TextureHandler.loadTexture(context, R.drawable.corn)
-            CropTypes.None -> TODO()
+            CropTypes.None -> TextureHandler.loadTexture(context, R.drawable.hero)
         }
         //mTextureDataHandle = TextureHandler.loadTexture(context, R.drawable.corn)
 
