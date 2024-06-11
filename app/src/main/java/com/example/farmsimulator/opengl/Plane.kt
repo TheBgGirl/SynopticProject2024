@@ -210,7 +210,7 @@ class Plane(var width: Int = 20, var height: Int = 20,context: Context)
 
         Matrix.multiplyMM(mvpMatrix, 0, vPMatrix, 0, model, 0)
         cropShader.setMat4("uMVPMatrix",mvpMatrix)
-        drawCropSquares(cropShader, viewMatrix, projectionMatrix)
+        drawCropSquares(cropShader)
 
         // Disable vertex array
         GLES20.glDisableVertexAttribArray(positionHandle)
