@@ -16,7 +16,7 @@ class PlannerTest {
     @Before
     fun setUp() {
         composeTestRule.setContent {
-            PlannerPage(latLng = LatLng(0.0, 0.0), height = 0, width = 0, settingsRepository = FakeSettingsStore(composeTestRule.activity), toFarmView = {})
+            PlannerPage(latLng = LatLng(0.0, 0.0), height = 0, width = 0, settingsRepository = FakeSettingsStore(composeTestRule.activity), toFarmView = {}, cropInfo = emptyList())
             }
         }
 

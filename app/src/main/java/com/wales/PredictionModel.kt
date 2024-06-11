@@ -14,10 +14,12 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
+import java.io.Serial
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.UUID
 import kotlin.random.Random
 
 data class FarmElement(val weather: Weather, val yield: Double, val cropType: Crop)
@@ -32,17 +34,23 @@ enum class Crop {
 
 
 @RequiresApi(Build.VERSION_CODES.O)
-class WeatherPredictor(private val dataset: String, private val modelPath: String) {
+class WeatherPredictor(private val dataset: String, private val modelPath: String) : java.io.Serializable {
+
+    val serialUUID = 1L
+
+    companion object {
+
+    }
+
     private var sunshineModel: RandomForest? = null
     private var tempModel: RandomForest? = null
     private var rainfallModel: RandomForest? = null
-
 
     init {
         File(modelPath).mkdirs()
         val fullData: DataFrame = readCsv()
         sunshineModel = loadOrCreateModel(
-            "$modelPath/sunshine_model.ser",
+             "$modelPath/sunshine_model.ser",
             "SunshineDuration ~ Latitude + Longitude + DayOfYear",
             fullData
         )
@@ -125,8 +133,8 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
         )
 
     private fun readCsv(): DataFrame {
-        val file = File(dataset)
-        val lines = file.readLines()
+         val file = File(dataset)
+         val lines = file.readLines()
 
         val headers = lines.first().split(",").map(String::trim)
 
@@ -387,4 +395,24 @@ private fun getCropCondition(cropType: Crop): CropCondition {
             precipitationVeryLow = 0.0..0.0
         )
     }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun WeatherPredictor.serialize() {
+    val uuid = UUID.randomUUID().toString()
+    val path = Paths.get("/Users/jacobedwards/University/Year2/synoptic/fuck/SynopticProject2024/app/src/main/res/raw/$uuid.ser")
+
+    ObjectOutputStream(Files.newOutputStream(path)).use { it.writeObject(this) }
+}
+
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun WeatherPredictor.Companion.deserialize(): WeatherPredictor {
+    val path = "/Users/jacobedwards/University/Year2/synoptic/fuck/SynopticProject2024/app/src/main/res/raw/weather_predictor"
+    return ObjectInputStream(FileInputStream(path)).use { (it.readObject() as? WeatherPredictor)!! }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun WeatherPredictor.Companion.deserialize(@RawRes file: Int, context: Context): WeatherPredictor {
+    return ObjectInputStream(context.resources.openRawResource(file)).use { (it.readObject() as? WeatherPredictor)!! }
 }

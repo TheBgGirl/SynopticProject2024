@@ -23,7 +23,7 @@ class LocatorTest {
     @Before
     fun setUp() {
         composeTestRule.activity.setContent {
-            LocatorPage(settingsRepository = FakeSettingsStore(composeTestRule.activity), onCropPlannerClick = {_, _, _->})
+            LocatorPage(settingsRepository = FakeSettingsStore(composeTestRule.activity), onCropPlannerClick = {_, _, _, _->}, previousFarms = emptyList())
         }
     }
 }
