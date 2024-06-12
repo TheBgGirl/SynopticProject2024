@@ -10,6 +10,7 @@ import android.opengl.Matrix
 import android.util.Log
 import com.example.farmsimulator.ui.farm.CropInfo
 import com.wales.FarmElement
+import kotlinx.coroutines.yield
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
@@ -195,6 +196,18 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
         if (gridPosition != null) {
             plane.setSquare(gridPosition.first,gridPosition.second)
             clickCallback(Pair(gridPosition.first.toInt(), gridPosition.second.toInt()))
+
+            // ----- TESTING YIELD ----- //
+            var YieldPosX = gridPosition.first.toInt()
+            var YieldPosY = gridPosition.second.toInt()
+            YieldPosX = (_width - 1 - YieldPosX)
+
+            Log.d("YieldPos: ", "X: $YieldPosX, Y: $YieldPosY")
+
+            Log.d("Yield at Pos: ",
+                "X: ${gridPosition.first} " +
+                        "Y: ${gridPosition.second} " +
+                        "Yield: ${yeild[YieldPosX][YieldPosY].yield}")
         }
 
     }

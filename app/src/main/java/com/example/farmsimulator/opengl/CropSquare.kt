@@ -108,25 +108,25 @@ class CropSquare(
         // Load the texture
         when (cropType) {
             CropTypes.Pumpkins -> {
-                if (yield < 20)
-                    mTextureDataHandle = TextureHandler.loadTexture(context, R.drawable.pumpkin_seed)
+                mTextureDataHandle = if (yield < 20)
+                    TextureHandler.loadTexture(context, R.drawable.pumpkin_seed)
                 else if (yield < 40)
-                    mTextureDataHandle = TextureHandler.loadTexture(context, R.drawable.pumpkin_small)
+                    TextureHandler.loadTexture(context, R.drawable.pumpkin_small)
                 else if (yield < 60)
-                    mTextureDataHandle = TextureHandler.loadTexture(context, R.drawable.pumpkin_medium)
+                    TextureHandler.loadTexture(context, R.drawable.pumpkin_medium)
                 else
-                    mTextureDataHandle = TextureHandler.loadTexture(context, R.drawable.pumpkin_large)
+                    TextureHandler.loadTexture(context, R.drawable.pumpkin_large)
             }
 
             CropTypes.LeafyGreens -> {
-                if (yield < 20)
-                    mTextureDataHandle = TextureHandler.loadTexture(context, R.drawable.leafy_greens_seed)
+                mTextureDataHandle = if (yield < 20)
+                    TextureHandler.loadTexture(context, R.drawable.leafy_greens_seed)
                 else if (yield < 40)
-                    mTextureDataHandle = TextureHandler.loadTexture(context, R.drawable.leafy_greens_small)
+                    TextureHandler.loadTexture(context, R.drawable.leafy_greens_small)
                 else if (yield < 60)
-                    mTextureDataHandle = TextureHandler.loadTexture(context, R.drawable.leafy_greens_medium)
+                    TextureHandler.loadTexture(context, R.drawable.leafy_greens_medium)
                 else
-                    mTextureDataHandle = TextureHandler.loadTexture(context, R.drawable.leafy_greens_large)
+                    TextureHandler.loadTexture(context, R.drawable.leafy_greens_large)
             }
 
             CropTypes.Rice -> {

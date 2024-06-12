@@ -141,7 +141,7 @@ class Plane(var width: Int = 20, var height: Int = 20, val crops: List<CropInfo>
                     val height3 = if (terrainX + 1 < width) terrain[terrainX + 1][terrainY] else height1
                     val height4 = if (terrainX + 1 < width && terrainY + 1 < height) terrain[terrainX + 1][terrainY + 1] else height1
 
-                    Log.d("Yields:", yields.size.toString())
+                    //Log.d("Yields:", yields.size.toString())
                     if (yields.isEmpty()) {
                         cropSquares.add(
                             CropSquare(
