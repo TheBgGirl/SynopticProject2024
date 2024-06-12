@@ -5,27 +5,32 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RawRes
 import androidx.annotation.RequiresApi
-import kotlinx.serialization.Contextual
-import kotlinx.serialization.Serializable
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import smile.regression.RandomForest
 import smile.data.DataFrame
 import smile.data.formula.Formula
 import smile.data.vector.DoubleVector
 import smile.data.vector.IntVector
+import smile.regression.RandomForest
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
-import java.io.Serial
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.random.Random
 
 data class FarmElement(val weather: Weather, val yield: Double, val cropType: Crop)
@@ -38,22 +43,18 @@ enum class Crop {
     NA
 }
 
-
 @RequiresApi(Build.VERSION_CODES.O)
 class WeatherPredictor(private val dataset: String, private val modelPath: String) {
 
-    companion object {
-
-    }
+    companion object
 
     private var sunshineModel: RandomForest? = null
     private var tempModel: RandomForest? = null
     private var rainfallModel: RandomForest? = null
-    private var predictionMap: HashMap<Int, List<List<FarmElement>>> = HashMap()
+    private val predictionMap = ConcurrentHashMap<Int, List<List<FarmElement>>>()
     private var monthlyWeatherMap: HashMap<Int, Weather> = HashMap()
 
     init {
-
         File(modelPath).mkdirs()
         val fullData: DataFrame = readCsv()
         Log.w("WeatherPredictor", "Data read")
@@ -68,14 +69,12 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
             "MeanTemp ~ Latitude + Longitude + DayOfYear",
             fullData
         )
-
         Log.w("WeatherPredictor", "Temp model loaded")
         rainfallModel = loadOrCreateModel(
             "$modelPath/rainfall_model.ser",
             "PrecipitationSum ~ Latitude + Longitude + DayOfYear",
             fullData
         )
-
         Log.w("WeatherPredictor", "Rainfall model loaded")
     }
 
@@ -150,8 +149,6 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
         val file = File(dataset)
         val lines = file.readLines()
 
-        val headers = lines.first().split(",").map(String::trim)
-
         val dates = IntArray(lines.size - 1)
         val latitudes = DoubleArray(lines.size - 1)
         val longitudes = DoubleArray(lines.size - 1)
@@ -206,25 +203,94 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
             return farmYieldData
         }
 
-        for (row in 0 until numRows) {
-            for (col in 0 until numCols) {
-                val cropType = plantTypes[row][col]
-                val cellLatitude = latitude + row * 0.00001
-                val cellLongitude = longitude + col * 0.00001
+        runBlocking {
+            val deferredResults = (0 until numRows).map { row ->
+                async(Dispatchers.Default) {
+                    processRow(row, numCols, latitude, longitude, plantTypes, month)
+                }
+            }
 
-                val cellYieldMap = evaluateYield(cellLatitude, cellLongitude, cropType)
-                val weatherData =
-                    calculateMonthlyWeatherData(cellLatitude, cellLongitude, month + 1)
-                farmYieldData[row][col] = FarmElement(
-                    weatherData,
-                    cellYieldMap["2024-${(month + 1).toString().padStart(2, '0')}"] ?: 0.0,
-                    cropType
-                )
+            deferredResults.awaitAll().forEachIndexed { rowIndex, rowData ->
+                rowData.forEachIndexed { colIndex, farmElement ->
+                    farmYieldData[rowIndex][colIndex] = farmElement
+                }
             }
         }
 
         predictionMap[month] = farmYieldData
+
+        // Launch coroutines to precompute data for other months
+        (1..12).filter { it != month }.forEach { precomputeMonth ->
+            GlobalScope.launch(Dispatchers.Default) {
+                evaluateYieldForFarmInBackground(latitude, longitude, numRows, numCols, plantTypes, precomputeMonth)
+            }
+        }
+
         return farmYieldData
+    }
+
+    private suspend fun processRow(
+        row: Int,
+        numCols: Int,
+        latitude: Double,
+        longitude: Double,
+        plantTypes: List<List<Crop>>,
+        month: Int
+    ): List<FarmElement> = withContext(Dispatchers.Default) {
+        val rowData = MutableList(numCols) { col ->
+            val cropType = plantTypes[row][col]
+            val cellLatitude = latitude + row * 0.00001
+            val cellLongitude = longitude + col * 0.00001
+
+            val cellYieldMap = evaluateYield(cellLatitude, cellLongitude, cropType)
+            val weatherData = calculateMonthlyWeatherData(cellLatitude, cellLongitude, month + 1)
+            FarmElement(
+                weatherData,
+                cellYieldMap["2024-${(month + 1).toString().padStart(2, '0')}"] ?: 0.0,
+                cropType
+            )
+        }
+        rowData
+    }
+
+    private suspend fun evaluateYieldForFarmInBackground(
+        latitude: Double,
+        longitude: Double,
+        numRows: Int,
+        numCols: Int,
+        plantTypes: List<List<Crop>>,
+        month: Int
+    ) = withContext(Dispatchers.Default) {
+        if (predictionMap.contains(month)) {
+            return@withContext
+        }
+        val farmYieldData = MutableList(numRows) {
+            MutableList(numCols) {
+                FarmElement(
+                    Weather(0.0, 0.0, 0.0),
+                    0.0,
+                    Crop.NA
+                )
+            }
+        }
+
+        if (month !in 1..12) {
+            return@withContext
+        }
+
+        val deferredResults = (0 until numRows).map { row ->
+            async(Dispatchers.Default) {
+                processRow(row, numCols, latitude, longitude, plantTypes, month)
+            }
+        }
+
+        deferredResults.awaitAll().forEachIndexed { rowIndex, rowData ->
+            rowData.forEachIndexed { colIndex, farmElement ->
+                farmYieldData[rowIndex][colIndex] = farmElement
+            }
+        }
+
+        predictionMap[month] = farmYieldData
     }
 
     private fun calculateMonthlyWeatherData(
@@ -248,8 +314,7 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
         }
 
         val avgTemp = totalTemp / daysInMonth
-        val output = Weather(avgTemp, totalSunshine, totalPrecipitation)
-        return output
+        return Weather(avgTemp, totalSunshine, totalPrecipitation)
     }
 
     fun evaluateYield(latitude: Double, longitude: Double, cropType: Crop): Map<String, Double> {
@@ -453,14 +518,14 @@ fun WeatherPredictor.serialize() {
 
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun WeatherPredictor.Companion.deserialize(): WeatherPredictor {
+fun WeatherPredictor.deserialize(): WeatherPredictor {
     val path =
         "/Users/jacobedwards/University/Year2/synoptic/fuck/SynopticProject2024/app/src/main/res/raw/weather_predictor"
     return ObjectInputStream(FileInputStream(path)).use { (it.readObject() as? WeatherPredictor)!! }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun WeatherPredictor.Companion.deserialize(@RawRes file: Int, context: Context): WeatherPredictor {
+fun WeatherPredictor.deserialize(@RawRes file: Int, context: Context): WeatherPredictor {
     return ObjectInputStream(context.resources.openRawResource(file)).use { (it.readObject() as? WeatherPredictor)!! }
 }
 
@@ -470,6 +535,6 @@ fun WeatherPredictor.serialiseToJson() {
     )
 }
 
-fun WeatherPredictor.Companion.deserialiseFromJson() {
+fun WeatherPredictor.deserialiseFromJson() {
     return Json.decodeFromString(File("/Users/jacobedwards/University/Year2/synoptic/fuck/SynopticProject2024/app/src/main/res/raw/weather_predictor").readText())
 }
