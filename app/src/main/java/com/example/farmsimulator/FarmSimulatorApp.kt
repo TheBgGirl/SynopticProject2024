@@ -43,7 +43,7 @@ fun FarmSimulatorApp(navController: NavHostController = rememberNavController(),
 
         ) { paddingValues ->
             Box(modifier = Modifier.padding(paddingValues)) {
-                val startDestination = if (fileExists("./res/user.csv")) Screen.Home.route else Screen.Locator.route
+                val startDestination = Screen.Home.route
 
                 /*
                 val getYield: (Double, Double, Int, Int, List<List<Crop>>, Int) -> List<List<FarmElement>> = if (predictor != null) {

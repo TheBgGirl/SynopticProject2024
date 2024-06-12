@@ -209,17 +209,19 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
         for (row in 0 until numRows) {
             for (col in 0 until numCols) {
                 val cropType = plantTypes[row][col]
-                val cellLatitude = latitude + row * 0.00001
-                val cellLongitude = longitude + col * 0.00001
+                if(cropType != Crop.NA){
+                    val cellLatitude = latitude + row * 0.00001
+                    val cellLongitude = longitude + col * 0.00001
 
-                val cellYieldMap = evaluateYield(cellLatitude, cellLongitude, cropType)
-                val weatherData =
-                    calculateMonthlyWeatherData(cellLatitude, cellLongitude, month + 1)
-                farmYieldData[row][col] = FarmElement(
-                    weatherData,
-                    cellYieldMap["2024-${(month + 1).toString().padStart(2, '0')}"] ?: 0.0,
-                    cropType
-                )
+                    val cellYieldMap = evaluateYield(cellLatitude, cellLongitude, cropType)
+                    val weatherData =
+                        calculateMonthlyWeatherData(cellLatitude, cellLongitude, month + 1)
+                    farmYieldData[row][col] = FarmElement(
+                        weatherData,
+                        cellYieldMap["2024-${(month + 1).toString().padStart(2, '0')}"] ?: 0.0,
+                        cropType
+                    )
+                }
             }
         }
 
@@ -232,6 +234,9 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
         longitude: Double,
         month: Int
     ): Weather {
+        if (monthlyWeatherMap.contains(month)) {
+            return monthlyWeatherMap[month]!!
+        }
         val daysInMonth = LocalDate.of(2024, month, 1).lengthOfMonth()
         var totalTemp = 0.0
         var totalSunshine = 0.0
@@ -249,6 +254,7 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
 
         val avgTemp = totalTemp / daysInMonth
         val output = Weather(avgTemp, totalSunshine, totalPrecipitation)
+        monthlyWeatherMap[month] = output
         return output
     }
 
