@@ -75,7 +75,7 @@
     <string name="feature_support">Feature Requests: features@farmsimulator.com</string>
     <string name="support">Support</string>
     <string name="yield">"Yield: "</string>
-    <string name="temperature">"Average Temp: "</string>
-    <string name="sunshine">"Sunshine: "</string>
-    <string name="rainfall">"Rainfall: "</string>
+    <string name="temperature">🌡️:</string>
+    <string name="sunshine">"☀️: "</string>
+    <string name="rainfall">💧:</string>
 </resources>

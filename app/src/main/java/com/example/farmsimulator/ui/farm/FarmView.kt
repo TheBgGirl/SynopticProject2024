@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -196,36 +197,37 @@ fun InfoPopup(
                         Column {
                             Text(
                                 text = "${stringResource(id = R.string.type)} ${crop.cropType}",
-                                style = MaterialTheme.typography.bodySmall,
+                                style = MaterialTheme.typography.bodyMedium,
                                 color = Color.Black
                             )
                             Text(
                                 // truncate yield to 2 decimal places
                                 text = "${stringResource(id = R.string.yield)} ${yield?.yield?.let { String.format("%.2f", it) }}%",
-                                style = MaterialTheme.typography.bodySmall,
+                                style = MaterialTheme.typography.bodyMedium,
                                 color = Color.Black
                             )
                         }
                     }
+                    Spacer(modifier = Modifier.weight(1f))
                     Row {
                         Column {
                             Text(
                                 text = "${stringResource(id = R.string.sunshine)} ${yield?.weather?.sunshine?.let { String.format("%.2f", it) }} hours",
-                                style = MaterialTheme.typography.bodySmall,
+                                style = MaterialTheme.typography.bodyMedium,
                                 color = Color.Black
                             )
                         }
                         Column {
                             Text(
                                 text = "${stringResource(id = R.string.rainfall)} ${yield?.weather?.precipitation?.let { String.format("%.2f", it) }} mm",
-                                style = MaterialTheme.typography.bodySmall,
+                                style = MaterialTheme.typography.bodyMedium,
                                 color = Color.Black
                             )
                         }
                         Column {
                             Text(
                                 text = "${stringResource(id = R.string.temperature)} ${yield?.weather?.temp?.let { String.format("%.2f", it) }}°C",
-                                style = MaterialTheme.typography.bodySmall,
+                                style = MaterialTheme.typography.bodyMedium,
                                 color = Color.Black
                             )
                         }
