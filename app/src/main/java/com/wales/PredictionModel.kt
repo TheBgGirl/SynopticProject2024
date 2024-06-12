@@ -219,11 +219,13 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
 
         predictionMap[month] = farmYieldData
 
+        if (predictionMap.size != 12) {
         // Launch coroutines to precompute data for other months
         (1..12).filter { it != month }.forEach { precomputeMonth ->
             GlobalScope.launch(Dispatchers.Default) {
                 evaluateYieldForFarmInBackground(latitude, longitude, numRows, numCols, plantTypes, precomputeMonth)
             }
+        }
         }
 
         return farmYieldData
