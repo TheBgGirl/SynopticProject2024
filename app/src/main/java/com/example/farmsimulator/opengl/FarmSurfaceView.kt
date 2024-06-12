@@ -12,6 +12,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
@@ -44,6 +45,7 @@ class MyGLSurfaceView(context: Context, width: Int, height: Int, crops: List<Cro
 @Composable
 fun OpenGLComposeView(modifier: Modifier = Modifier, width: Int, height: Int, crops: List<CropInfo>, ecoMode: Boolean, onClick: (Pair<Int, Int>) -> Unit, yield: List<List<FarmElement>>) {
     var glSurfaceView by remember { mutableStateOf<MyGLSurfaceView?>(null) }
+    val currentYield by rememberUpdatedState(newValue = yield)
 
     AndroidView(
         factory = { ctx ->
@@ -54,7 +56,7 @@ fun OpenGLComposeView(modifier: Modifier = Modifier, width: Int, height: Int, cr
         },
         modifier = modifier,
         update = {
-            it.getRender().setYield(yield)
+            it.getRender().setYield(currentYield)
             it.requestRender()
         }
     )

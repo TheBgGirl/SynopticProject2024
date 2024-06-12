@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
-        val path = getPath(R.raw.wd, this, "/wd.csv")
+        val path = getPath(R.raw.wd, this, "wd.csv")
         super.onCreate(savedInstanceState)
         val settingsRepository = SettingsRepository(this)
         setContent {
@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity() {
 }
 
 fun getPath(@RawRes model: Int, activity: ComponentActivity, filename: String): String {
-    val modelPath = activity.filesDir.path + filename
+    val modelPath = activity.filesDir.path + "/" + filename
     if (!fileExists(modelPath)) {
         activity.resources.openRawResource(model).use { input ->
             activity.openFileOutput(filename, AppCompatActivity.MODE_PRIVATE).use { output ->

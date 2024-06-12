@@ -20,7 +20,7 @@
     <string name="width">Width</string>
     <string name="use_location">Use Current Location</string>
     <string name="loading">Loading...</string>
-    <string name="get_location">Get Location</string>
+    <string name="get_location">Set Farm Location</string>
     <string name="input_error">%s - Error: %s</string>
     <string name="number_error">%s must be a number.</string>
     <string name="invalid_range">%s must be between %d and %d</string>
@@ -79,4 +79,6 @@
     <string name="temperature">🌡️:</string>
     <string name="sunshine">☀️:</string>
     <string name="rainfall">💧:</string>
+    <string name="latitude">Latitude:</string>
+    <string name="longitiude">Longitude:</string>
 </resources>

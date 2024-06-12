@@ -402,10 +402,50 @@ fun WorldMap(
 
     val longLatString = stringResource(id = R.string.latlng)
 
+    val longString = stringResource(id = R.string.longitiude)
+    val latString = stringResource(id = R.string.latitude)
+
+    var longError by remember { mutableStateOf("") }
+    var latError by remember { mutableStateOf("") }
+
     Text(
         text = longLatString.format(latLng.latitude, latLng.longitude),
         style = MaterialTheme.typography.bodyMedium
     )
+    Spacer(modifier = Modifier.size(8.dp))
+
+    Column {
+        // Input fields for latitude and longitude
+        InputField(
+            value = latLng.latitude.toString(),
+            onValueChange = {
+                val newLat = it.toDoubleOrNull()
+                if (newLat != null) {
+                    val newLatLng = LatLng(newLat, latLng.longitude)
+                    setLatLng(newLatLng)
+                }
+            },
+            label = stringResource(id = R.string.latitude),
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+            error = latError,
+            onValueError = { latError = it }
+        )
+
+        InputField(
+            value = latLng.longitude.toString(),
+            onValueChange = {
+                val newLong = it.toDoubleOrNull()
+                if (newLong != null) {
+                    val newLatLng = LatLng(latLng.latitude, newLong)
+                    setLatLng(newLatLng)
+                }
+            },
+            label = stringResource(id = R.string.longitiude),
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+            error = longError,
+            onValueError = { longError = it }
+        )
+    }
 
     LaunchedEffect(key1 = cameraPositionState.isMoving) {
         snapshotFlow { cameraPositionState.position }
