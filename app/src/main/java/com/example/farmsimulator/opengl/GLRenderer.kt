@@ -250,7 +250,7 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
         val newZ = camera.position[2] + (moveSpeed * -dz)/height
 
         // Check if the new position is within the boundaries
-        if (newX >= -farmWidth/2 && newX <= farmWidth/2 && newZ >= -farmHeight/2 && newZ <= farmHeight/2) {
+        if (newX >= -farmWidth/2 - 1 && newX <= farmWidth/2 && newZ >= -farmHeight/2 - 1 && newZ <= farmHeight/2) {
             camera.move((moveSpeed * -dx)/width, 0f, (moveSpeed * -dz)/height)
         }
     }
