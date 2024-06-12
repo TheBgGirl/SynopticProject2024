@@ -49,7 +49,8 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
     private var sunshineModel: RandomForest? = null
     private var tempModel: RandomForest? = null
     private var rainfallModel: RandomForest? = null
-    private var predictionMap: HashMap<Int, Weather> = HashMap()
+    private var predictionMap: HashMap<Int, List<List<FarmElement>>> = HashMap()
+    private var monthlyWeatherMap: HashMap<Int, Weather> = HashMap()
 
     init {
 
@@ -57,7 +58,7 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
         val fullData: DataFrame = readCsv()
         Log.w("WeatherPredictor", "Data read")
         sunshineModel = loadOrCreateModel(
-             "$modelPath/sunshine_model.ser",
+            "$modelPath/sunshine_model.ser",
             "SunshineDuration ~ Latitude + Longitude + DayOfYear",
             fullData
         )
@@ -146,8 +147,8 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
         )
 
     private fun readCsv(): DataFrame {
-         val file = File(dataset)
-         val lines = file.readLines()
+        val file = File(dataset)
+        val lines = file.readLines()
 
         val headers = lines.first().split(",").map(String::trim)
 
@@ -178,6 +179,7 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
             DoubleVector.of("MeanTemp", meanTemps)
         )
     }
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun evaluateYieldForFarm(
         latitude: Double,
@@ -187,7 +189,18 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
         plantTypes: List<List<Crop>>,
         month: Int
     ): List<List<FarmElement>> {
-        val farmYieldData = MutableList(numRows) { MutableList(numCols)  { FarmElement(Weather(0.0, 0.0, 0.0), 0.0, Crop.NA) } }
+        if (predictionMap.contains(month)) {
+            return predictionMap[month]!!
+        }
+        val farmYieldData = MutableList(numRows) {
+            MutableList(numCols) {
+                FarmElement(
+                    Weather(0.0, 0.0, 0.0),
+                    0.0,
+                    Crop.NA
+                )
+            }
+        }
 
         if (month !in 1..12) {
             return farmYieldData
@@ -200,17 +213,25 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
                 val cellLongitude = longitude + col * 0.00001
 
                 val cellYieldMap = evaluateYield(cellLatitude, cellLongitude, cropType)
-                val weatherData = calculateMonthlyWeatherData(cellLatitude, cellLongitude, month + 1)
-                farmYieldData[row][col] = FarmElement(weatherData, cellYieldMap["2024-${(month + 1).toString().padStart(2, '0')}"] ?: 0.0, cropType)
+                val weatherData =
+                    calculateMonthlyWeatherData(cellLatitude, cellLongitude, month + 1)
+                farmYieldData[row][col] = FarmElement(
+                    weatherData,
+                    cellYieldMap["2024-${(month + 1).toString().padStart(2, '0')}"] ?: 0.0,
+                    cropType
+                )
             }
         }
+
+        predictionMap[month] = farmYieldData
         return farmYieldData
     }
 
-    private fun calculateMonthlyWeatherData(latitude: Double, longitude: Double, month: Int): Weather {
-        if (predictionMap.contains(month)) {
-            return predictionMap[month]!!
-        }
+    private fun calculateMonthlyWeatherData(
+        latitude: Double,
+        longitude: Double,
+        month: Int
+    ): Weather {
         val daysInMonth = LocalDate.of(2024, month, 1).lengthOfMonth()
         var totalTemp = 0.0
         var totalSunshine = 0.0
@@ -228,7 +249,6 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
 
         val avgTemp = totalTemp / daysInMonth
         val output = Weather(avgTemp, totalSunshine, totalPrecipitation)
-        predictionMap[month] = output
         return output
     }
 
@@ -253,12 +273,17 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
 
             if (weatherList.isNotEmpty()) {
                 // random +-5% added here due to inherent randomness of crop growth
-                val yieldPercentage = ((totalPoints / (weatherList.size * maxPoints)) * 100) + Random.nextDouble(-5.0, 5.0)
+                val yieldPercentage =
+                    ((totalPoints / (weatherList.size * maxPoints)) * 100) + Random.nextDouble(
+                        -5.0,
+                        5.0
+                    )
                 yieldMap["2024-${month.toString().padStart(2, '0')}"] = yieldPercentage
             }
         }
         return yieldMap
     }
+
     fun calculateDailyPoints(weather: Weather, cropCondition: CropCondition): Double {
         var points = 0.0
         points += when (weather.temp) {
@@ -342,6 +367,7 @@ private fun getCropCondition(cropType: Crop): CropCondition {
             precipitationLow = 180.0..200.0,
             precipitationVeryLow = -Double.MAX_VALUE..180.0
         )
+
         Crop.PUMPKIN -> CropCondition(
             tempVeryHigh = 30.0..32.0,
             tempHigh = 28.0..30.0,
@@ -365,6 +391,7 @@ private fun getCropCondition(cropType: Crop): CropCondition {
             precipitationLow = 30.0..40.0,
             precipitationVeryLow = -Double.MAX_VALUE..30.0
         )
+
         Crop.LEAFY -> CropCondition(
             tempVeryHigh = 22.0..24.0,
             tempHigh = 20.0..22.0,
@@ -418,7 +445,8 @@ private fun getCropCondition(cropType: Crop): CropCondition {
 @RequiresApi(Build.VERSION_CODES.O)
 fun WeatherPredictor.serialize() {
     val uuid = UUID.randomUUID().toString()
-    val path = Paths.get("/Users/jacobedwards/University/Year2/synoptic/fuck/SynopticProject2024/app/src/main/res/raw/$uuid.ser")
+    val path =
+        Paths.get("/Users/jacobedwards/University/Year2/synoptic/fuck/SynopticProject2024/app/src/main/res/raw/$uuid.ser")
 
     ObjectOutputStream(Files.newOutputStream(path)).use { it.writeObject(this) }
 }
@@ -426,7 +454,8 @@ fun WeatherPredictor.serialize() {
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun WeatherPredictor.Companion.deserialize(): WeatherPredictor {
-    val path = "/Users/jacobedwards/University/Year2/synoptic/fuck/SynopticProject2024/app/src/main/res/raw/weather_predictor"
+    val path =
+        "/Users/jacobedwards/University/Year2/synoptic/fuck/SynopticProject2024/app/src/main/res/raw/weather_predictor"
     return ObjectInputStream(FileInputStream(path)).use { (it.readObject() as? WeatherPredictor)!! }
 }
 
@@ -436,7 +465,9 @@ fun WeatherPredictor.Companion.deserialize(@RawRes file: Int, context: Context):
 }
 
 fun WeatherPredictor.serialiseToJson() {
-    return File("/Users/jacobedwards/University/Year2/synoptic/fuck/SynopticProject2024/app/src/main/res/raw/weather_predictor").writeText(Json.encodeToString(this))
+    return File("/Users/jacobedwards/University/Year2/synoptic/fuck/SynopticProject2024/app/src/main/res/raw/weather_predictor").writeText(
+        Json.encodeToString(this)
+    )
 }
 
 fun WeatherPredictor.Companion.deserialiseFromJson() {
