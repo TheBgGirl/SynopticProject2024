@@ -264,7 +264,7 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
         val angleY = camera.pitch+deltaY * sensitivity/height
 
         //camera.yaw = angleX
-        if(angleY < 90 && angleY > 15)
+        if(angleY < 90 && angleY > 30)
             camera.pitch = angleY
     }
 

@@ -60,7 +60,7 @@
     <string name="november">ខែវិច្ឆិកា</string>
     <string name="december">ខែធ្នូ</string>
     <string name="no_crop">គ្មានដំណាំ</string>
-    <string name="type">ប្រភេទ៖</string>
+    <string name="type">ប្រភេទ៖:</string>
     <string name="crop_info">ព័ត៌មានដំណាំ</string>
     <string name="next_month">ខែក្រោយ</string>
     <string name="previous_month">ខែមុន។</string>
@@ -75,4 +75,8 @@
     <string name="bugs_support">កំហុស៖ bugs@farmsimulator.com</string>
     <string name="feature_support">សំណើមុខងារ៖ features@farmsimulator.com</string>
     <string name="support">គាំទ្រ</string>
+    <string name="yield">ទិន្នផល:</string>
+    <string name="temperature">🌡️:</string>
+    <string name="sunshine">☀️:</string>
+    <string name="rainfall">💧:</string>
 </resources>
