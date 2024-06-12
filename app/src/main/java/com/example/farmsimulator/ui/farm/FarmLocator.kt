@@ -18,7 +18,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Warning
@@ -54,6 +53,8 @@ import androidx.compose.ui.unit.sp
 import com.example.farmsimulator.R
 import com.example.farmsimulator.models.FarmData
 import com.example.farmsimulator.stores.SettingsRepository
+import com.example.farmsimulator.ui.utils.InputField
+import com.example.farmsimulator.ui.utils.createDialog
 import com.example.farmsimulator.utils.DEFAULT_LAT_LONG
 import com.example.farmsimulator.utils.NotificationHandler
 import com.example.farmsimulator.utils.RequestLocationPermissionBinary
@@ -69,13 +70,17 @@ import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
-import com.example.farmsimulator.ui.utils.InputField
-import com.example.farmsimulator.ui.utils.createDialog
 
+// Page to locate the farm
 @OptIn(ExperimentalPermissionsApi::class)
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
-fun LocatorPage(onCropPlannerClick: (height: Int, width: Int, latLng: LatLng, List<CropInfo>) -> Unit, previousFarms: List<FarmData>, settingsRepository: SettingsRepository, isLoading: Boolean) {
+fun LocatorPage(
+    onCropPlannerClick: (height: Int, width: Int, latLng: LatLng, List<CropInfo>) -> Unit,
+    previousFarms: List<FarmData>,
+    settingsRepository: SettingsRepository,
+    isLoading: Boolean
+) {
     val context = LocalContext.current
     val locationClient = LocationServices.getFusedLocationProviderClient(context)
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -95,7 +100,6 @@ fun LocatorPage(onCropPlannerClick: (height: Int, width: Int, latLng: LatLng, Li
     val postNotificationPermission =
         rememberPermissionState(permission = android.Manifest.permission.POST_NOTIFICATIONS)
     val notificationHandler = NotificationHandler(context)
-    val hasConnection by remember { mutableStateOf(false) }
     val lowDataMode = settingsRepository.lowDataModeFlow.collectAsState(initial = false).value
 
     LaunchedEffect(Unit) {
@@ -105,17 +109,9 @@ fun LocatorPage(onCropPlannerClick: (height: Int, width: Int, latLng: LatLng, Li
     }
 
     if (!lowDataMode) {
-    RequestLocationPermissionBinary {
-        /*
-        if (it) {
-            notificationHandler.showNotification("Location permission granted", "You can now use location")
-        } else {
-            notificationHandler.showNotification("Location permission denied", "Using default location")
+        RequestLocationPermissionBinary {
+            locationAccessible = it
         }
-         */
-
-        locationAccessible = it
-    }
     }
 
     val locationAcquiredString = stringResource(id = R.string.location_acquired)
@@ -181,7 +177,8 @@ fun LocatorPage(onCropPlannerClick: (height: Int, width: Int, latLng: LatLng, Li
                 latLng = latLng,
                 setLatLng = {
                     latLng = it
-                }, lowDataMode = lowDataMode)
+                }, lowDataMode = lowDataMode
+            )
         }
 
         if (isPositioned) {
@@ -197,6 +194,7 @@ fun LocatorPage(onCropPlannerClick: (height: Int, width: Int, latLng: LatLng, Li
     }
 }
 
+// Button to proceed to the crop planner
 @Composable
 fun NextPageButton(onClick: () -> Unit) {
     Button(
@@ -212,6 +210,7 @@ fun NextPageButton(onClick: () -> Unit) {
     }
 }
 
+// Form to enter the dimensions of the farm
 @Composable
 fun FarmDimensionsForm(
     useLocation: Boolean,
@@ -316,8 +315,14 @@ fun FarmDimensionsForm(
         val numberErrorString = stringResource(id = R.string.number_error)
         Button(
             onClick = {
-                val heightValidation = validateInput(height, parse = { it.toDoubleOrNull() }, predicates = listOf { it in 1.0..25.0 })
-                val widthValidation = validateInput(width, parse = { it.toDoubleOrNull() }, predicates = listOf { it in 1.0..25.0 })
+                val heightValidation = validateInput(
+                    height,
+                    parse = { it.toDoubleOrNull() },
+                    predicates = listOf { it in 1.0..25.0 })
+                val widthValidation = validateInput(
+                    width,
+                    parse = { it.toDoubleOrNull() },
+                    predicates = listOf { it in 1.0..25.0 })
 
                 if (heightValidation == DimensionInputError.NONE && widthValidation == DimensionInputError.NONE) {
                     onSubmit(width.toInt(), height.toInt())
@@ -325,13 +330,23 @@ fun FarmDimensionsForm(
                     heightError = when (heightValidation) {
                         DimensionInputError.EMPTY -> emptyErrorString.format(heightString)
                         DimensionInputError.TYPE_MISMATCH -> numberErrorString.format(heightString)
-                        DimensionInputError.OUT_OF_RANGE -> rangeErrorString.format(heightString, 1, 25)
+                        DimensionInputError.OUT_OF_RANGE -> rangeErrorString.format(
+                            heightString,
+                            1,
+                            25
+                        )
+
                         DimensionInputError.NONE -> ""
                     }
                     widthError = when (widthValidation) {
                         DimensionInputError.EMPTY -> emptyErrorString.format(widthString)
                         DimensionInputError.TYPE_MISMATCH -> numberErrorString.format(widthString)
-                        DimensionInputError.OUT_OF_RANGE -> rangeErrorString.format(widthString, 1, 25)
+                        DimensionInputError.OUT_OF_RANGE -> rangeErrorString.format(
+                            widthString,
+                            1,
+                            25
+                        )
+
                         DimensionInputError.NONE -> ""
                     }
                 }
@@ -349,7 +364,7 @@ fun FarmDimensionsForm(
     }
 }
 
-// fix this logic
+// Enum class to represent the different types of errors
 enum class DimensionInputError {
     EMPTY,
     TYPE_MISMATCH,
@@ -357,6 +372,7 @@ enum class DimensionInputError {
     NONE
 }
 
+// Helper function to validate input
 inline fun <reified T> validateInput(
     input: String,
     parse: (String) -> T? = { if (it is T) it else null },
@@ -380,6 +396,7 @@ inline fun <reified T> validateInput(
     return DimensionInputError.NONE
 }
 
+// Show the world map using Google Maps
 @Composable
 fun WorldMap(
     latLng: LatLng, setLatLng: (LatLng) -> Unit,
@@ -401,9 +418,6 @@ fun WorldMap(
     }
 
     val longLatString = stringResource(id = R.string.latlng)
-
-    val longString = stringResource(id = R.string.longitiude)
-    val latString = stringResource(id = R.string.latitude)
 
     var longError by remember { mutableStateOf("") }
     var latError by remember { mutableStateOf("") }

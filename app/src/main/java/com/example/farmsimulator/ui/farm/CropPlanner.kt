@@ -51,9 +51,8 @@ import com.example.farmsimulator.ui.utils.SelectTextField
 import com.google.android.gms.maps.model.LatLng
 import kotlin.math.roundToInt
 
-const val MAX_HEIGHT = 10
-const val MAX_WIDTH = 10
 
+// Define crop types with string resources for their names
 sealed class CropTypes(@StringRes val name: Int) {
     data object None : CropTypes(R.string.none)
     data object Pumpkins : CropTypes(R.string.pumpkin)
@@ -69,8 +68,10 @@ sealed class CropTypes(@StringRes val name: Int) {
     }
 }
 
+// Data class to hold crop information
 data class CropInfo(val cropType: CropTypes, val x: Int, val y: Int)
 
+// Main planner page composable function
 @Composable
 fun PlannerPage(latLng: LatLng, height: Int, width: Int, cropInfo: List<CropInfo>, toFarmView: (List<CropInfo>) -> Unit, settingsRepository: SettingsRepository) {
     var addedCrops by remember {
@@ -85,6 +86,7 @@ fun PlannerPage(latLng: LatLng, height: Int, width: Int, cropInfo: List<CropInfo
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Farm grid composable
         FarmGrid(height = height, width = width, crops = addedCrops, onCropAdd = {
             addedCrops = addedCrops + it
         })
@@ -102,6 +104,7 @@ fun PlannerPage(latLng: LatLng, height: Int, width: Int, cropInfo: List<CropInfo
             style = MaterialTheme.typography.headlineMedium
         )
 
+        // Enter crops form composable
         EnterCropsForm(
             addedCrops = addedCrops,
             onCropsChange = { addedCrops = it },
@@ -111,6 +114,7 @@ fun PlannerPage(latLng: LatLng, height: Int, width: Int, cropInfo: List<CropInfo
     }
 }
 
+// Farm grid composable function
 @Composable
 fun FarmGrid(
     modifier: Modifier = Modifier,
@@ -129,6 +133,7 @@ fun FarmGrid(
     var gridOffset by remember { mutableStateOf(Offset.Zero) }
     var showChooseCrop by remember { mutableStateOf(false) }
 
+    // Choose crop dialog composable, shown when user drags to select cells
     if (showChooseCrop) {
         ChooseCropDialog(
             onCropAdd = onCropAdd,
@@ -139,6 +144,7 @@ fun FarmGrid(
         )
     }
 
+    // Box with constraints to handle layout
     BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
@@ -200,6 +206,7 @@ fun FarmGrid(
     }
 }
 
+// Composable function for the crop selection dialog
 @Composable
 fun ChooseCropDialog(
     onCropAdd: (CropInfo) -> Unit,
@@ -241,6 +248,7 @@ fun ChooseCropDialog(
     })
 }
 
+// Composable function for a single crop square in the grid
 @Composable
 fun CropSquare(
     crop: CropInfo?,
@@ -271,6 +279,7 @@ fun CropSquare(
         )
     }
 
+    // Box composable for the crop square
     Box(modifier = modifier
         .height(50.dp)
         .width(50.dp)
@@ -282,7 +291,7 @@ fun CropSquare(
         })
 }
 
-
+// Composable function for the form to enter crop information for the farm
 @Composable
 fun EnterCropsForm(
     modifier: Modifier = Modifier,
@@ -312,7 +321,7 @@ fun EnterCropsForm(
     }
 }
 
-
+// Represents a single crop field in the form
 @Composable
 fun CropField(
     cropInfo: CropInfo,

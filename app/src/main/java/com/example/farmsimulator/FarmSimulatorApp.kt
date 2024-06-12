@@ -19,7 +19,7 @@ import com.wales.Crop
 import com.wales.FarmElement
 import com.wales.WeatherPredictor
 
-// ill fix this
+// Main entry point for the app
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun FarmSimulatorApp(navController: NavHostController = rememberNavController(), settingsRepository: SettingsRepository, predictor: WeatherPredictor?) {

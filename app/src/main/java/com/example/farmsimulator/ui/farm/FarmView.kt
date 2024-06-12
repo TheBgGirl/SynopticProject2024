@@ -59,6 +59,7 @@ enum class Month(@StringRes val title: Int) {
     DECEMBER(R.string.december)
 }
 
+// convert the crops to the format expected by the predictor
 fun convertToPredictorForm(width: Int, height: Int, crops: List<CropInfo>): List<List<Crop>> {
     val cropLayout = MutableList(height) { MutableList(width) { Crop.NA } }
 
@@ -79,6 +80,7 @@ fun convertToPredictorForm(width: Int, height: Int, crops: List<CropInfo>): List
     return cropLayout
 }
 
+// represents the farm and the crops on it
 @Composable
 fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>, toResults: () -> Unit, settingsRepository: SettingsRepository, ecoMode: Boolean, getYield: (Double, Double, Int, Int, List<List<Crop>>, Int) -> List<List<FarmElement>>, saveYield: (List<List<FarmElement>>) -> Unit) {
     var selected by remember {
@@ -120,7 +122,7 @@ fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>, toR
         saveYield(yield)
     }
 
-    // get yield for the first time
+    // recompute yield when month changes
     LaunchedEffect (selectedMonth) {
         getYieldForMonth()
         println(yield)
@@ -131,8 +133,9 @@ fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>, toR
             .fillMaxSize()
             .background(Color.White)
     ) {
+        // Render the OpenGL view
         OpenGLComposeView(modifier = Modifier.fillMaxSize(), width = width, height = height, crops = crops, ecoMode = ecoMode, onClick = {
-            // it is upside down
+            // It is upside down
             selected = Pair(it.first, height - it.second - 1)
             selectedCrop = crops.find { crop -> crop.x == selected.first && crop.y == selected.second }
             selectedCropYield = yield[selected.second][selected.first]
@@ -154,10 +157,7 @@ fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>, toR
         )
 }
 
-/*
-data class FarmElement(val weather: Weather, val yield: Double, val cropType: Crop)
-data class Weather(var temp: Double, val sunshine: Double, val precipitation: Double)
- */
+// Popup that shows information about the selected crop
 @Composable
 fun InfoPopup(
     modifier: Modifier = Modifier,
@@ -241,7 +241,7 @@ fun InfoPopup(
     }
 }
 
-
+// Popup that allows the user to select a month
 @Composable
 fun MonthPopup(
     modifier: Modifier = Modifier,
@@ -294,6 +294,7 @@ fun MonthPopup(
     }
 }
 
+// helper functions for month arithmetic
 fun Month.minus(months: Int): Month {
     val newOrdinal = (this.ordinal - months + 12) % 12
     return Month.entries[newOrdinal]

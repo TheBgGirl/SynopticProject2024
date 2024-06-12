@@ -46,6 +46,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.wales.Crop
 import com.wales.FarmElement
 
+// Represents the different screens in the app
 sealed class Screen(
     val route: String,
     @StringRes val title: Int,
@@ -110,6 +111,7 @@ sealed class Screen(
     }
 }
 
+// Where the composable functions are called based on the current route
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun FarmSimNavGraph(
@@ -185,6 +187,7 @@ fun FarmSimNavGraph(
     }
 }
 
+// Contains the top app bar
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(
@@ -210,6 +213,7 @@ fun TopBar(
     )
 }
 
+// Contains the bottom navigation bar
 @Composable
 fun BottomNav(navController: NavController, isLoading: Boolean = false) {
     val navBarStackEntry by navController.currentBackStackEntryAsState()
