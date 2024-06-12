@@ -108,9 +108,9 @@ class CropSquare(
             CropTypes.Pumpkins -> TextureHandler.loadTexture(context, R.drawable.pumpkin_medium)
 
             //TODO: CHANGE 2 BELOW TO RESPECTIVE TEXTURES
-            CropTypes.LeafyGreens -> TextureHandler.loadTexture(context, R.drawable.corn)
-            CropTypes.Rice -> TextureHandler.loadTexture(context, R.drawable.corn)
-            CropTypes.None -> TextureHandler.loadTexture(context, R.drawable.hero)
+            CropTypes.LeafyGreens -> TextureHandler.loadTexture(context, R.drawable.leafy_greens_medium)
+            CropTypes.Rice -> TextureHandler.loadTexture(context, R.drawable.rice_medium)
+            CropTypes.None -> TextureHandler.loadTexture(context, R.drawable.blank)
         }
         //mTextureDataHandle = TextureHandler.loadTexture(context, R.drawable.corn)
 
