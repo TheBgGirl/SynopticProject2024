@@ -88,7 +88,15 @@ fun PlannerPage(latLng: LatLng, height: Int, width: Int, cropInfo: List<CropInfo
         FarmGrid(height = height, width = width, crops = addedCrops, onCropAdd = {
             addedCrops = addedCrops + it
         })
-
+        Spacer(modifier = Modifier.height(16.dp))
+        if (addedCrops.isNotEmpty()) {
+            Button(onClick = {
+                toFarmView(addedCrops)
+            }) {
+                Text(text = stringResource(id = R.string.view_farm))
+            }
+        }
+        Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = stringResource(id = R.string.enter_crops),
             style = MaterialTheme.typography.headlineMedium
@@ -100,16 +108,6 @@ fun PlannerPage(latLng: LatLng, height: Int, width: Int, cropInfo: List<CropInfo
             width = width,
             height = height
         )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        if (addedCrops.isNotEmpty()) {
-            Button(onClick = {
-                toFarmView(addedCrops)
-            }) {
-                Text(text = stringResource(id = R.string.view_farm))
-            }
-        }
     }
 }
 
