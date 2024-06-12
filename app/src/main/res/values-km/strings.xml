@@ -79,4 +79,6 @@
     <string name="temperature">🌡️:</string>
     <string name="sunshine">☀️:</string>
     <string name="rainfall">💧:</string>
+    <string name="latitude">រយៈទទឹង៖</string>
+    <string name="longitiude">រយៈបណ្តោយ៖</string>
 </resources>

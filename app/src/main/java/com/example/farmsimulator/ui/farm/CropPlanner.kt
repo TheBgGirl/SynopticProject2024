@@ -234,7 +234,7 @@ fun ChooseCropDialog(
                 onValueChange = {
                     chosenType = CropTypes.items[cropNames.indexOf(it)]
                 },
-                selectOptions = CropTypes.items.map { stringResource(id = it.name) },
+                selectOptions = CropTypes.items.filter { it != CropTypes.None }.map { stringResource(id = it.name) },
                 label = stringResource(id = R.string.crop_type)
             )
         }
@@ -248,8 +248,9 @@ fun CropSquare(
     isSelected: Boolean,
     onCropAdd: (CropInfo) -> Unit,
     x: Int,
-    y: Int
+    y: Int,
 ) {
+    var showChooseCrop by remember { mutableStateOf(false) }
     val cropType = crop?.cropType
     val color = when {
         isSelected -> Color.Red
@@ -260,6 +261,16 @@ fun CropSquare(
         else -> Color.Green
     }
 
+    if (showChooseCrop) {
+        ChooseCropDialog(
+            onCropAdd = onCropAdd,
+            onDismiss = {
+                showChooseCrop = false;
+            },
+            selectedCells = listOf(x to y),
+        )
+    }
+
     Box(modifier = modifier
         .height(50.dp)
         .width(50.dp)
@@ -267,7 +278,7 @@ fun CropSquare(
         .border(1.dp, Color.Black)
         .testTag("cropSquare")
         .clickable(enabled = crop == null) {
-            onCropAdd(CropInfo(CropTypes.None, x, y))
+            showChooseCrop = true
         })
 }
 
