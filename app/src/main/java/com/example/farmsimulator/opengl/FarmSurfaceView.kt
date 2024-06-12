@@ -29,7 +29,7 @@ class MyGLSurfaceView(context: Context, width: Int, height: Int, crops: List<Cro
         // Create an OpenGL ES 2.0 context
         setEGLContextClientVersion(2)
 
-        renderer = MyGLRenderer(_width = width, _height = height, crops=crops, ecoMode = ecoMode, clickCallback = clickCallback, context = context, yield = yield)
+        renderer = MyGLRenderer(_width = width, _height = height, crops=crops, ecoMode = ecoMode, clickCallback = clickCallback, context = context)
 
         // Set the Renderer for drawing on the GLSurfaceView
         setRenderer(renderer)
@@ -52,7 +52,11 @@ fun OpenGLComposeView(modifier: Modifier = Modifier, width: Int, height: Int, cr
                 setupGestures(this, ctx)
             }
         },
-        modifier = modifier
+        modifier = modifier,
+        update = {
+            it.getRender().setYield(yield)
+            it.requestRender()
+        }
     )
 
     DisposableEffect(Unit) {

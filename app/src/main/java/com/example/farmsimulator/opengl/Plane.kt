@@ -126,24 +126,6 @@ class Plane(var width: Int = 20, var height: Int = 20, val crops: List<CropInfo>
     fun displayFarmData(){
         cropSquares = ArrayList()
 
-        val testPosX: Int = 0
-        val testPosZ: Int = 0
-//        val correctedX: Float = (testPosX - width / 2f) + 0.5f
-//        val correctedZ: Float = (testPosZ - height / 2f) + 0.5f
-
-//        for(i in 0 until width - 1){
-//            for(j in 0 until height - 1){
-//                Log.d("Farm Data: ", i.toString() + j.toString())
-
-                //Thread.sleep(1_000)
-
-                // Iterate through Farm Data[i][j]
-                    // Initialize texture for crop type at this position
-                        // Different texture for yield %
-                    // Might do: change terrain colour depending on precipitation and temperature
-
-                //Testing: initialising all as corn
-
                 for(i in 0 until crops.size)
                 {
                     // Flip X because terrain[][] has 0,0 as bottom right

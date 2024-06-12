@@ -13,7 +13,7 @@ import com.wales.FarmElement
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
-class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>, val ecoMode: Boolean, val clickCallback: (Pair<Int, Int>) -> Unit, val context: Context, val yield: List<List<FarmElement>>) : GLSurfaceView.Renderer
+class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>, val ecoMode: Boolean, val clickCallback: (Pair<Int, Int>) -> Unit, val context: Context) : GLSurfaceView.Renderer
 {
     private val vPMatrix = FloatArray(16)
     private val projectionMatrix = FloatArray(16)
@@ -27,6 +27,13 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
 
     private lateinit var planeShader : Shader
     private lateinit var cropShader : Shader
+
+    lateinit var yeild : List<List<FarmElement>>
+
+
+    fun setYield(yield1 : List<List<FarmElement>>) {
+        yeild = yield1
+    }
 
     //private lateinit var cropSquare : CropSquare
 
@@ -100,7 +107,7 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
 
         triangle = Triangle(floatArrayOf(-0.5f,0f,-0.5f), floatArrayOf(0.5f,0f,-0.5f), floatArrayOf(0f,0f,0.5f))
 
-        plane = Plane(farmWidth, farmHeight, crops, context, yield)
+        plane = Plane(farmWidth, farmHeight, crops, context, yeild)
 
         //cropSquare = CropSquare(floatArrayOf(0.0f, 0.0f), 2.0f, floatArrayOf(1.0f, 1.0f, 1.0f, 1.0f), context, CropType.PUMPKIN)
 
