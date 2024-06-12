@@ -49,6 +49,7 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
     private var sunshineModel: RandomForest? = null
     private var tempModel: RandomForest? = null
     private var rainfallModel: RandomForest? = null
+    private var predictionMap: HashMap<Int, Weather> = HashMap()
 
     init {
 
@@ -207,6 +208,9 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
     }
 
     private fun calculateMonthlyWeatherData(latitude: Double, longitude: Double, month: Int): Weather {
+        if (predictionMap.contains(month)) {
+            return predictionMap[month]!!
+        }
         val daysInMonth = LocalDate.of(2024, month, 1).lengthOfMonth()
         var totalTemp = 0.0
         var totalSunshine = 0.0
@@ -223,7 +227,9 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
         }
 
         val avgTemp = totalTemp / daysInMonth
-        return Weather(avgTemp, totalSunshine, totalPrecipitation)
+        val output = Weather(avgTemp, totalSunshine, totalPrecipitation)
+        predictionMap[month] = output
+        return output
     }
 
     fun evaluateYield(latitude: Double, longitude: Double, cropType: Crop): Map<String, Double> {
@@ -249,9 +255,6 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
                 // random +-5% added here due to inherent randomness of crop growth
                 val yieldPercentage = ((totalPoints / (weatherList.size * maxPoints)) * 100) + Random.nextDouble(-5.0, 5.0)
                 yieldMap["2024-${month.toString().padStart(2, '0')}"] = yieldPercentage
-                println("Cell ($latitude, $longitude), Month: $month, Yield: $yieldPercentage%")
-            } else {
-                println("No weather data available for Cell ($latitude, $longitude), Month: $month")
             }
         }
         return yieldMap
