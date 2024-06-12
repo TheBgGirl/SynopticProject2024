@@ -67,7 +67,7 @@ fun OpenGLComposeView(
     yield: List<List<FarmElement>>
 ) {
     var glSurfaceView by remember { mutableStateOf<MyGLSurfaceView?>(null) }
-    val currentYield by rememberUpdatedState(newValue = yield)
+    // val currentYield by rememberUpdatedState(newValue = yield)
 
     AndroidView(
         factory = { ctx ->
@@ -87,7 +87,7 @@ fun OpenGLComposeView(
         modifier = modifier,
         update = {
             // Update the yield in the renderer and request a render
-            it.getRender().setYield(currentYield)
+            it.getRender().setYield(yield)
             it.requestRender()
         }
     )
