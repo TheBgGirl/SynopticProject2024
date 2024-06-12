@@ -232,9 +232,6 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
         longitude: Double,
         month: Int
     ): Weather {
-        if (monthlyWeatherMap.contains(month)) {
-           return monthlyWeatherMap[month]!!
-        }
         val daysInMonth = LocalDate.of(2024, month, 1).lengthOfMonth()
         var totalTemp = 0.0
         var totalSunshine = 0.0
@@ -252,7 +249,6 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
 
         val avgTemp = totalTemp / daysInMonth
         val output = Weather(avgTemp, totalSunshine, totalPrecipitation)
-        monthlyWeatherMap[month] = output
         return output
     }
 
