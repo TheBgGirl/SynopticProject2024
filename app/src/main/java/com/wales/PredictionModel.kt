@@ -274,7 +274,7 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
             }
         }
 
-        if (month !in 1..12) {
+        if (month !in 1..11) {
             return@withContext
         }
 

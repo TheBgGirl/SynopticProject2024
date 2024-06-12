@@ -22,7 +22,7 @@ import com.wales.WeatherPredictor
 // ill fix this
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
-fun FarmSimulatorApp(navController: NavHostController = rememberNavController(), settingsRepository: SettingsRepository, predictor: WeatherPredictor) {
+fun FarmSimulatorApp(navController: NavHostController = rememberNavController(), settingsRepository: SettingsRepository, predictor: WeatherPredictor?) {
     FarmSimulator {
         val backStackEntry = navController.currentBackStackEntryAsState()
         val currentRoute = backStackEntry.value?.destination?.route
@@ -33,7 +33,7 @@ fun FarmSimulatorApp(navController: NavHostController = rememberNavController(),
 
         Scaffold(modifier = Modifier.fillMaxSize(),
         bottomBar = {
-            BottomNav(navController = navController)
+            BottomNav(navController = navController, isLoading = predictor == null)
         }, topBar = {
             TopBar(
                 navigateUp = navigateUp,
@@ -45,15 +45,13 @@ fun FarmSimulatorApp(navController: NavHostController = rememberNavController(),
             Box(modifier = Modifier.padding(paddingValues)) {
                 val startDestination = Screen.Home.route
 
-                /*
                 val getYield: (Double, Double, Int, Int, List<List<Crop>>, Int) -> List<List<FarmElement>> = if (predictor != null) {
                     predictor::evaluateYieldForFarm
                 } else {
                     { _, _, _, _, _, _ -> emptyList() }
                 }
-                 */
 
-                FarmSimNavGraph(navController = navController, startDestination = startDestination, settingsRepository = settingsRepository, getYield = predictor::evaluateYieldForFarm)
+                FarmSimNavGraph(navController = navController, startDestination = startDestination, settingsRepository = settingsRepository, getYield = getYield, isLoading = predictor == null)
             }
         }
     }

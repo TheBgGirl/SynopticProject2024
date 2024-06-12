@@ -108,7 +108,7 @@ fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>, toR
 
     // on month change, get new yield
     fun getYieldForMonth() {
-        val month = selectedMonth.ordinal + 1
+        val month = if (selectedMonth.ordinal == 0 ) 1 else selectedMonth.ordinal
         val lat = latLng.latitude
         val lon = latLng.longitude
         val width = width
@@ -123,9 +123,8 @@ fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>, toR
     // get yield for the first time
     LaunchedEffect (selectedMonth) {
         getYieldForMonth()
+        println(yield)
     }
-
-
 
     Column(
         modifier = Modifier

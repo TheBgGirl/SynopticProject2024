@@ -75,7 +75,7 @@ import com.example.farmsimulator.ui.utils.createDialog
 @OptIn(ExperimentalPermissionsApi::class)
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
-fun LocatorPage(onCropPlannerClick: (height: Int, width: Int, latLng: LatLng, List<CropInfo>) -> Unit, previousFarms: List<FarmData>, settingsRepository: SettingsRepository) {
+fun LocatorPage(onCropPlannerClick: (height: Int, width: Int, latLng: LatLng, List<CropInfo>) -> Unit, previousFarms: List<FarmData>, settingsRepository: SettingsRepository, isLoading: Boolean) {
     val context = LocalContext.current
     val locationClient = LocationServices.getFusedLocationProviderClient(context)
     val keyboardController = LocalSoftwareKeyboardController.current

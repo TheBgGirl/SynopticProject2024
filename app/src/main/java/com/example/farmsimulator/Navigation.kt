@@ -117,7 +117,8 @@ fun FarmSimNavGraph(
     navController: NavHostController = rememberNavController(),
     startDestination: String = Screen.Home.route,
     settingsRepository: SettingsRepository,
-    getYield: (Double, Double, Int, Int, List<List<Crop>>, Int) -> List<List<FarmElement>> = { _, _, _, _, _, _ -> emptyList() }
+    getYield: (Double, Double, Int, Int, List<List<Crop>>, Int) -> List<List<FarmElement>> = { _, _, _, _, _, _ -> emptyList() },
+    isLoading: Boolean = false
 ) {
     val farmInfoViewModel: FarmDataViewModel = viewModel(modelClass = FarmDataViewModel::class.java)
     val ecoMode by settingsRepository.ecoModeFlow.collectAsState(initial = false)
@@ -135,7 +136,7 @@ fun FarmSimNavGraph(
                 onCropPlannerClick = { height: Int, width: Int, latLng: LatLng, cropInfo: List<CropInfo> ->
                     farmInfoViewModel.updateFarmData(FarmData(width, height, cropInfo, latLng))
                     navController.navigate(Screen.CropPlanner.route)
-                }, settingsRepository = settingsRepository
+                }, settingsRepository = settingsRepository, isLoading = isLoading
             )
         }
 
@@ -210,7 +211,7 @@ fun TopBar(
 }
 
 @Composable
-fun BottomNav(navController: NavController) {
+fun BottomNav(navController: NavController, isLoading: Boolean = false) {
     val navBarStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBarStackEntry?.destination
 
@@ -218,12 +219,18 @@ fun BottomNav(navController: NavController) {
         Screen.items.forEach { screen ->
             if (screen.onNavBar) {
                 val selected = currentRoute?.hierarchy?.any { it.route == screen.route } == true
+                val enabled = if (isLoading && screen.route == Screen.Locator.route) {
+                    false
+                } else {
+                    true
+                }
                 NavigationBarItem(
                     modifier = Modifier.testTag(screen.testTag),
                     selected = selected,
                     onClick = {
                         navController.navigate(screen.route)
                     },
+                    enabled = enabled,
                     label = {
                         Text(text = stringResource(id = screen.title), maxLines = 1)
                     },
