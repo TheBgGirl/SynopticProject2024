@@ -5,6 +5,7 @@ import android.opengl.GLES20
 import android.opengl.Matrix
 import com.example.farmsimulator.R
 import com.example.farmsimulator.ui.farm.CropTypes
+import com.wales.FarmElement
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
@@ -17,7 +18,8 @@ class CropSquare(
     private val width : Float,
     private  val heights : FloatArray,
     context: Context,
-    cropType: CropTypes
+    cropType: CropTypes,
+    yield: Double
 )
 {
     // Set color with red, green, blue and alpha (opacity) values
@@ -104,15 +106,42 @@ class CropSquare(
         )
 
         // Load the texture
-        mTextureDataHandle = when (cropType) {
-            CropTypes.Pumpkins -> TextureHandler.loadTexture(context, R.drawable.pumpkin_medium)
+        when (cropType) {
+            CropTypes.Pumpkins -> {
+                if (yield < 20)
+                    mTextureDataHandle = TextureHandler.loadTexture(context, R.drawable.pumpkin_seed)
+                else if (yield < 40)
+                    mTextureDataHandle = TextureHandler.loadTexture(context, R.drawable.pumpkin_small)
+                else if (yield < 60)
+                    mTextureDataHandle = TextureHandler.loadTexture(context, R.drawable.pumpkin_medium)
+                else
+                    mTextureDataHandle = TextureHandler.loadTexture(context, R.drawable.pumpkin_large)
+            }
 
-            //TODO: CHANGE 2 BELOW TO RESPECTIVE TEXTURES
-            CropTypes.LeafyGreens -> TextureHandler.loadTexture(context, R.drawable.leafy_greens_medium)
-            CropTypes.Rice -> TextureHandler.loadTexture(context, R.drawable.rice_medium)
+            CropTypes.LeafyGreens -> {
+                if (yield < 20)
+                    mTextureDataHandle = TextureHandler.loadTexture(context, R.drawable.leafy_greens_seed)
+                else if (yield < 40)
+                    mTextureDataHandle = TextureHandler.loadTexture(context, R.drawable.leafy_greens_small)
+                else if (yield < 60)
+                    mTextureDataHandle = TextureHandler.loadTexture(context, R.drawable.leafy_greens_medium)
+                else
+                    mTextureDataHandle = TextureHandler.loadTexture(context, R.drawable.leafy_greens_large)
+            }
+
+            CropTypes.Rice -> {
+                if (yield < 20)
+                    mTextureDataHandle = TextureHandler.loadTexture(context, R.drawable.rice_seed)
+                else if (yield < 40)
+                    mTextureDataHandle = TextureHandler.loadTexture(context, R.drawable.rice_small)
+                else if (yield < 60)
+                    mTextureDataHandle = TextureHandler.loadTexture(context, R.drawable.rice_medium)
+                else
+                    mTextureDataHandle = TextureHandler.loadTexture(context, R.drawable.rice_large)
+            }
+
             CropTypes.None -> TextureHandler.loadTexture(context, R.drawable.blank)
         }
-        //mTextureDataHandle = TextureHandler.loadTexture(context, R.drawable.corn)
 
         textureCoordinates = ByteBuffer.allocateDirect(dataCoordinates.size * 4)
             .order(ByteOrder.nativeOrder()).asFloatBuffer()

@@ -100,7 +100,7 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
 
         triangle = Triangle(floatArrayOf(-0.5f,0f,-0.5f), floatArrayOf(0.5f,0f,-0.5f), floatArrayOf(0f,0f,0.5f))
 
-        plane = Plane(farmWidth, farmHeight,crops,context)
+        plane = Plane(farmWidth, farmHeight, crops, context, yield)
 
         //cropSquare = CropSquare(floatArrayOf(0.0f, 0.0f), 2.0f, floatArrayOf(1.0f, 1.0f, 1.0f, 1.0f), context, CropType.PUMPKIN)
 

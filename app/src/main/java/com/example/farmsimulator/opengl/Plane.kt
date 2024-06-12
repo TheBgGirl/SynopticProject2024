@@ -9,9 +9,10 @@ import android.content.Context
 import android.opengl.Matrix
 import android.util.Log
 import com.example.farmsimulator.ui.farm.CropInfo
+import com.wales.FarmElement
 import kotlin.random.Random
 
-class Plane(var width: Int = 20, var height: Int = 20, val crops: List<CropInfo>, context: Context)
+class Plane(var width: Int = 20, var height: Int = 20, val crops: List<CropInfo>, context: Context, var yields: List<List<FarmElement>>)
 {
     private val vPMatrix = FloatArray(16)
     private val model = FloatArray(16)
@@ -158,15 +159,32 @@ class Plane(var width: Int = 20, var height: Int = 20, val crops: List<CropInfo>
                     val height3 = if (terrainX + 1 < width) terrain[terrainX + 1][terrainY] else height1
                     val height4 = if (terrainX + 1 < width && terrainY + 1 < height) terrain[terrainX + 1][terrainY + 1] else height1
 
-                    cropSquares.add(
-                        CropSquare(
-                            floatArrayOf(correctedX, correctedZ),
-                            1.0f,
-                            floatArrayOf(height1 + 0.02f, height3 + 0.02f, height2 + 0.02f, height4 + 0.02f),
-                            theContext,
-                            crops[i].cropType
+                    if (yields.isEmpty()) {
+                        cropSquares.add(
+                            CropSquare(
+                                floatArrayOf(correctedX, correctedZ),
+                                1.0f,
+                                floatArrayOf(height1 + 0.02f, height3 + 0.02f, height2 + 0.02f, height4 + 0.02f),
+                                theContext,
+                                crops[i].cropType,
+                                50.0
+                            )
                         )
-                    )
+                    }
+                    else {
+                        cropSquares.add(
+                            CropSquare(
+                                floatArrayOf(correctedX, correctedZ),
+                                1.0f,
+                                floatArrayOf(height1 + 0.02f, height3 + 0.02f, height2 + 0.02f, height4 + 0.02f),
+                                theContext,
+                                crops[i].cropType,
+                                yields[terrainX][terrainY].yield
+                            )
+                        )
+                    }
+
+
                 }
     }
 
