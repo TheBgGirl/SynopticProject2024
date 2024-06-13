@@ -23,7 +23,12 @@ class LocatorTest {
     @Before
     fun setUp() {
         composeTestRule.activity.setContent {
-            LocatorPage(settingsRepository = FakeSettingsStore(composeTestRule.activity), onCropPlannerClick = {_, _, _, _->}, previousFarms = emptyList())
+            LocatorPage(settingsRepository = FakeSettingsStore(composeTestRule.activity), onCropPlannerClick = {_, _, _, _->}, previousFarms = emptyList(), isLoading = false)
         }
+    }
+
+    @Test
+    fun verify_LocatorPage() {
+        composeTestRule.onNodeWithTag("locatorPage").assertExists()
     }
 }

@@ -82,10 +82,11 @@ fun convertToPredictorForm(width: Int, height: Int, crops: List<CropInfo>): List
 
 // represents the farm and the crops on it
 @Composable
-fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>, toResults: () -> Unit, settingsRepository: SettingsRepository, ecoMode: Boolean, getYield: (Double, Double, Int, Int, List<List<Crop>>, Int) -> List<List<FarmElement>>, saveYield: (List<List<FarmElement>>) -> Unit) {
+fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>, toResults: () -> Unit, settingsRepository: SettingsRepository, ecoMode: Boolean, getYield: (Double, Double, Int, Int, List<List<Crop>>, Int) -> List<List<FarmElement>> = { _, _, _, _, _, _ -> emptyList() }, saveYield: (List<List<FarmElement>>) -> Unit) {
     var selected by remember {
         mutableStateOf(Pair(0,0))
     }
+
     var selectedCrop by remember {
         mutableStateOf<CropInfo?>(null)
     }
@@ -125,8 +126,9 @@ fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>, toR
     // recompute yield when month changes
     LaunchedEffect (selectedMonth) {
         getYieldForMonth()
-        //need to call displayFarmData() from plane
-        println(yield)
+        // find first crop with yield
+        val firstCrop = crops.find { crop -> yield[crop.y][crop.x].yield != null }
+        selectedCropYield = firstCrop?.let { yield[firstCrop.y][firstCrop.x] }
     }
 
     Column(
@@ -235,6 +237,29 @@ fun InfoPopup(
                 } else {
                     Button(onClick = toResults) {
                         Text(stringResource(id = R.string.see_results))
+                    }
+                    Row {
+                        Column {
+                            Text(
+                                text = "${stringResource(id = R.string.sunshine)} ${yield?.weather?.sunshine?.let { String.format("%.2f", it) }} hours",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.Black
+                            )
+                        }
+                        Column {
+                            Text(
+                                text = "${stringResource(id = R.string.rainfall)} ${yield?.weather?.precipitation?.let { String.format("%.2f", it) }} mm",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.Black
+                            )
+                        }
+                        Column {
+                            Text(
+                                text = "${stringResource(id = R.string.temperature)} ${yield?.weather?.temp?.let { String.format("%.2f", it) }}°C",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.Black
+                            )
+                        }
                     }
                 }
             }

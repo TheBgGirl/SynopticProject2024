@@ -25,4 +25,9 @@ class HomeTest {
             HomePage(settingsRepository = FakeSettingsStore(composeTestRule.activity))
         }
     }
+
+    @Test
+    fun verify_HomePage() {
+        composeTestRule.onNodeWithTag("homePage").assertExists()
+    }
 }

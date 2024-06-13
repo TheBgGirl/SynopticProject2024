@@ -141,7 +141,7 @@ fun LocalePicker(
                         updateLocale(newLocale)
                     }
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().testTag("localePicker")
             )
 
         }
