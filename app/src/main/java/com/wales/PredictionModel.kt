@@ -189,6 +189,7 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
         if (predictionMap.contains(month)) {
             return predictionMap[month]!!
         }
+
         val farmYieldData = MutableList(numRows) {
             MutableList(numCols) {
                 FarmElement(
@@ -206,11 +207,12 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
         runBlocking {
             val deferredResults = (0 until numRows).map { row ->
                 async(Dispatchers.Default) {
-                    processRow(row, numCols, latitude, longitude, plantTypes, month)
+                    val rowData = processRow(row, numCols, latitude, longitude, plantTypes, month)
+                    rowData to row
                 }
             }
 
-            deferredResults.awaitAll().forEachIndexed { rowIndex, rowData ->
+            deferredResults.awaitAll().forEach { (rowData, rowIndex) ->
                 rowData.forEachIndexed { colIndex, farmElement ->
                     farmYieldData[rowIndex][colIndex] = farmElement
                 }
@@ -220,12 +222,12 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
         predictionMap[month] = farmYieldData
 
         if (predictionMap.size >= 6) {
-        // Launch coroutines to precompute data for other months
-        (1..12).filter { it != month }.forEach { precomputeMonth ->
-            GlobalScope.launch(Dispatchers.Default) {
-                evaluateYieldForFarmInBackground(latitude, longitude, numRows, numCols, plantTypes, precomputeMonth)
+            // Launch coroutines to precompute data for other months
+            (1..12).filter { it != month }.forEach { precomputeMonth ->
+                GlobalScope.launch(Dispatchers.Default) {
+                    evaluateYieldForFarmInBackground(latitude, longitude, numRows, numCols, plantTypes, precomputeMonth)
+                }
             }
-        }
         }
 
         return farmYieldData
@@ -266,6 +268,7 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
         if (predictionMap.contains(month)) {
             return@withContext
         }
+
         val farmYieldData = MutableList(numRows) {
             MutableList(numCols) {
                 FarmElement(
@@ -282,11 +285,12 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
 
         val deferredResults = (0 until numRows).map { row ->
             async(Dispatchers.Default) {
-                processRow(row, numCols, latitude, longitude, plantTypes, month)
+                val rowData = processRow(row, numCols, latitude, longitude, plantTypes, month)
+                rowData to row
             }
         }
 
-        deferredResults.awaitAll().forEachIndexed { rowIndex, rowData ->
+        deferredResults.awaitAll().forEach { (rowData, rowIndex) ->
             rowData.forEachIndexed { colIndex, farmElement ->
                 farmYieldData[rowIndex][colIndex] = farmElement
             }
