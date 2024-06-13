@@ -198,9 +198,14 @@ class MyGLRenderer(val _width: Int, val _height: Int, val crops: List<CropInfo>,
             clickCallback(Pair(gridPosition.first.toInt(), gridPosition.second.toInt()))
 
             // ----- TESTING YIELD ----- //
-            var YieldPosX = gridPosition.first.toInt()
-            var YieldPosY = gridPosition.second.toInt()
-            YieldPosX = (_width - 1 - YieldPosX)
+
+            // Rotate points clockwise
+            var YieldPosX = gridPosition.second.toInt()
+            var YieldPosY = _height - 1 - gridPosition.first.toInt()
+
+            // Flip Axis
+            YieldPosX = _width - 1 - YieldPosX
+            YieldPosY = _height - 1 - YieldPosY
 
             Log.d("YieldPos: ", "X: $YieldPosX, Y: $YieldPosY")
 
