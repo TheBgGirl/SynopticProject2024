@@ -139,6 +139,11 @@ class Plane(var width: Int = 20, var height: Int = 20, val crops: List<CropInfo>
                     YieldPosX = YieldPosY
                     YieldPosY = height - 1 - crops[i].x
 
+                    // Rotate Again
+                    var tempPosX = YieldPosX
+                    YieldPosX = YieldPosY
+                    YieldPosY = height - 1 - tempPosX
+
                     // Flip YieldPos Axis
                     YieldPosX = width - 1 - YieldPosX
                     YieldPosY = height - 1 - YieldPosY
@@ -153,7 +158,6 @@ class Plane(var width: Int = 20, var height: Int = 20, val crops: List<CropInfo>
                     val height4 = if (terrainX + 1 < width && terrainY + 1 < height) terrain[terrainX + 1][terrainY + 1] else height1
 
                     Log.d("YieldTest: ", "Testing")
-                    //Log.d("Yield: ", yields[YieldPosX-1][YieldPosY-1].yield.toString())
                     Log.d("Yields listlist: ", yields.size.toString())
                     if (yields.isEmpty()) {
                         cropSquares.add(
@@ -168,6 +172,12 @@ class Plane(var width: Int = 20, var height: Int = 20, val crops: List<CropInfo>
                         )
                     }
                     else {
+                        if(YieldPosY != 0){
+                            YieldPosY = YieldPosY - 1
+                        }
+                        if(YieldPosX != 0){
+                            YieldPosX = YieldPosX - 1
+                        }
                         cropSquares.add(
                             CropSquare(
                                 floatArrayOf(correctedX, correctedZ),
@@ -175,9 +185,11 @@ class Plane(var width: Int = 20, var height: Int = 20, val crops: List<CropInfo>
                                 floatArrayOf(height1 + 0.02f, height3 + 0.02f, height2 + 0.02f, height4 + 0.02f),
                                 theContext,
                                 crops[i].cropType,
-                                yields[YieldPosX][YieldPosY].yield
+                                yields[YieldPosY][YieldPosX].yield
                             )
                         )
+                        Log.d("Crop Position: ", "X: ${terrainX}, Y: ${terrainY}, Yield: ${yields[YieldPosX][YieldPosY].yield.toString()}")
+                        Log.d("Yield Yield: ", "X: ${YieldPosY}, Y: ${YieldPosX}, Yield: ${yields[YieldPosX][YieldPosY].yield.toString()}")
                     }
 
 
