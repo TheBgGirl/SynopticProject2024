@@ -12,7 +12,7 @@ import com.example.farmsimulator.ui.farm.CropInfo
 import com.wales.FarmElement
 import kotlin.random.Random
 
-class Plane(var width: Int = 20, var height: Int = 20, val crops: List<CropInfo>, context: Context, var yields: List<List<FarmElement>>)
+class Plane(var width: Int = 20, var height: Int = 20, val crops: List<CropInfo>, context: Context)
 {
     private val vPMatrix = FloatArray(16)
     private val model = FloatArray(16)
@@ -123,7 +123,7 @@ class Plane(var width: Int = 20, var height: Int = 20, val crops: List<CropInfo>
             }
     }
 
-    fun displayFarmData(){
+    fun displayFarmData(yields: List<List<FarmElement>>){
         cropSquares = ArrayList()
 
                 for(i in 0 until crops.size)
@@ -153,7 +153,8 @@ class Plane(var width: Int = 20, var height: Int = 20, val crops: List<CropInfo>
                     val height4 = if (terrainX + 1 < width && terrainY + 1 < height) terrain[terrainX + 1][terrainY + 1] else height1
 
                     Log.d("YieldTest: ", "Testing")
-                    Log.d("Yield: ", yields[YieldPosX][YieldPosY].yield.toString())
+                    //Log.d("Yield: ", yields[YieldPosX-1][YieldPosY-1].yield.toString())
+                    Log.d("Yields listlist: ", yields.size.toString())
                     if (yields.isEmpty()) {
                         cropSquares.add(
                             CropSquare(

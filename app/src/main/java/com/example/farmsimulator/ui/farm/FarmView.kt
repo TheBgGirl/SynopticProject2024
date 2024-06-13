@@ -125,6 +125,7 @@ fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>, toR
     // recompute yield when month changes
     LaunchedEffect (selectedMonth) {
         getYieldForMonth()
+        //need to call displayFarmData() from plane
         println(yield)
     }
 
