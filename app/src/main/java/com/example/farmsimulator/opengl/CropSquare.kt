@@ -108,33 +108,33 @@ class CropSquare(
         // Load the texture
         when (cropType) {
             CropTypes.Pumpkins -> {
-                mTextureDataHandle = if (yield < 20)
+                mTextureDataHandle = if (yield < 10)
                     TextureHandler.loadTexture(context, R.drawable.pumpkin_seed)
-                else if (yield < 40)
+                else if (yield < 20)
                     TextureHandler.loadTexture(context, R.drawable.pumpkin_small)
-                else if (yield < 60)
+                else if (yield < 30)
                     TextureHandler.loadTexture(context, R.drawable.pumpkin_medium)
                 else
                     TextureHandler.loadTexture(context, R.drawable.pumpkin_large)
             }
 
             CropTypes.LeafyGreens -> {
-                mTextureDataHandle = if (yield < 20)
+                mTextureDataHandle = if (yield < 10)
                     TextureHandler.loadTexture(context, R.drawable.leafy_greens_seed)
-                else if (yield < 40)
+                else if (yield < 20)
                     TextureHandler.loadTexture(context, R.drawable.leafy_greens_small)
-                else if (yield < 60)
+                else if (yield < 30)
                     TextureHandler.loadTexture(context, R.drawable.leafy_greens_medium)
                 else
                     TextureHandler.loadTexture(context, R.drawable.leafy_greens_large)
             }
 
             CropTypes.Rice -> {
-                if (yield < 20)
+                if (yield < 10)
                     mTextureDataHandle = TextureHandler.loadTexture(context, R.drawable.rice_seed)
-                else if (yield < 40)
+                else if (yield < 20)
                     mTextureDataHandle = TextureHandler.loadTexture(context, R.drawable.rice_small)
-                else if (yield < 60)
+                else if (yield < 30)
                     mTextureDataHandle = TextureHandler.loadTexture(context, R.drawable.rice_medium)
                 else
                     mTextureDataHandle = TextureHandler.loadTexture(context, R.drawable.rice_large)
