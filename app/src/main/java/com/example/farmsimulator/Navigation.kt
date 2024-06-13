@@ -167,7 +167,7 @@ fun FarmSimNavGraph(
 
             FarmView(latLng = latLng, width = width, height = height, crops = crops, toResults = {
                 farmInfoViewModel.saveFarmData(FarmData(width, height, crops, latLng))
-                navController.navigate(Screen.Results.route)
+                navController.navigate(Screen.Locator.route)
             }, settingsRepository, ecoMode = ecoMode, getYield = getYield, saveYield = farmInfoViewModel::updateYield)
         }
 
