@@ -126,62 +126,74 @@ class Plane(var width: Int = 20, var height: Int = 20, val crops: List<CropInfo>
     fun displayFarmData(yields: List<List<FarmElement>>){
         cropSquares = ArrayList()
 
-                for(i in 0 until crops.size)
-                {
-                    // Flip X because terrain[][] has 0,0 as bottom right
-                    val terrainX = width - 2 - crops[i].x
-                    val terrainY = height - 2 - crops[i].y
+        for(i in 0 until crops.size)
+        {
+            // Flip X because terrain[][] has 0,0 as bottom right
+            val terrainX = width - 2 - crops[i].x
+            val terrainY = height - 2 - crops[i].y
 
-                    var YieldPosX = crops[i].x
-                    var YieldPosY = crops[i].y
+            var YieldPosX = crops[i].x
+            var YieldPosY = crops[i].y
 
-                    //Rotate YieldPos Clockwise
-                    YieldPosX = YieldPosY
-                    YieldPosY = height - 1 - crops[i].x
+            //Rotate YieldPos Clockwise
+            YieldPosX = YieldPosY
+            YieldPosY = height - 1 - crops[i].x
 
-                    // Flip YieldPos Axis
-                    YieldPosX = width - 1 - YieldPosX
-                    YieldPosY = height - 1 - YieldPosY
+            // Rotate Again
+            var tempPosX = YieldPosX
+            YieldPosX = YieldPosY
+            YieldPosY = height - 1 - tempPosX
 
-                    val correctedX: Float = (terrainX - width / 2f) + 0.5f
-                    val correctedZ: Float = (terrainY - height / 2f) + 0.5f
+            // Flip YieldPos Axis
+            YieldPosX = width - 1 - YieldPosX
+            YieldPosY = height - 1 - YieldPosY
 
-                    // Get the heights of the corners
-                    val height1 = terrain[terrainX][terrainY]
-                    val height2 = if (terrainY + 1 < height) terrain[terrainX][terrainY + 1] else height1
-                    val height3 = if (terrainX + 1 < width) terrain[terrainX + 1][terrainY] else height1
-                    val height4 = if (terrainX + 1 < width && terrainY + 1 < height) terrain[terrainX + 1][terrainY + 1] else height1
+            val correctedX: Float = (terrainX - width / 2f) + 0.5f
+            val correctedZ: Float = (terrainY - height / 2f) + 0.5f
 
-                    Log.d("YieldTest: ", "Testing")
-                    //Log.d("Yield: ", yields[YieldPosX-1][YieldPosY-1].yield.toString())
-                    Log.d("Yields listlist: ", yields.size.toString())
-                    if (yields.isEmpty()) {
-                        cropSquares.add(
-                            CropSquare(
-                                floatArrayOf(correctedX, correctedZ),
-                                1.0f,
-                                floatArrayOf(height1 + 0.02f, height3 + 0.02f, height2 + 0.02f, height4 + 0.02f),
-                                theContext,
-                                crops[i].cropType,
-                                50.0
-                            )
-                        )
-                    }
-                    else {
-                        cropSquares.add(
-                            CropSquare(
-                                floatArrayOf(correctedX, correctedZ),
-                                1.0f,
-                                floatArrayOf(height1 + 0.02f, height3 + 0.02f, height2 + 0.02f, height4 + 0.02f),
-                                theContext,
-                                crops[i].cropType,
-                                yields[YieldPosX][YieldPosY].yield
-                            )
-                        )
-                    }
+            // Get the heights of the corners
+            val height1 = terrain[terrainX][terrainY]
+            val height2 = if (terrainY + 1 < height) terrain[terrainX][terrainY + 1] else height1
+            val height3 = if (terrainX + 1 < width) terrain[terrainX + 1][terrainY] else height1
+            val height4 = if (terrainX + 1 < width && terrainY + 1 < height) terrain[terrainX + 1][terrainY + 1] else height1
 
-
+            Log.d("YieldTest: ", "Testing")
+            Log.d("Yields listlist: ", yields.size.toString())
+            if (yields.isEmpty()) {
+                cropSquares.add(
+                    CropSquare(
+                        floatArrayOf(correctedX, correctedZ),
+                        1.0f,
+                        floatArrayOf(height1 + 0.02f, height3 + 0.02f, height2 + 0.02f, height4 + 0.02f),
+                        theContext,
+                        crops[i].cropType,
+                        50.0
+                    )
+                )
+            }
+            else {
+                if(YieldPosY != 0){
+                    YieldPosY = YieldPosY - 1
                 }
+                if(YieldPosX != 0){
+                    YieldPosX = YieldPosX - 1
+                }
+                cropSquares.add(
+                    CropSquare(
+                        floatArrayOf(correctedX, correctedZ),
+                        1.0f,
+                        floatArrayOf(height1 + 0.02f, height3 + 0.02f, height2 + 0.02f, height4 + 0.02f),
+                        theContext,
+                        crops[i].cropType,
+                        yields[YieldPosY][YieldPosX].yield
+                    )
+                )
+                Log.d("Crop Position: ", "X: ${terrainX}, Y: ${terrainY}, Yield: ${yields[YieldPosX][YieldPosY].yield.toString()}")
+                Log.d("Yield Yield: ", "X: ${YieldPosY}, Y: ${YieldPosX}, Yield: ${yields[YieldPosX][YieldPosY].yield.toString()}")
+            }
+
+
+        }
     }
 
     fun setSquare(posX : Float , posZ : Float)
