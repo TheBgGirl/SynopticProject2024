@@ -132,6 +132,17 @@ class Plane(var width: Int = 20, var height: Int = 20, val crops: List<CropInfo>
                     val terrainX = width - 2 - crops[i].x
                     val terrainY = height - 2 - crops[i].y
 
+                    var YieldPosX = crops[i].x
+                    var YieldPosY = crops[i].y
+
+                    //Rotate YieldPos Clockwise
+                    YieldPosX = YieldPosY
+                    YieldPosY = height - 1 - crops[i].x
+
+                    // Flip YieldPos Axis
+                    YieldPosX = width - 1 - YieldPosX
+                    YieldPosY = height - 1 - YieldPosY
+
                     val correctedX: Float = (terrainX - width / 2f) + 0.5f
                     val correctedZ: Float = (terrainY - height / 2f) + 0.5f
 
@@ -141,7 +152,8 @@ class Plane(var width: Int = 20, var height: Int = 20, val crops: List<CropInfo>
                     val height3 = if (terrainX + 1 < width) terrain[terrainX + 1][terrainY] else height1
                     val height4 = if (terrainX + 1 < width && terrainY + 1 < height) terrain[terrainX + 1][terrainY + 1] else height1
 
-                    //Log.d("Yields:", yields.size.toString())
+                    Log.d("YieldTest: ", "Testing")
+                    Log.d("Yield: ", yields[YieldPosX][YieldPosY].yield.toString())
                     if (yields.isEmpty()) {
                         cropSquares.add(
                             CropSquare(
@@ -162,7 +174,7 @@ class Plane(var width: Int = 20, var height: Int = 20, val crops: List<CropInfo>
                                 floatArrayOf(height1 + 0.02f, height3 + 0.02f, height2 + 0.02f, height4 + 0.02f),
                                 theContext,
                                 crops[i].cropType,
-                                yields[terrainX][terrainY].yield
+                                yields[YieldPosX][YieldPosY].yield
                             )
                         )
                     }
