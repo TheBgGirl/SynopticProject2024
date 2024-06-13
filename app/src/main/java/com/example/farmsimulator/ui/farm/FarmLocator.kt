@@ -163,6 +163,7 @@ fun LocatorPage(
             context = context,
             loading = loading,
             onUseLocationChange = { useLocation = it },
+            lowDataMode = lowDataMode,
             onSubmit = { w, h ->
                 showMap = true
                 keyboardController?.hide()
@@ -218,6 +219,7 @@ fun FarmDimensionsForm(
     locationAccessible: Boolean,
     loading: Boolean,
     onUseLocationChange: (Boolean) -> Unit,
+    lowDataMode: Boolean,
     onSubmit: (width: Int, height: Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -295,19 +297,21 @@ fun FarmDimensionsForm(
             }
         )
 
-        Row(
-            modifier = Modifier.padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Checkbox(
-                checked = useLocation,
-                onCheckedChange = onUseLocationChange,
-                enabled = locationAccessible
-            )
-            Text(
-                text = stringResource(id = R.string.use_location),
-                style = MaterialTheme.typography.bodyMedium
-            )
+        if(!lowDataMode){
+            Row(
+                modifier = Modifier.padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    checked = useLocation,
+                    onCheckedChange = onUseLocationChange,
+                    enabled = locationAccessible
+                )
+                Text(
+                    text = stringResource(id = R.string.use_location),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         }
 
         val emptyErrorString = stringResource(id = R.string.empty_error)
@@ -353,12 +357,12 @@ fun FarmDimensionsForm(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 12.dp, horizontal = 2.dp),
+                .padding(vertical = 12.dp, horizontal = 60.dp),
             enabled = !loading
         ) {
             Text(
                 text = if (loading) stringResource(id = R.string.loading) else stringResource(id = R.string.get_location),
-                style = TextStyle(fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold)
             )
         }
     }
