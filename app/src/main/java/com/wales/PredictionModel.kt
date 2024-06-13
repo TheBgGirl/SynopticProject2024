@@ -2,7 +2,6 @@ package com.wales
 
 import android.content.Context
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RawRes
 import androidx.annotation.RequiresApi
 import kotlinx.coroutines.Dispatchers
@@ -57,25 +56,21 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
     init {
         File(modelPath).mkdirs()
         val fullData: DataFrame = readCsv()
-        Log.w("WeatherPredictor", "Data read")
         sunshineModel = loadOrCreateModel(
             "$modelPath/sunshine_model.ser",
             "SunshineDuration ~ Latitude + Longitude + DayOfYear",
             fullData
         )
-        Log.w("WeatherPredictor", "Sunshine model loaded")
         tempModel = loadOrCreateModel(
             "$modelPath/temp_model.ser",
             "MeanTemp ~ Latitude + Longitude + DayOfYear",
             fullData
         )
-        Log.w("WeatherPredictor", "Temp model loaded")
         rainfallModel = loadOrCreateModel(
             "$modelPath/rainfall_model.ser",
             "PrecipitationSum ~ Latitude + Longitude + DayOfYear",
             fullData
         )
-        Log.w("WeatherPredictor", "Rainfall model loaded")
     }
 
     private fun loadOrCreateModel(
@@ -84,10 +79,8 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
         fullData: DataFrame
     ): RandomForest {
         return if (File(fileName).exists()) {
-            Log.w("WeatherPredictor", "Model exists")
             deserializeModel(fileName)
         } else {
-            Log.w("WeatherPredictor", "Model does not exist")
             val model = RandomForest.fit(Formula.of(formulaString), fullData)
             serializeModel(model, fileName)
             model
@@ -220,12 +213,12 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
         predictionMap[month] = farmYieldData
 
         if (predictionMap.size >= 6) {
-        // Launch coroutines to precompute data for other months
-        (1..12).filter { it != month }.forEach { precomputeMonth ->
-            GlobalScope.launch(Dispatchers.Default) {
-                evaluateYieldForFarmInBackground(latitude, longitude, numRows, numCols, plantTypes, precomputeMonth)
+            // Launch coroutines to precompute data for other months
+            (1..12).filter { it != month }.forEach { precomputeMonth ->
+                GlobalScope.launch(Dispatchers.Default) {
+                    evaluateYieldForFarmInBackground(latitude, longitude, numRows, numCols, plantTypes, precomputeMonth)
+                }
             }
-        }
         }
 
         return farmYieldData
@@ -241,8 +234,8 @@ class WeatherPredictor(private val dataset: String, private val modelPath: Strin
     ): List<FarmElement> = withContext(Dispatchers.Default) {
         val rowData = MutableList(numCols) { col ->
             val cropType = plantTypes[row][col]
-            val cellLatitude = latitude + row * 0.00001
-            val cellLongitude = longitude + col * 0.00001
+            val cellLatitude = latitude + row * 1
+            val cellLongitude = longitude + col * 1
 
             val cellYieldMap = evaluateYield(cellLatitude, cellLongitude, cropType)
             val weatherData = calculateMonthlyWeatherData(cellLatitude, cellLongitude, month + 1)
