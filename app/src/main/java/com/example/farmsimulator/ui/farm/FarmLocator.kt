@@ -322,11 +322,11 @@ fun FarmDimensionsForm(
                 val heightValidation = validateInput(
                     height,
                     parse = { it.toDoubleOrNull() },
-                    predicates = listOf { it in 1.0..25.0 })
+                    predicates = listOf { it in 1.0..15.0 })
                 val widthValidation = validateInput(
                     width,
                     parse = { it.toDoubleOrNull() },
-                    predicates = listOf { it in 1.0..25.0 })
+                    predicates = listOf { it in 1.0..15.0 })
 
                 if (heightValidation == DimensionInputError.NONE && widthValidation == DimensionInputError.NONE) {
                     onSubmit(width.toInt(), height.toInt())

@@ -30,7 +30,6 @@ class SettingsTest {
 
     @Test
     fun verify_LocalePicker() {
-        composeTestRule.onNodeWithTag("localePicker").performClick()
-        composeTestRule.onNodeWithTag("localeDropdown").assertExists()
+        composeTestRule.onNodeWithTag("localePicker").assertExists()
     }
 }

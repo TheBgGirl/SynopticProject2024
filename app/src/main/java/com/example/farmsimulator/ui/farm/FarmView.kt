@@ -82,10 +82,11 @@ fun convertToPredictorForm(width: Int, height: Int, crops: List<CropInfo>): List
 
 // represents the farm and the crops on it
 @Composable
-fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>, toResults: () -> Unit, settingsRepository: SettingsRepository, ecoMode: Boolean, getYield: (Double, Double, Int, Int, List<List<Crop>>, Int) -> List<List<FarmElement>>, saveYield: (List<List<FarmElement>>) -> Unit) {
+fun FarmView(latLng: LatLng, width: Int, height: Int, crops: List<CropInfo>, toResults: () -> Unit, settingsRepository: SettingsRepository, ecoMode: Boolean, getYield: (Double, Double, Int, Int, List<List<Crop>>, Int) -> List<List<FarmElement>> = { _, _, _, _, _, _ -> emptyList() }, saveYield: (List<List<FarmElement>>) -> Unit) {
     var selected by remember {
         mutableStateOf(Pair(0,0))
     }
+
     var selectedCrop by remember {
         mutableStateOf<CropInfo?>(null)
     }
